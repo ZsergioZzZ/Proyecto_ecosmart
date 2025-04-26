@@ -32,8 +32,18 @@ EcoSmart es una aplicación web que nace como respuesta a desafíos como el camb
 4. [Conexión a MongoDB Atlas](https://www.youtube.com/watch?v=HsYA3QvWGlk)<br>
    `mongodb+srv://SergioZ:<db_password>@cluster0.xqc6cre.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
 6. Confirmar la instalación y Verificar los archivos.
-
-
+# Configuración del Entorno
+1. Copia el archivo `.env.example` y renómbralo como `.env`.
+2. Completa las variables necesarias:
+   - MONGO_URI: URI de conexión de MongoDB Atlas
+   - OWM_API_KEY: API Key de OpenWeatherMap
+   - OPENROUTER_API_KEY: API Key de OpenRouter
+3. Instalación recomendada
+   - `python -m venv venv`
+   - `source venv/bin/activate`  # Linux/macOS
+   - `.\venv\Scripts\activate`    # Windows
+4. Instala las dependencias:
+   - `pip install -r requirements.txt`
 
 
 
