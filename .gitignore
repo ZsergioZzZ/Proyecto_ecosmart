@@ -30,3 +30,4 @@ bin/
 
 ### Ignorar el entorno virtual de Python ###
 .env
+venv/
