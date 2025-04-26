@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Gráficos de Sensores</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- CDN de Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>Monitoreo de Sensores Agrícolas</h1>
+
+  <!-- Canvases para los gráficos -->
+  <div class="chart-container">
+    <canvas id="tempChart"></canvas>
+    <canvas id="humChart"></canvas>
+    <canvas id="phChart"></canvas>
+    <canvas id="nutChart"></canvas>
+  </div>
+
+  <!-- Botón de exportar -->
+  <button id="exportBtn">Exportar Datos</button>
+
+  <script src="index.js"></script>
+</body>
+</html>
