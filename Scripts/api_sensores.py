@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)  # Permite llamadas desde tu HTML
+CORS(app)
 
 # Configurar MongoDB
 MONGO_URI = os.getenv("MONGO_URI")
@@ -20,34 +20,45 @@ db = client[DB_NAME]
 sensores = db[COLLECTION_SENSORES]
 
 @app.route("/api/sensores")
-def obtener_datos():
+def obtener_datos_por_parcela():
     """
-    Obtiene los últimos datos de sensores agrupados por tiempo.
+    Obtiene los últimos 20 datos de sensores agrupados por parcela.
     """
-    datos = list(sensores.find().sort("timestamp", -1).limit(50))  # Últimos 50 datos
+    # Obtener lista de parcelas distintas
+    parcelas = sensores.distinct("parcela")
 
-    # Convertir a formato JSON serializable
-    respuesta = {
-        "timestamps": [],
-        "temperatura": [],
-        "humedad_suelo": [],
-        "ph_suelo": [],
-        "nutrientes": {
-            "nitrógeno": [],
-            "fósforo": [],
-            "potasio": []
+    respuesta = {}
+
+    for parcela in parcelas:
+        datos = list(
+            sensores.find({"parcela": parcela})
+            .sort("timestamp", -1)
+            .limit(20)
+        )
+
+        parcela_data = {
+            "timestamps": [],
+            "temperatura": [],
+            "humedad_suelo": [],
+            "ph_suelo": [],
+            "nutrientes": {
+                "nitrógeno": [],
+                "fósforo": [],
+                "potasio": []
+            }
         }
-    }
 
-    for doc in reversed(datos):  # Para que estén de más viejo a más reciente
-        respuesta["timestamps"].append(doc["timestamp"].strftime("%H:%M:%S"))
-        respuesta["temperatura"].append(doc.get("temperatura"))
-        respuesta["humedad_suelo"].append(doc.get("humedad_suelo"))
-        respuesta["ph_suelo"].append(doc.get("ph_suelo"))
-        nutrientes = doc.get("nutrientes", {})
-        respuesta["nutrientes"]["nitrógeno"].append(nutrientes.get("nitrógeno"))
-        respuesta["nutrientes"]["fósforo"].append(nutrientes.get("fósforo"))
-        respuesta["nutrientes"]["potasio"].append(nutrientes.get("potasio"))
+        for doc in reversed(datos):  # De más viejo a más reciente
+            parcela_data["timestamps"].append(doc["timestamp"].strftime("%H:%M:%S"))
+            parcela_data["temperatura"].append(doc.get("temperatura"))
+            parcela_data["humedad_suelo"].append(doc.get("humedad_suelo"))
+            parcela_data["ph_suelo"].append(doc.get("ph_suelo"))
+            nutrientes = doc.get("nutrientes", {})
+            parcela_data["nutrientes"]["nitrógeno"].append(nutrientes.get("nitrógeno"))
+            parcela_data["nutrientes"]["fósforo"].append(nutrientes.get("fósforo"))
+            parcela_data["nutrientes"]["potasio"].append(nutrientes.get("potasio"))
+
+        respuesta[parcela] = parcela_data
 
     return jsonify(respuesta)
 
