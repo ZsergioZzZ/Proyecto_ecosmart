@@ -4,13 +4,18 @@
   <meta charset="UTF-8">
   <title>Gráficos de Sensores</title>
   <link rel="stylesheet" href="style.css">
-  <!-- CDN de Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <h1>Monitoreo de Sensores Agrícolas</h1>
 
-  <!-- Canvases para los gráficos -->
+  <!-- Selector de parcela -->
+  <label for="parcelaSelect">Selecciona una parcela:</label>
+  <select id="parcelaSelect">
+    <option value="">Cargando parcelas...</option>
+  </select>
+
+  <!-- Contenedor de gráficos -->
   <div class="chart-container">
     <canvas id="tempChart"></canvas>
     <canvas id="humChart"></canvas>
