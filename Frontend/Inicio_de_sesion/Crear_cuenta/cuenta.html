@@ -1,0 +1,65 @@
+<div data-layer="Crear Cuenta" class="CrearCuenta" style="width: 1540px; height: 854px; position: relative; background: #FBF9F4; overflow: hidden">
+  <!-- Contenedor principal del formulario -->
+  <form id="signupForm">
+    <div class="Rectangle1" style="width: 711px; height: 720px; left: 107px; top: 69px; position: absolute; background: white; border-radius: 34px; border: 4px #344E41 solid"></div>
+
+    <input type="text" id="nombre" placeholder="Nombre completo" required
+      style="position: absolute; width: 417px; height: 45px; left: 198.83px; top: 190.50px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
+    <input type="text" id="apellido" placeholder="Apellidos..." required
+      style="position: absolute; width: 417px; height: 45px; left: 198.83px; top: 280.50px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
+    <input type="email" id="email" placeholder="usuario@gmail.com" required
+      style="position: absolute; width: 417px; height: 45px; left: 200px; top: 371px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
+    <input type="password" id="contrasena" placeholder="Mínimo 8 caracteres" required minlength="8"
+      style="position: absolute; width: 417px; height: 45px; left: 199px; top: 461px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
+    <input type="text" id="celular" placeholder="911111111" required
+      style="position: absolute; width: 417px; height: 45px; left: 198px; top: 552px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
+    <input type="text" id="rol" placeholder="agricultor, agronomo o tecnico" required
+      style="position: absolute; width: 417px; height: 45px; left: 198px; top: 641px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
+
+    <button type="submit" style="position: absolute; left: 290.33px; top: 700.50px; width: 234px; height: 60px; background: #A3B18A; border: 2px solid #344E41; border-radius: 6px; font-size: 20px; font-weight: bold; color: #344E41; cursor: pointer;">Crear Cuenta</button>
+  </form>
+
+  <!-- Etiquetas descriptivas -->
+  <div class="Nombre" style="position: absolute; top: 152.5px; left: 198.83px; font-size: 20px;">Nombre</div>
+  <div class="Apellidos" style="position: absolute; top: 242.5px; left: 198.83px; font-size: 20px;">Apellidos</div>
+  <div class="Email" style="position: absolute; top: 333px; left: 200px; font-size: 20px;">Email</div>
+  <div class="Contraseña" style="position: absolute; top: 423px; left: 199px; font-size: 20px;">Contraseña</div>
+  <div class="Celular" style="position: absolute; top: 514px; left: 198px; font-size: 20px;">Celular</div>
+  <div class="Rol" style="position: absolute; top: 603px; left: 198px; font-size: 20px;">Agricultor, Agrónomo o Técnico</div>
+  
+  <div data-layer="Rectangle 2" class="Rectangle2" style="width: 837px; height: 854px; left: 703px; top: 0px; position: absolute; background: #3A5A40"></div> 
+  <div data-layer="Plataforma de Agricultura Inteligente" class="PlataformaDeAgriculturaInteligente" style="width: 627px; height: 31px; left: 818px; top: 517px; position: absolute; text-align: center; color: white; font-size: 32px; font-family: Roboto; font-weight: 400; line-height: 28px; word-wrap: break-word">Plataforma de Agricultura Inteligente</div>
+  <div data-layer="EcoSmart" class="Ecosmart" style="width: 647px; height: 75px; left: 798px; top: 429px; position: absolute; text-align: center; color: white; font-size: 128px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">EcoSmart</div>
+  <img data-layer="plantacion (10) 1" class="Plantacion101" style="width: 191px; height: 191px; left: 1036px; top: 225px; position: absolute" src="imagenes/plantacion (10).png" />
+  
+
+  <!-- Script para enviar al backend -->
+  <script>
+    document.getElementById("signupForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const datos = {
+        nombre: document.getElementById("nombre").value,
+        apellido: document.getElementById("apellido").value,
+        email: document.getElementById("email").value,
+        contrasena: document.getElementById("contrasena").value,
+        celular: document.getElementById("celular").value,
+        rol: document.getElementById("rol").value.toLowerCase()
+      };
+
+      const res = await fetch("http://localhost:5000/crear-cuenta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(datos)
+      });
+
+      const response = await res.json();
+      if (response.success) {
+        alert("✅ Cuenta creada correctamente");
+        window.location.href = "../Iniciar_sesion/sesion.html";
+      } else {
+        alert("❌ Error: " + response.message);
+      }
+    });
+  </script>
+</div>
