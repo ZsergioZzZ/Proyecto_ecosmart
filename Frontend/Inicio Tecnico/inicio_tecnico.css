@@ -1,0 +1,362 @@
+* {
+    box-sizing: border-box;
+  }
+  body {
+    font-size: 14px;
+  }
+  .v359_56 {
+    width: 100%;
+    height: 2455px;
+    background: rgba(251,249,244,1);
+    opacity: 1;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    overflow: hidden;
+  }
+  .v359_57 {
+    width: 100%;
+    height: 1449px;
+    background: url("../images/v359_57.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 1;
+    position: absolute;
+    top: 910px;
+    left: 82px;
+    overflow: hidden;
+  }
+  .v359_58 {
+    width: 100%;
+    color: rgba(52,78,65,1);
+    position: absolute;
+    top: 0px;
+    left: 108px;
+    font-family: IBM Plex Mono;
+    font-weight: Bold;
+    font-size: 48px;
+    opacity: 1;
+    text-align: center;
+  }
+  .v359_59 {
+    width: 645px;
+    height: 541px;
+    background: url("../images/v359_59.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 1;
+    position: absolute;
+    top: 270px;
+    left: 0px;
+    overflow: hidden;
+  }
+  .v359_60 {
+    width: 645px;
+    height: 541px;
+    background: rgba(163,177,138,1);
+    opacity: 1;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+    overflow: hidden;
+  }
+  .v359_61 {
+    width: 401px;
+    color: rgba(0,0,0,1);
+    position: absolute;
+    top: 26px;
+    left: 116px;
+    font-family: IBM Plex Mono;
+    font-weight: Bold;
+    font-size: 36px;
+    opacity: 1;
+    text-align: center;
+  }
+  .v359_62 {
+    width: 589px;
+    color: rgba(0,0,0,1);
+    position: absolute;
+    top: 362px;
+    left: 30px;
+    font-family: Roboto;
+    font-weight: Light;
+    font-size: 32px;
+    opacity: 1;
+    text-align: center;
+  }
+  .v359_63 {
+    width: 186px;
+    height: 186px;
+    background: url("../images/v359_63.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 1;
+    position: absolute;
+    top: 177px;
+    left: 223px;
+    overflow: hidden;
+  }
+  .v359_64 {
+    width: 100%;
+    height: 541px;
+    background: url("../images/v359_64.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 1;
+    position: absolute;
+    top: 908px;
+    left: 2px;
+    overflow: hidden;
+  }
+  .v359_65 {
+    width: 100%;
+    height: 541px;
+    background: rgba(163,177,138,1);
+    opacity: 1;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+    overflow: hidden;
+  }
+  .v359_66 {
+    width: 853px;
+    color: rgba(0,0,0,1);
+    position: absolute;
+    top: 26px;
+    left: 246px;
+    font-family: IBM Plex Mono;
+    font-weight: Bold;
+    font-size: 36px;
+    opacity: 1;
+    text-align: center;
+  }
+  .v359_67 {
+    width: 100%;
+    color: rgba(0,0,0,1);
+    position: absolute;
+    top: 362px;
+    left: 63px;
+    font-family: Roboto;
+    font-weight: Light;
+    font-size: 32px;
+    opacity: 1;
+    text-align: center;
+  }
+  .v359_68 {
+    width: 169px;
+    height: 169px;
+    background: url("../images/v359_68.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 1;
+    position: absolute;
+    top: 153px;
+    left: 601px;
+    overflow: hidden;
+  }
+  .v359_69 {
+    width: 645px;
+    height: 541px;
+    background: url("../images/v359_69.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 1;
+    position: absolute;
+    top: 270px;
+    left: 730px;
+    overflow: hidden;
+  }
+  .v359_70 {
+    width: 645px;
+    height: 541px;
+    background: rgba(163,177,138,1);
+    opacity: 1;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+    overflow: hidden;
+  }
+  .v359_72 {
+    width: 444px;
+    color: rgba(0,0,0,1);
+    position: absolute;
+    top: 40px;
+    left: 101px;
+    font-family: IBM Plex Mono;
+    font-weight: Bold;
+    font-size: 36px;
+    opacity: 1;
+    text-align: center;
+  }
+  .v359_73 {
+    width: 589px;
+    color: rgba(0,0,0,1);
+    position: absolute;
+    top: 362px;
+    left: 21px;
+    font-family: Roboto;
+    font-weight: Light;
+    font-size: 32px;
+    opacity: 1;
+    text-align: center;
+  }
+  .v359_74 {
+    width: 186px;
+    height: 186px;
+    background: url("../images/v359_74.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 1;
+    position: absolute;
+    top: 161px;
+    left: 229px;
+    overflow: hidden;
+  }
+  .v359_75 {
+    width: 100%;
+    height: 865px;
+    background: url("../images/v359_75.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 1;
+    position: absolute;
+    top: 38px;
+    left: 0px;
+    overflow: hidden;
+  }
+  .v359_76 {
+    width: 344px;
+    height: 144px;
+    background: url("../images/v359_76.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 1;
+    position: absolute;
+    top: 0px;
+    left: 23px;
+    overflow: hidden;
+  }
+  .v359_77 {
+    width: 344px;
+    color: rgba(52,78,65,1);
+    position: absolute;
+    top: 38px;
+    left: 0px;
+    font-family: IBM Plex Mono;
+    font-weight: Bold;
+    font-size: 64px;
+    opacity: 1;
+    text-align: center;
+  }
+  .v359_78 {
+    width: 76px;
+    height: 76px;
+    background: url("../images/v359_78.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 1;
+    position: absolute;
+    top: 0px;
+    left: 134px;
+    overflow: hidden;
+  }
+  .v359_79 {
+    width: 100%;
+    height: 674px;
+    background: url("../images/v359_79.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 1;
+    position: absolute;
+    top: 191px;
+    left: 0px;
+    overflow: hidden;
+  }
+  .v359_80 {
+    width: 100%;
+    color: rgba(0,0,0,1);
+    position: absolute;
+    top: 123px;
+    left: 43px;
+    font-family: Roboto;
+    font-weight: Light;
+    font-size: 32px;
+    opacity: 1;
+    text-align: left;
+  }
+  .v359_81 {
+    width: 223px;
+    height: 72px;
+    background: url("../images/v359_81.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 1;
+    position: absolute;
+    top: 0px;
+    left: 1270px;
+    overflow: hidden;
+  }
+  .v359_82 {
+    width: 223px;
+    height: 72px;
+    background: rgba(88,129,87,1);
+    opacity: 1;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    border-top-left-radius: 28px;
+    border-top-right-radius: 28px;
+    border-bottom-left-radius: 28px;
+    border-bottom-right-radius: 28px;
+    overflow: hidden;
+  }
+  .v359_83 {
+    width: 37px;
+    height: 37px;
+    background: url("../images/v359_83.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    opacity: 1;
+    position: absolute;
+    top: 17px;
+    left: 17px;
+    overflow: hidden;
+  }
+  .v359_84 {
+    width: 127px;
+    color: rgba(255,255,255,1);
+    position: absolute;
+    top: 13px;
+    left: 66px;
+    font-family: IBM Plex Mono;
+    font-weight: Bold;
+    font-size: 20px;
+    opacity: 1;
+    text-align: center;
+  }
+  

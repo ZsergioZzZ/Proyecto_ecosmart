@@ -31,3 +31,7 @@ bin/
 ### Ignorar el entorno virtual de Python ###
 .env
 venv/
+
+### Python ###
+_pycache__/
+*.pyc
