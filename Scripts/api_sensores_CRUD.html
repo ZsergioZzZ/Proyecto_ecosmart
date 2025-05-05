@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>EcoSmart - Gestión de Sensores</title>
+</head>
+<body>
+    <h1>📟 Gestión de Sensores</h1>
+
+    <!-- CREAR SENSOR -->
+    <h2>➕ Crear Sensor</h2>
+    <form id="formCrearSensor">
+        <input type="number" id="sensorId" placeholder="ID del sensor" required>
+        <input type="text" id="tipo" placeholder="Tipo (ej: humedad_suelo)" required>
+        <input type="text" id="parcela" placeholder="Parcela" required>
+        <input type="text" id="descripcion" placeholder="Descripción" required>
+        <button type="submit">Crear Sensor</button>
+    </form>
+
+    <!-- VER SENSORES POR PARCELA -->
+    <h2>🔍 Ver Sensores por Parcela</h2>
+    <select id="selectorParcela">
+        <option value="">Seleccione una parcela</option>
+        <option value="Fundo Las Palmas">Fundo Las Palmas</option>
+        <option value="Parcela San Antonio">Parcela San Antonio</option>
+        <option value="Huerto El Roble">Huerto El Roble</option>
+    </select>
+    <button onclick="buscarSensoresPorParcela()">Buscar</button>
+    <pre id="resultadoSensores"></pre>
+
+    <!-- ACTUALIZAR SENSOR POR ID -->
+    <h2>✏️ Actualizar Sensor</h2>
+    <form id="formActualizarSensor">
+        <input type="number" id="updateSensorId" placeholder="ID actual del sensor" required>
+        <input type="number" id="nuevoSensorId" placeholder="Nuevo ID" required>
+        <input type="text" id="nuevaDescripcion" placeholder="Nueva descripción" required>
+        <button type="submit">Actualizar</button>
+    </form>
+
+    <!-- ELIMINAR SENSOR POR ID -->
+    <h2>❌ Eliminar Sensor</h2>
+    <form id="formEliminarSensor">
+        <input type="number" id="deleteSensorId" placeholder="ID del sensor" required>
+        <button type="submit">Eliminar</button>
+    </form>
+
+<script>
+const API = "http://localhost:5000";
+
+// CREAR SENSOR
+const formCrear = document.getElementById("formCrearSensor");
+formCrear.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const datos = {
+        id: parseInt(document.getElementById("sensorId").value),
+        tipo: document.getElementById("tipo").value,
+        parcela: document.getElementById("parcela").value,
+        descripcion: document.getElementById("descripcion").value
+    };
+    const res = await fetch(`${API}/sensores`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(datos)
+    });
+    const result = await res.json();
+    alert(result.mensaje || result.error);
+});
+
+// VER SENSORES POR PARCELA
+function buscarSensoresPorParcela() {
+    const parcela = document.getElementById("selectorParcela").value;
+    if (!parcela) return alert("Seleccione una parcela.");
+    fetch(`${API}/sensores`)
+        .then(res => res.json())
+        .then(data => {
+            const filtrados = data.filter(s => s.parcela === parcela);
+            document.getElementById("resultadoSensores").textContent = JSON.stringify(filtrados, null, 2);
+        });
+}
+
+// ACTUALIZAR SENSOR POR ID
+const formActualizar = document.getElementById("formActualizarSensor");
+formActualizar.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = parseInt(document.getElementById("updateSensorId").value);
+    const datos = {
+        id: parseInt(document.getElementById("nuevoSensorId").value),
+        descripcion: document.getElementById("nuevaDescripcion").value
+    };
+    const res = await fetch(`${API}/sensores/${id}`, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(datos)
+    });
+    const result = await res.json();
+    alert(result.mensaje || result.error);
+});
+
+// ELIMINAR SENSOR POR ID
+const formEliminar = document.getElementById("formEliminarSensor");
+formEliminar.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = parseInt(document.getElementById("deleteSensorId").value);
+    const res = await fetch(`${API}/sensores/${id}`, {
+        method: "DELETE"
+    });
+    const result = await res.json();
+    alert(result.mensaje || result.error);
+});
+</script>
+</body>
+</html>

@@ -118,7 +118,7 @@ def generar_y_guardar_dato(parcela, lat, lon):
         **datos_sensor
     }
 
-    sensores.insert_one(documento)
+    guardar_datos_por_sensor(parcela, lat, lon, temperatura, datos_sensor)
     print(f"Dato guardado en MongoDB para parcela: {parcela}")
 
 def obtener_parcelas():
@@ -135,9 +135,49 @@ def obtener_parcelas():
             lista_parcelas.append({"nombre": nombre, "lat": lat, "lon": lon})
     return lista_parcelas
 
+
+def guardar_datos_por_sensor(parcela, lat, lon, temperatura, datos_sensor):
+    sensores_col = db["sensores"]
+    timestamp = datetime.datetime.now()
+
+    for tipo_sensor, valor in datos_sensor.items():
+        tipo_sensor = tipo_sensor.strip()
+
+        sensor_doc = sensores_col.find_one({"tipo": tipo_sensor, "parcela": parcela})
+        if not sensor_doc:
+            print(f"❌ No se encontró sensor tipo '{tipo_sensor}' en parcela '{parcela}'")
+            continue
+
+        sensores.insert_one({
+            "timestamp": timestamp,
+            "parcela": parcela,
+            "sensor_id": sensor_doc["id"],
+            "tipo": tipo_sensor,
+            "valor": valor,
+            "ubicacion": {"lat": lat, "lon": lon},
+            "temperatura": temperatura
+        })
+        print(f"✅ Insertado sensor '{tipo_sensor}' con ID {sensor_doc['id']}")
+
+    # Agregar manualmente el sensor de temperatura
+    sensor_doc = sensores_col.find_one({"tipo": "temperatura", "parcela": parcela})
+    if sensor_doc:
+        sensores.insert_one({
+            "timestamp": timestamp,
+            "parcela": parcela,
+            "sensor_id": sensor_doc["id"],
+            "tipo": "temperatura",
+            "valor": temperatura,
+            "ubicacion": {"lat": lat, "lon": lon},
+            "temperatura": temperatura
+        })
+        print(f"✅ Insertado sensor 'temperatura' con ID {sensor_doc['id']}")
+    else:
+        print(f"❌ No se encontró sensor tipo 'temperatura' en parcela '{parcela}'")
+
+
 # ----------------------------------------
 # Simulacion:
-
 if __name__ == "__main__":
     print("Iniciando simulador...")
 
@@ -150,5 +190,7 @@ if __name__ == "__main__":
             for parcela in lista:
                 generar_y_guardar_dato(parcela["nombre"], parcela["lat"], parcela["lon"])
 
-        print("⏳ Esperando 60 segundos para nueva generacion...")
-        time.sleep(60)
+        time.sleep(60)  # Espera 1 minuto antes de la siguiente iteración
+        # Cambia a 60 segundos para pruebas rápidas
+        # time.sleep(60)  # Espera 1 minuto antes de la siguiente iteración
+        # Cambia a 60 segundos para pruebas rápidas

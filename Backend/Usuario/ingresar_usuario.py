@@ -36,7 +36,7 @@ def enviar_clave_por_correo(destinatario, clave):
     except Exception as e:
         print(f"Error al enviar correo: {e}")
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['POST']) #ENDPOINT de Read para el login
 def login():
     data = request.get_json()
     email = data.get("email", "").strip()
@@ -74,6 +74,13 @@ def verificar_clave():
         return jsonify(success=False, message="Clave incorrecta")
 
     return jsonify(success=True)
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
