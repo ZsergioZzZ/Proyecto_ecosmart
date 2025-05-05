@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Usuarios - EcoSmart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            margin-bottom: 30px;
+        }
+        input, button, select {
+            padding: 10px;
+            margin: 5px 0;
+            width: 300px;
+            border-radius: 5px;
+            border: 1px solid #444;
+        }
+        button {
+            background-color: #9dac83;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        h2 {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>👤 Registro de Usuario</h1>
+    <form id="formRegistro">
+        <input type="text" name="nombre" placeholder="Nombre..." required><br>
+        <input type="text" name="apellidos" placeholder="Apellidos..." required><br>
+        <input type="email" name="email" placeholder="usuario@gmail.com" required><br>
+        <input type="password" name="password" placeholder="Mínimo 8 caracteres" minlength="8" required><br>
+        <input type="text" name="celular" placeholder="911111111" required><br>
+        <input type="text" name="rol" placeholder="agricultor, agrónomo o técnico" required><br>
+        <button type="submit">Crear Cuenta</button>
+    </form>
+
+    <h2>📋 Usuarios Registrados</h2>
+    <button onclick="cargarUsuarios()">Cargar Usuarios</button>
+    <pre id="usuariosOutput"></pre>
+
+    <h2>✏️ Actualizar Usuario (por Email)</h2>
+    <form id="formActualizar">
+        <input type="email" id="emailActual" placeholder="Email actual" required><br>
+        <input type="email" id="emailNuevo" placeholder="Nuevo email"><br>
+        <input type="text" id="nuevoTelefono" placeholder="Nuevo teléfono"><br>
+        <input type="text" id="nuevoRol" placeholder="Nuevo rol"><br>
+        <button type="submit">Actualizar Usuario</button>
+    </form>
+
+    <h2>❌ Eliminar Usuario</h2>
+    <form id="formEliminar">
+        <input type="email" id="emailEliminar" placeholder="Email del usuario" required><br>
+        <button type="submit">Eliminar Usuario</button>
+    </form>
+
+    <script>
+        const API = "http://localhost:5000";
+
+        document.getElementById("formRegistro").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const datos = Object.fromEntries(formData.entries());
+            const res = await fetch(API + "/usuarios", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(datos)
+            });
+            const result = await res.json();
+            alert(result.mensaje || result.error);
+        });
+
+        async function cargarUsuarios() {
+            const res = await fetch(API + "/usuarios");
+            const usuarios = await res.json();
+            document.getElementById("usuariosOutput").textContent = JSON.stringify(usuarios, null, 2);
+        }
+
+        document.getElementById("formActualizar").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            const email = document.getElementById("emailActual").value;
+            const datos = {
+                email: document.getElementById("emailNuevo").value,
+                telefono: document.getElementById("nuevoTelefono").value,
+                rol: document.getElementById("nuevoRol").value
+            };
+            const res = await fetch(API + "/usuarios/" + encodeURIComponent(email), {
+                method: "PUT",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(datos)
+            });
+            const result = await res.json();
+            alert(result.mensaje || result.error);
+        });
+
+        document.getElementById("formEliminar").addEventListener("submit", async function(e) {
+            e.preventDefault();
+            const email = document.getElementById("emailEliminar").value;
+            const res = await fetch(API + "/usuarios/" + encodeURIComponent(email), {
+                method: "DELETE"
+            });
+            const result = await res.json();
+            alert(result.mensaje || result.error);
+        });
+    </script>
+
+</body>
+</html>
