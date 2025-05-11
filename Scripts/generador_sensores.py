@@ -119,6 +119,7 @@ def generar_y_guardar_dato(parcela, lat, lon):
     }
 
     guardar_datos_por_sensor(parcela, lat, lon, temperatura, datos_sensor)
+    guardar_historico(parcela, lat, lon, temperatura, datos_sensor)
     print(f"Dato guardado en MongoDB para parcela: {parcela}")
 
 def obtener_parcelas():
@@ -174,6 +175,23 @@ def guardar_datos_por_sensor(parcela, lat, lon, temperatura, datos_sensor):
         print(f"✅ Insertado sensor 'temperatura' con ID {sensor_doc['id']}")
     else:
         print(f"❌ No se encontró sensor tipo 'temperatura' en parcela '{parcela}'")
+
+
+def guardar_historico(parcela, lat, lon, temperatura, datos_sensor):
+    historico = db["datos_historicos"]
+    documento = {
+        "parcela": parcela,
+        "ubicacion": {"lat": lat, "lon": lon},
+        "fecha": datetime.datetime.now(),
+        "sensores": {
+            "temperatura": {"valor": temperatura, "unidad": "°C"},
+            "humedad_suelo": {"valor": datos_sensor.get("humedad_suelo"), "unidad": "%"},
+            "ph_suelo": {"valor": datos_sensor.get("ph_suelo"), "unidad": "pH"},
+            "nutrientes": datos_sensor.get("nutrientes", {})
+        }
+    }
+    historico.insert_one(documento)
+    print(f"📘 Registro histórico guardado para parcela '{parcela}'")
 
 
 # ----------------------------------------
