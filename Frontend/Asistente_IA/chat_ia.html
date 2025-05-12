@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>EcoSmart - Asistente IA</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@700&family=Roboto&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #FBF9F4;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #344E41;
+      color: white;
+      padding: 20px 40px;
+    }
+
+    header h1 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 36px;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      width: 80%;
+      max-width: 1000px;
+      margin: 40px auto;
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      height: 600px;
+    }
+
+    #chatBox {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mensaje {
+      margin: 10px 0;
+      padding: 10px 15px;
+      border-radius: 12px;
+      max-width: 70%;
+      font-size: 15px;
+      line-height: 22px;
+    }
+
+    .usuario {
+      background-color: #A3B18A;
+      align-self: flex-end;
+      text-align: right;
+    }
+
+    .ia {
+      background-color: #E6E6E6;
+      align-self: flex-start;
+      text-align: left;
+    }
+
+    .input-area {
+      display: flex;
+      margin-top: 20px;
+    }
+
+    #mensajeInput {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    #enviarBtn {
+      background-color: #344E41;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      margin-left: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .botones-funcionales {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .boton-funcional {
+      background-color: white;
+      border: 1px solid #344E41;
+      border-radius: 30px;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #344E41;
+    }
+
+  </style>
+</head>
+<body>
+  <header>
+    <h1>EcoSmart</h1>
+    <span>Agrónomo</span>
+  </header>
+
+  <main class="chat-container">
+    <div id="chatBox"></div>
+
+    <div class="input-area">
+      <input type="text" id="mensajeInput" placeholder="Escribe tu mensaje aquí..." />
+      <button id="enviarBtn">Enviar</button>
+    </div>
+
+    <div class="botones-funcionales">
+      <button class="boton-funcional" id="nuevoChatBtn">Nuevo Chat</button>
+      <button class="boton-funcional" id="diagnosticoBtn">Diagnóstico de enfermedades</button>
+      <button class="boton-funcional" id="interpretacionBtn">Interpretación de datos</button>
+      <button class="boton-funcional" id="optimizacionBtn">Optimización de riego</button>
+      <button class="boton-funcional" id="planificacionBtn">Planificación de cultivos</button>
+    </div>
+  </main>
+
+  <script src="asistente.js"></script>
+</body>
+</html>
