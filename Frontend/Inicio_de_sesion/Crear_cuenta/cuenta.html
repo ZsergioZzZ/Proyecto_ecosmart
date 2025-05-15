@@ -7,14 +7,42 @@
       style="position: absolute; width: 417px; height: 45px; left: 198.83px; top: 190.50px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
     <input type="text" id="apellido" placeholder="Apellidos..." required
       style="position: absolute; width: 417px; height: 45px; left: 198.83px; top: 280.50px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
-    <input type="email" id="email" placeholder="usuario@gmail.com" required
-      style="position: absolute; width: 417px; height: 45px; left: 200px; top: 371px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
-    <input type="password" id="contrasena" placeholder="Mínimo 8 caracteres" required minlength="8"
-      style="position: absolute; width: 417px; height: 45px; left: 199px; top: 461px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
+    <!--Email-->
+    <div id="email-wrapper" style="position: absolute; left: 200px; top: 371px; width: 417px; height: 45px; display: flex; align-items: center; border: 1px solid #344E41; border-radius: 6px; background: white;">
+      <input type="email" id="email" placeholder="usuario@gmail.com" required
+        style="flex: 1; height: 100%; border: none; outline: none; font-size: 15px; padding-left: 10px; border-radius: 6px;" 
+        onblur="verificarEmailReal()" />
+    </div>
+
+    <!--
+    <div data-layer="Email" class="Email" style="width: 186px; height: 38px; left: 205px; top: 299px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: black; font-size: 20px; font-family: Roboto; font-weight: 400; line-height: 28px; word-wrap: break-word">Email</div>
+    <input type="email" id="email" placeholder="usuario@gmail.com" required 
+    style="position: absolute; width: 417px; height: 45px; left: 205px; top: 337px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" /> 
+    -->
+
+    <!--Conraseña-->  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <div style="position: absolute; left: 199px; top: 461px; width: 417px; height: 45px; border: 1px solid #344E41; border-radius: 6px; display: flex; align-items: center; background: white;">
+      <input type="password" id="contrasena" placeholder="Mínimo 8 caracteres" required minlength="8"
+        style="flex: 1; height: 100%; border: none; outline: none; font-size: 15px; padding-left: 10px; border-radius: 6px 0 0 6px;" />
+      <button type="button" onclick="togglePassword()" 
+        style="width: 45px; height: 100%; border: none; background: transparent; cursor: pointer; font-size: 18px;">
+        <i id="icono-ojo" class="fa-solid fa-eye-slash"></i>
+      </button>
+    </div>
+
+
     <input type="text" id="celular" placeholder="911111111" required
-      style="position: absolute; width: 417px; height: 45px; left: 198px; top: 552px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
-    <input type="text" id="rol" placeholder="agricultor, agronomo o tecnico" required
-      style="position: absolute; width: 417px; height: 45px; left: 198px; top: 641px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
+      style="position: absolute; width: 417px; height: 45px; left: 198px; top: 552px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />  
+    
+      <select id="rol" required
+      style="position: absolute; width: 417px; height: 45px; left: 198px; top: 641px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;">
+      <option value="">Selecciona un rol</option>
+      <option value="agricultor">Agricultor</option>
+      <option value="agronomo">Agrónomo</option>
+      <option value="tecnico">Técnico</option>
+    </select>
 
     <button type="submit" style="position: absolute; left: 290.33px; top: 700.50px; width: 234px; height: 60px; background: #A3B18A; border: 2px solid #344E41; border-radius: 6px; font-size: 20px; font-weight: bold; color: #344E41; cursor: pointer;">Crear Cuenta</button>
   </form>
@@ -25,8 +53,10 @@
   <div class="Email" style="position: absolute; top: 333px; left: 200px; font-size: 20px;">Email</div>
   <div class="Contraseña" style="position: absolute; top: 423px; left: 199px; font-size: 20px;">Contraseña</div>
   <div class="Celular" style="position: absolute; top: 514px; left: 198px; font-size: 20px;">Celular</div>
-  <div class="Rol" style="position: absolute; top: 603px; left: 198px; font-size: 20px;">Agricultor, Agrónomo o Técnico</div>
+  <div class="Rol" style="position: absolute; top: 603px; left: 198px; font-size: 20px;">Rol</div>
   
+  <div data-layer="Crear Cuenta" class="CrearCuenta" style="width: 322px; height: 63px; left: 246.33px; top: 97.50px; position: absolute; text-align: center; color: var(--black, #3D2D4C); font-size: 40px; font-family: IBM Plex Mono; font-weight: 700; line-height: 60px; word-wrap: break-word">Crear Cuenta</div>
+
   <div data-layer="Rectangle 2" class="Rectangle2" style="width: 837px; height: 854px; left: 703px; top: 0px; position: absolute; background: #3A5A40"></div> 
   <div data-layer="Plataforma de Agricultura Inteligente" class="PlataformaDeAgriculturaInteligente" style="width: 627px; height: 31px; left: 818px; top: 517px; position: absolute; text-align: center; color: white; font-size: 32px; font-family: Roboto; font-weight: 400; line-height: 28px; word-wrap: break-word">Plataforma de Agricultura Inteligente</div>
   <div data-layer="EcoSmart" class="Ecosmart" style="width: 647px; height: 75px; left: 798px; top: 429px; position: absolute; text-align: center; color: white; font-size: 128px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">EcoSmart</div>
@@ -61,5 +91,48 @@
         alert("❌ Error: " + response.message);
       }
     });
+
+    // Función para alternar la visibilidad de la contraseña
+    function togglePassword() {
+    const input = document.getElementById("contrasena");
+    const icon = document.getElementById("icono-ojo");
+
+    if (input.type === "password") {
+      input.type = "text";
+      icon.classList.remove("fa-eye-slash");
+      icon.classList.add("fa-eye");
+    } else {
+      input.type = "password";
+      icon.classList.remove("fa-eye");
+      icon.classList.add("fa-eye-slash");
+      }
+    }
+
+    // Función para verificar el email
+    async function verificarEmailReal() {
+    const emailInput = document.getElementById("email");
+    const wrapper = document.getElementById("email-wrapper");
+
+    try {
+      const res = await fetch("http://localhost:5000/verificar-email-real", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailInput.value })
+      });
+
+      const data = await res.json();
+
+      if (data.deliverability === "DELIVERABLE") {
+        wrapper.style.border = "2px solid green";
+      } else {
+        wrapper.style.border = "2px solid red";
+      }
+    } catch (e) {
+      console.error(e);
+      wrapper.style.border = "2px solid gray";
+    }
+    }
+
+
   </script>
 </div>

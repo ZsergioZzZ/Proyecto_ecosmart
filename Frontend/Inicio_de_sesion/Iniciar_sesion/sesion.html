@@ -1,45 +1,48 @@
 <div data-layer="Login" class="Login" style="width: 1540px; height: 854px; position: relative; background: #FBF9F4; overflow: hidden">
     <div data-layer="Rectangle 1" class="Rectangle1" style="width: 711px; height: 720px; left: 107px; top: 69px; position: absolute; background: white; border-radius: 34px; border: 4px #344E41 solid"></div>
     
+    <!--Iniciar sesion-->
     <div data-layer="Inicia Sesión" class="IniciaSesiN" style="width: 322px; height: 63px; left: 253px; top: 148px; position: absolute; text-align: center; color: var(--black, #3D2D4C); font-size: 40px; font-family: IBM Plex Mono; font-weight: 700; line-height: 60px; word-wrap: break-word">Inicia Sesión</div>
-    
-    
-    <a href="/Frontend/Inicio_de_sesion/Crear_cuenta/cuenta.html"
-    class="CrearUnaCuenta"
-    style="width: 142.90px; height: 30px; left: 446.02px; top: 676.57px; position: absolute; color: #4280EF; font-size: 18px; font-family: Roboto; font-weight: 400; text-decoration: underline; line-height: 28px; word-wrap: break-word;">
-   Crear una cuenta
- </a>
-
-    <div data-layer="¿Aún no estás registrado?" class="ANNoEstSRegistrado" style="width: 207.94px; height: 30px; left: 238.08px; top: 676.57px; position: absolute; color: var(--black, #3D2D4C); font-size: 18px; font-family: Roboto; font-weight: 400; line-height: 28px; word-wrap: break-word">¿Aún no estás registrado? </div>
-    
-  
     <button type="button" onclick="login()"
-    style="width: 234px; height: 60px; left: 297px; top: 589px; position: absolute; background: #A3B18A; border-radius: 6px; border: 2px #344E41 solid; color: #344E41; font-size: 24px; font-family: Roboto; font-weight: 700; text-decoration: underline; line-height: 28px; cursor: pointer;">
-    Iniciar Sesión
-  </button>
-
-    <div data-layer="Email" class="Email" style="width: 186px; height: 38px; left: 205px; top: 299px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: black; font-size: 20px; font-family: Roboto; font-weight: 400; line-height: 28px; word-wrap: break-word">Email</div>
+      style="width: 234px; height: 60px; left: 297px; top: 589px; position: absolute; background: #A3B18A; border-radius: 6px; border: 2px #344E41 solid; color: #344E41; font-size: 24px; font-family: Roboto; font-weight: 700; text-decoration: underline; line-height: 28px; cursor: pointer;">
+      Iniciar Sesión
+    </button>
     
+    <!--Crear Cuenta-->
+    <div data-layer="¿Aún no estás registrado?" class="ANNoEstSRegistrado" style="width: 207.94px; height: 30px; left: 238.08px; top: 676.57px; position: absolute; color: var(--black, #3D2D4C); font-size: 18px; font-family: Roboto; font-weight: 400; line-height: 28px; word-wrap: break-word">¿Aún no estás registrado? </div>
+    <a href="/Frontend/Inicio_de_sesion/Crear_cuenta/cuenta.html"
+        class="CrearUnaCuenta"
+        style="width: 142.90px; height: 30px; left: 446.02px; top: 676.57px; position: absolute; color: #4280EF; font-size: 18px; font-family: Roboto; font-weight: 400; text-decoration: underline; line-height: 28px; word-wrap: break-word;">
+      Crear una cuenta
+    </a>
+    
+    <!--Email-->
+    <div data-layer="Email" class="Email" style="width: 186px; height: 38px; left: 205px; top: 299px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: black; font-size: 20px; font-family: Roboto; font-weight: 400; line-height: 28px; word-wrap: break-word">Email</div>
     <input type="email" id="email" placeholder="usuario@gmail.com" required 
     style="position: absolute; width: 417px; height: 45px; left: 205px; top: 337px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />    
-        
-    <input type="password" id="password" placeholder="Mínimo 8 caracteres" required minlength="8"
-    style="position: absolute; width: 417px; height: 45px; left: 205px; top: 475px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
-
+     
+    <!--Contraseña-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <div style="position: absolute; width: 417px; height: 45px; left: 205px; top: 475px; border: 1px solid #344E41; border-radius: 6px; display: flex; align-items: center; background: white;">
+      <input type="password" id="contrasena" placeholder="Mínimo 8 caracteres" required minlength="8"
+        style="flex: 1; height: 100%; border: none; outline: none; font-size: 15px; padding-left: 10px; border-radius: 6px 0 0 6px;" />
+      <button type="button" onclick="togglePassword()" 
+        style="width: 45px; height: 100%; border: none; background: transparent; cursor: pointer; font-size: 18px;">
+        <i id="icono-ojo" class="fa-solid fa-eye-slash"></i>
+      </button>
+    </div>
     <div data-layer="Contraseña" class="ContraseA" style="width: 186px; height: 38px; left: 205px; top: 437px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: black; font-size: 20px; font-family: Roboto; font-weight: 400; line-height: 28px; word-wrap: break-word">Contraseña</div>
     
+    
     <div data-layer="Rectangle 2" class="Rectangle2" style="width: 837px; height: 854px; left: 703px; top: 0px; position: absolute; background: #3A5A40"></div>
-    
     <div data-layer="Plataforma de Agricultura Inteligente" class="PlataformaDeAgriculturaInteligente" style="width: 627px; height: 31px; left: 818px; top: 517px; position: absolute; text-align: center; color: white; font-size: 32px; font-family: Roboto; font-weight: 400; line-height: 28px; word-wrap: break-word">Plataforma de Agricultura Inteligente</div>
-    
     <div data-layer="EcoSmart" class="Ecosmart" style="width: 647px; height: 75px; left: 798px; top: 429px; position: absolute; text-align: center; color: white; font-size: 128px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">EcoSmart</div>
-    
     <img data-layer="plantacion (10) 1" class="Plantacion101" style="width: 191px; height: 191px; left: 1036px; top: 225px; position: absolute" src="imagenes/plantacion (10).png" />
  
     <script>
       async function login() {
         const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
+        const password = document.getElementById("contrasena").value;
     
         try {
           const response = await fetch("http://localhost:5000/login", {
@@ -87,6 +90,22 @@
     
         } catch (err) {
           alert("Error en el servidor: " + err);
+        }
+      }
+
+       // Función para alternar la visibilidad de la contraseña
+      function togglePassword() {
+      const input = document.getElementById("contrasena");
+      const icon = document.getElementById("icono-ojo");
+
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      } else {
+        input.type = "password";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
         }
       }
     </script>
