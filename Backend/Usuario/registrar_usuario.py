@@ -4,6 +4,8 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 from validaciones import validar_email, validar_password, validar_telefono, validar_rol
+import requests
+
 
 # Configuración
 load_dotenv()
@@ -13,6 +15,28 @@ CORS(app)
 client = MongoClient(os.getenv("MONGO_URI"))
 db = client[os.getenv("DB_NAME")]
 usuarios = db[os.getenv("COLLECTION_USUARIOS", "datos_usuarios")]
+
+
+@app.route("/verificar-email-real", methods=["POST"])
+def verificar_email_real():
+    data = request.get_json()
+    email = data.get("email", "")
+    api_key = os.getenv("ABSTRACT_API_KEY")
+
+    res = requests.get(
+        "https://emailvalidation.abstractapi.com/v1/",
+        params={"api_key": api_key, "email": email}
+    )
+
+    if res.status_code != 200:
+        return jsonify({"error": "No se pudo verificar"}), 500
+
+    resultado = res.json()
+    return jsonify({
+        "deliverability": resultado.get("deliverability", "UNKNOWN")
+    })
+
+
 
 @app.route("/crear-cuenta", methods=["POST"])
 def crear_usuario():
