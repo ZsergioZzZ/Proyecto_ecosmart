@@ -19,7 +19,7 @@ CORS(app)
 client = MongoClient(MONGO_URI)
 db = client[DB_NAME]
 datos_sensores = db["Datos_sensores"]
-sensores = db["sensores"]
+sensores = db["Sensores"]
 
 # --- CRUD para Datos_sensores ---
 
