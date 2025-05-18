@@ -1,4 +1,4 @@
-const map = L.map('map'); // sin setView aún
+const map = L.map('map'); 
 
 // Intentar geolocalización
 if (navigator.geolocation) {
@@ -28,7 +28,7 @@ let drawnPoints = [];
 let markers = [];
 let polygon = null;
 
-let modo = null; // 'eliminar' | 'modificar' | null
+let modo = null; 
 
 function drawPolygon() {
   if (polygon) {
@@ -49,10 +49,10 @@ function addPoint(latlng) {
 
   // Evita auto-pan manualmente
   marker.on('dragstart', () => {
-    map.dragging.disable(); // Desactiva el movimiento del mapa solo mientras se arrastra
+    map.dragging.disable(); 
   });
   marker.on('dragend', (e) => {
-    map.dragging.enable(); // Reactiva al terminar
+    map.dragging.enable(); 
     if (modo === 'modificar') {
       const i = markers.indexOf(marker);
       drawnPoints[i] = [e.target.getLatLng().lat, e.target.getLatLng().lng];
@@ -141,7 +141,6 @@ function guardarParcela() {
 
 function desactivarModos() {
   modo = null;
-  // desactiva arrastre en todos los puntos
   markers.forEach(marker => marker.dragging.disable());
 }
 
@@ -161,13 +160,10 @@ function activarEliminar() {
 function activarModificar() {
   desactivarModos();
   modo = 'modificar';
-
-  // Habilitar el arrastre solo en los marcadores
   markers.forEach(marker => {
     marker.dragging.enable();
   });
 
-  // No bloquees el movimiento del mapa
   resaltarBotonActivo("btn-modificar");
 }
 
@@ -257,7 +253,7 @@ function agregarPuntoManual() {
   addPoint(latlng);
 
   // Centrar el mapa en el nuevo punto:
-  map.setView(latlng, 16); // puedes ajustar el zoom (16 es ideal)
+  map.setView(latlng, 16);
   
   // Limpiar inputs
   document.getElementById("latManual").value = "";

@@ -18,7 +18,7 @@ COLLECTION_SENSORES = os.getenv("COLLECTION_SENSORES", "sensores")
 client = MongoClient(MONGO_URI)
 db = client[DB_NAME]
 sensores = db[COLLECTION_SENSORES]
-parcelas = db["datos_parcelas"]  # colección de parcelas
+parcelas = db["datos_parcelas"]  
 
 # -------------------------------
 # POST /api/sensores
@@ -26,7 +26,7 @@ parcelas = db["datos_parcelas"]  # colección de parcelas
 def guardar_sensor():
     data = request.json
 
-    # Validar campos obligatorios
+    # Valida campos obligatorios
     campos = ["parcela", "tipo", "numero", "ubicacion"]
     if not all(c in data for c in campos):
         return jsonify({"error": "Faltan campos obligatorios"}), 400
@@ -37,7 +37,7 @@ def guardar_sensor():
     if not isinstance(data["ubicacion"], dict) or "lat" not in data["ubicacion"] or "lng" not in data["ubicacion"]:
         return jsonify({"error": "Ubicación inválida"}), 400
 
-    # Validar que no exista otro sensor con mismo número, tipo y parcela
+    # Valida que no exista otro sensor con mismo número, tipo y parcela
     existe = sensores.find_one({
         "parcela": data["parcela"],
         "tipo": data["tipo"],
@@ -47,7 +47,6 @@ def guardar_sensor():
     if existe:
         return jsonify({"error": "Ya existe un sensor con ese número en esta parcela"}), 400
 
-    # Guardar
     sensores.insert_one({
         "parcela": data["parcela"],
         "tipo": data["tipo"],
@@ -70,7 +69,7 @@ def obtener_parcela():
         return jsonify({"error": "Faltan parámetros"}), 400
 
     parcela = parcelas.find_one(
-        {"nombre": nombre, "numero": numero},  # Comparación como string
+        {"nombre": nombre, "numero": numero},  
         {"_id": 0, "puntos": 1}
     )
 

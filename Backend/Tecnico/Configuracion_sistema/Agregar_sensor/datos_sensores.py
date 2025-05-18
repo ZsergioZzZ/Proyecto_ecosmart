@@ -15,7 +15,7 @@ load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME")
 COLLECTION_SENSORES = os.getenv("COLLECTION_NAME", "sensores")
-COLLECTION_DATOS = "datos_sensores"  # Nueva base de datos donde se guardarán los datos generados
+COLLECTION_DATOS = "datos_sensores" 
 CACHE_CLIMA = "clima_cache"
 OWM_API_KEY = os.getenv("OWM_API_KEY")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
@@ -69,13 +69,13 @@ def generar_datos_ia(prompt):
         if response.status_code == 200:
             return response.json()["choices"][0]["message"]["content"]
         else:
-            print("❌ Error en OpenRouter:", response.text)
+            print("Error en OpenRouter:", response.text)
             return None
     except requests.exceptions.ReadTimeout:
-        print("❌ La solicitud a OpenRouter demoró demasiado (timeout).")
+        print("La solicitud a OpenRouter demoró demasiado (timeout).")
         return None
     except Exception as e:
-        print("❌ Error inesperado al llamar a OpenRouter:", e)
+        print("Error inesperado al llamar a OpenRouter:", e)
         return None
 
 
@@ -84,7 +84,7 @@ def limpiar_json_de_respuesta(respuesta):
         limpio = re.sub(r"```json|```", "", respuesta).strip()
         return json.loads(limpio)
     except json.JSONDecodeError as e:
-        print("❌ Error al parsear JSON:", e)
+        print("Error al parsear JSON:", e)
         return None
 
 def generar_y_guardar_dato(sensor):
@@ -95,10 +95,10 @@ def generar_y_guardar_dato(sensor):
     lat = ubicacion.get("lat")
     lon = ubicacion.get("lng")
 
-    print(f"\n🟡 Generando dato para sensor tipo '{tipo}' en parcela '{parcela}'")
+    print(f"\nGenerando dato para sensor tipo '{tipo}' en parcela '{parcela}'")
 
     if not all([lat, lon, tipo]):
-        print("⚠️ Sensor incompleto, se omite")
+        print("Sensor incompleto, se omite")
         return
 
     datos_generados = {}
@@ -156,11 +156,11 @@ def generar_y_guardar_dato(sensor):
         datos_generados = limpiar_json_de_respuesta(respuesta)
 
     else:
-        print(f"⚠️ Tipo de sensor '{tipo}' no reconocido. Se omite.")
+        print(f"Tipo de sensor '{tipo}' no reconocido. Se omite.")
         return
 
     if not datos_generados:
-        print("❌ No se pudieron generar datos válidos para", tipo)
+        print("No se pudieron generar datos válidos para", tipo)
         return
 
     documento = {
