@@ -1,6 +1,6 @@
 const mapSensor = L.map('mapSensor');
 let markerSensor = null;
-let modoSensor = null; // 'agregar' | 'modificar' | null
+let modoSensor = null; 
 
 // Centrar mapa en ubicación del dispositivo
 if (navigator.geolocation) {
@@ -159,8 +159,6 @@ function guardarSensor() {
 
 
 // Modos de edición
-
-
 function modoSensorAgregar() {
   modoSensor = 'agregar';
   if (markerSensor) markerSensor.dragging.disable();
@@ -242,7 +240,6 @@ document.getElementById("parcelaAsociada").addEventListener("change", function (
     return;
   }
 
-  // Separar nombre y número
   const [nombre, resto] = valor.split(" - Parcela ");
   const numero = parseInt(resto);
 
@@ -268,9 +265,6 @@ document.getElementById("parcelaAsociada").addEventListener("change", function (
       alert("No se pudo cargar la parcela seleccionada.");
     });
 });
-
-
-
 
 
 
