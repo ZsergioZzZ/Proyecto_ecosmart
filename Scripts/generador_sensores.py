@@ -1,60 +1,38 @@
-import os
-import time
-import json
-import datetime
-import requests
-import re
-from dotenv import load_dotenv
+from flask import Flask
 from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
+import requests
+import random
+from datetime import datetime
 
-# ----------------------------------------
-# Cargar variables de entorno
+# Cargar .env
 load_dotenv()
 
-# Variables de conexion
+# MongoDB
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME")
-COLLECTION_SENSORES = os.getenv("COLLECTION_NAME", "Datos_sensores")
-COLLECTION_PARCELAS = os.getenv("COLLECTION_PARCELAS", "parcelas")
+client = MongoClient(MONGO_URI)
+db = client[DB_NAME]
+sensores = db["Sensores"]
+datos = db["Datos_sensores"]
+
+# OpenWeatherMap API
 OWM_API_KEY = os.getenv("OWM_API_KEY")
+
+# OpenRouter IA API
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 OPENROUTER_API_URL = os.getenv("OPENROUTER_API_URL")
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "openai/gpt-3.5-turbo")
 
-# Conexion a MongoDB
-client = MongoClient(MONGO_URI)
-db = client[DB_NAME]
-sensores = db[COLLECTION_SENSORES]
-cache = db["clima_cache"]
-parcelas = db[COLLECTION_PARCELAS]
-
-# ----------------------------------------
-# Funciones
-
-def obtener_clima(lat, lon):
-    registro = cache.find_one({"lat": lat, "lon": lon})
-
-    if registro:
-        if time.time() - registro["timestamp"] < 3600:
-            print("Usando clima guardado de MongoDB (1 hora)")
-            return registro["temp"]
-        else:
-            print("Cache encontrado pero expirado, consultando API...")
-
-    url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OWM_API_KEY}&units=metric"
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        temp = response.json()["main"]["temp"]
-        cache.update_one(
-            {"lat": lat, "lon": lon},
-            {"$set": {"temp": temp, "timestamp": time.time()}},
-            upsert=True
-        )
-        print("Clima obtenido desde la API y cacheado")
-        return temp
-    else:
-        print("Error al obtener clima:", response.text)
+def obtener_tiempo(lat, lon):
+    try:
+        url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&units=metric&appid={OWM_API_KEY}"
+        response = requests.get(url)
+        data = response.json()
+        return data["main"]
+    except Exception as e:
+        print("Error al obtener clima:", e)
         return None
 
 def generar_datos_ia(prompt):
@@ -66,149 +44,86 @@ def generar_datos_ia(prompt):
         "model": OPENROUTER_MODEL,
         "messages": [{"role": "user", "content": prompt}]
     }
-    response = requests.post(OPENROUTER_API_URL, headers=headers, json=body)
 
-    if response.status_code == 200:
-        return response.json()["choices"][0]["message"]["content"]
-    else:
-        print("Error en OpenRouter:", response.text)
-        return None
-
-def limpiar_json_de_respuesta(respuesta):
     try:
-        limpio = re.sub(r"```json|```", "", respuesta).strip()
-        return json.loads(limpio)
-    except json.JSONDecodeError as e:
-        print("Error al parsear JSON:", e)
-        print("Respuesta completa:", respuesta)
+        response = requests.post(OPENROUTER_API_URL, headers=headers, json=body)
+        if response.status_code == 200:
+            return response.json()["choices"][0]["message"]["content"]
+        else:
+            print("Error en OpenRouter:", response.text)
+            return None
+    except Exception as e:
+        print("Excepción al llamar OpenRouter:", e)
         return None
 
-def generar_y_guardar_dato(parcela, lat, lon):
-    print(f"\n🟡 Generando datos para parcela: {parcela}")
+def simular_valor(sensor, clima):
+    tipo = sensor["tipo"]
+    temp = clima["temp"] if clima else round(random.uniform(15, 30), 1)
 
-    temperatura = obtener_clima(lat, lon)
-    if temperatura is None:
-        print(" No se pudo obtener temperatura. Abortando generación...")
-        return
+    if tipo == "Temperatura Ambiente":
+        return temp
 
-    prompt = f"""
-    Simula datos realistas y aleatorios de sensores agricolas para una parcela llamada {parcela}.
-    Entrega el resultado en JSON válido. Incluye:
-    - "humedad_suelo": número decimal entre 20 y 80 (%)
-    - "ph_suelo": número decimal entre 5.5 y 7.5
-    - "nutrientes": un objeto con:
-      - "nitrógeno": entre 10 y 200 (ppm)
-      - "fósforo": entre 10 y 200 (ppm)
-      - "potasio": entre 10 y 200 (ppm)
-    Variar los valores en cada respuesta. No escribas texto ni explicación. Solo el JSON.
-    """
+    elif tipo == "Humedad del suelo":
+        prompt = f"Simula un porcentaje de humedad del suelo para un campo agrícola con temperatura de {temp}°C. Solo responde el número (ej: 56.2)."
+        respuesta = generar_datos_ia(prompt)
+        try:
+            return float(respuesta)
+        except:
+            return round(random.uniform(20, 80), 1)
 
-    datos_ia = generar_datos_ia(prompt)
-    datos_sensor = limpiar_json_de_respuesta(datos_ia)
+    elif tipo == "Nivel de PH":
+        prompt = "Simula un valor realista de pH del suelo agrícola. Solo responde el número entre 5.5 y 7.5."
+        respuesta = generar_datos_ia(prompt)
+        try:
+            return float(respuesta)
+        except:
+            return round(random.uniform(5.5, 7.5), 2)
 
-    if not datos_sensor:
-        print("Error en generacion IA. No se guardaron los datos.")
-        return
+    elif tipo == "Nivel de Nutrientes":
+        prompt = (
+            "Simula un conjunto de valores realistas de nutrientes N, P, K en un suelo agrícola fértil. "
+            "Devuelve en formato JSON como: {\"n\": 50, \"p\": 30, \"k\": 60}"
+        )
+        respuesta = generar_datos_ia(prompt)
+        try:
+            valores = eval(respuesta)
+            if isinstance(valores, dict) and all(k in valores for k in ["n", "p", "k"]):
+                return valores
+        except:
+            pass
+        # fallback aleatorio
+        return {
+            "n": random.randint(30, 70),
+            "p": random.randint(20, 50),
+            "k": random.randint(40, 80)
+        }
 
-    documento = {
-        "timestamp": datetime.datetime.now(),
-        "parcela": parcela,
-        "ubicacion": {"lat": lat, "lon": lon},
-        "temperatura": temperatura,
-        **datos_sensor
-    }
+    return None
 
-    guardar_datos_por_sensor(parcela, lat, lon, temperatura, datos_sensor)
-    guardar_historico(parcela, lat, lon, temperatura, datos_sensor)
-    print(f"Dato guardado en MongoDB para parcela: {parcela}")
+def generar_datos():
+    sensores_lista = list(sensores.find({}))
+    print(f"Total sensores: {len(sensores_lista)}")
 
-def obtener_parcelas():
-    """
-    Consulta todas las parcelas existentes en MongoDB.
-    Deben tener 'nombre', 'lat' y 'lon'.
-    """
-    lista_parcelas = []
-    for p in parcelas.find():
-        nombre = p.get("nombre")
-        lat = p.get("lat")
-        lon = p.get("lon")
-        if nombre and lat and lon:
-            lista_parcelas.append({"nombre": nombre, "lat": lat, "lon": lon})
-    return lista_parcelas
-
-
-def guardar_datos_por_sensor(parcela, lat, lon, temperatura, datos_sensor):
-    sensores_col = db["sensores"]
-    timestamp = datetime.datetime.now()
-
-    for tipo_sensor, valor in datos_sensor.items():
-        tipo_sensor = tipo_sensor.strip()
-
-        sensor_doc = sensores_col.find_one({"tipo": tipo_sensor, "parcela": parcela})
-        if not sensor_doc:
-            print(f"❌ No se encontró sensor tipo '{tipo_sensor}' en parcela '{parcela}'")
+    for sensor in sensores_lista:
+        ubicacion = sensor.get("ubicacion")
+        if not ubicacion:
             continue
 
-        sensores.insert_one({
-            "timestamp": timestamp,
-            "parcela": parcela,
-            "sensor_id": sensor_doc["id"],
-            "tipo": tipo_sensor,
-            "valor": valor,
-            "ubicacion": {"lat": lat, "lon": lon},
-            "temperatura": temperatura
-        })
-        print(f"✅ Insertado sensor '{tipo_sensor}' con ID {sensor_doc['id']}")
+        lat = ubicacion.get("lat")
+        lng = ubicacion.get("lng")
 
-    # Agregar manualmente el sensor de temperatura
-    sensor_doc = sensores_col.find_one({"tipo": "temperatura", "parcela": parcela})
-    if sensor_doc:
-        sensores.insert_one({
-            "timestamp": timestamp,
-            "parcela": parcela,
-            "sensor_id": sensor_doc["id"],
-            "tipo": "temperatura",
-            "valor": temperatura,
-            "ubicacion": {"lat": lat, "lon": lon},
-            "temperatura": temperatura
-        })
-        print(f"✅ Insertado sensor 'temperatura' con ID {sensor_doc['id']}")
-    else:
-        print(f"❌ No se encontró sensor tipo 'temperatura' en parcela '{parcela}'")
+        clima = obtener_tiempo(lat, lng)
+        valor = simular_valor(sensor, clima)
 
+        if valor is not None:
+            datos.insert_one({
+                "sensor_id": sensor["numero"],
+                "tipo": sensor["tipo"],
+                "parcela": sensor["parcela"],
+                "valor": valor,
+                "timestamp": datetime.utcnow()
+            })
+            print(f"✓ Sensor #{sensor['numero']} ({sensor['tipo']}) registrado.")
 
-def guardar_historico(parcela, lat, lon, temperatura, datos_sensor):
-    historico = db["datos_historicos"]
-    documento = {
-        "parcela": parcela,
-        "ubicacion": {"lat": lat, "lon": lon},
-        "fecha": datetime.datetime.now(),
-        "sensores": {
-            "temperatura": {"valor": temperatura, "unidad": "°C"},
-            "humedad_suelo": {"valor": datos_sensor.get("humedad_suelo"), "unidad": "%"},
-            "ph_suelo": {"valor": datos_sensor.get("ph_suelo"), "unidad": "pH"},
-            "nutrientes": datos_sensor.get("nutrientes", {})
-        }
-    }
-    historico.insert_one(documento)
-    print(f"📘 Registro histórico guardado para parcela '{parcela}'")
-
-
-# ----------------------------------------
-# Simulacion:
 if __name__ == "__main__":
-    print("Iniciando simulador...")
-
-    while True:
-        lista = obtener_parcelas()
-
-        if not lista:
-            print("No hay parcelas registradas.")
-        else:
-            for parcela in lista:
-                generar_y_guardar_dato(parcela["nombre"], parcela["lat"], parcela["lon"])
-
-        time.sleep(60)  # Espera 1 minuto antes de la siguiente iteración
-        # Cambia a 60 segundos para pruebas rápidas
-        # time.sleep(60)  # Espera 1 minuto antes de la siguiente iteración
-        # Cambia a 60 segundos para pruebas rápidas
+    generar_datos()
