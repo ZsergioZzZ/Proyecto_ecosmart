@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", () => {
   const mensajeInput = document.getElementById("mensajeInput");
   const enviarBtn = document.getElementById("enviarBtn");
@@ -23,7 +22,14 @@ document.addEventListener("DOMContentLoaded", () => {
   chatSidebar.style.overflowY = "auto";
   chatSidebar.style.fontFamily = "IBM Plex Mono";
   chatSidebar.style.zIndex = "999";
-  chatSidebar.innerHTML = "<h2 style='color:#A3B18A;'>EcoSmart 🌿</h2><hr style='border-color:#A3B18A'>";
+  chatSidebar.innerHTML = `
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <img src="imagenes/plantacion (6).png" alt= "Logo" style="width: 24px; height: 24px;" />
+    <h2 style="color:#A3B18A; margin: 0;">EcoSmart</h2>
+  </div>
+  <hr style="border-color:#A3B18A">
+`;
+
   document.body.appendChild(chatSidebar);
 
   const contenido = document.querySelector("main");
@@ -112,7 +118,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("http://localhost:5000/historial_chats");
       const lista = await res.json();
 
-      chatSidebar.innerHTML = "<h2 style='color:#A3B18A;'>EcoSmart 🌿</h2><hr style='border-color:#A3B18A'>";
+      chatSidebar.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img src="imagenes/plantacion (6).png" alt="Logo EcoSmart" style="width: 24px; height: 24px;" />
+          <h2 style="color:#A3B18A; margin: 0;">EcoSmart</h2>
+        </div>
+        <hr style="border-color:#A3B18A">
+      `;
 
       lista.forEach((item, index) => {
         const chatItem = document.createElement("div");
