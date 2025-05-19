@@ -26,30 +26,59 @@
 
 
     <!-- Datos de la parcela -->
-    <div data-layer="Rectangle Verde Fondo" class="RectangleVerdeFondo" style="width: 1540px; height: 733px; left: 0px; top: 1084px; position: absolute; background: #344E41"></div>
-    <img data-layer="2" style="width: 800px; height: 533px; left: 62px; top: 1184px; position: absolute; border-radius: 16px" src="imagenes/parcela.avif" />
-    <img data-layer="pasador-de-ubicacion 1" class="PasadorDeUbicacion1" style="width: 30px; height: 30px; left: 778px; top: 1442px; position: absolute" src="imagenes/pasador-de-ubicacion.png" />
-    <img data-layer="pasador-de-ubicacion 1" class="PasadorDeUbicacion1" style="width: 30px; height: 30px; left: 593px; top: 1620px; position: absolute" src="imagenes/pasador-de-ubicacion.png" />
-    <img data-layer="pasador-de-ubicacion 1" class="PasadorDeUbicacion1" style="width: 30px; height: 30px; left: 78px; top: 1649px; position: absolute" src="imagenes/pasador-de-ubicacion.png" />
-    <img data-layer="pasador-de-ubicacion 1" class="PasadorDeUbicacion1" style="width: 30px; height: 30px; left: 722px; top: 1261px; position: absolute" src="imagenes/pasador-de-ubicacion.png" />
-    <img data-layer="pasador-de-ubicacion 1" class="PasadorDeUbicacion1" style="width: 30px; height: 30px; left: 391px; top: 1364px; position: absolute" src="imagenes/pasador-de-ubicacion.png" />
-    <img data-layer="pasador-de-ubicacion 1" class="PasadorDeUbicacion1" style="width: 30px; height: 30px; left: 223px; top: 1273px; position: absolute" src="imagenes/pasador-de-ubicacion.png" />
+    <div style="width: 776px; height: 182px; left: 348px; top: 902px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Sensores</div>    <div data-layer="Rectangle Verde Fondo" class="RectangleVerdeFondo" style="width: 1540px; height: 733px; left: 0px; top: 1084px; position: absolute; background: #344E41"></div>
+    
+    <!--Mapa-->
+    <div id="mapaParcela" style="width: 800px; height: 533px; left: 62px; top: 1184px; position: absolute; border-radius: 16px; z-index: 10;"></div>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    
+    <!-- Cuadro verde claro -->
     <div data-layer="Rectangle VerdeO Grande" class="RectangleVerdeoGrande" style="width: 550px; height: 533px; left: 908px; top: 1184px; position: absolute; background: #588157; border-radius: 16px"></div>
     <div data-layer="Rectangle Verde Chico" class="RectangleVerdeChico" style="width: 520px; height: 503px; left: 923px; top: 1199px; position: absolute; background: rgba(163, 177, 138, 0.55); border-radius: 16px"></div>
-    <div data-layer="Humedad del Suelo" class="HumedadDelSuelo" style="width: 309px; height: 36.72px; left: 983px; top: 1421.13px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 24px; font-family: Instrument Sans; font-weight: 400; word-wrap: break-word">Humedad del Suelo</div>
-    <div data-layer="Nivel de PH" class="NivelDePh" style="width: 309px; height: 37.94px; left: 983px; top: 1512.93px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 24px; font-family: Instrument Sans; font-weight: 400; word-wrap: break-word">Nivel de PH</div>
-    <div data-layer="Nivel de Nutrientes" class="NivelDeNutrientes" style="width: 307px; height: 37.94px; left: 983px; top: 1605.95px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 24px; font-family: Instrument Sans; font-weight: 400; word-wrap: break-word">Nivel de Nutrientes</div>
-    <div data-layer="Temperatura Ambiente" class="TemperaturaAmbiente" style="width: 309px; height: 37.94px; left: 983px; top: 1328.10px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 24px; font-family: Instrument Sans; font-weight: 400; word-wrap: break-word">Temperatura Ambiente</div>
-    <div data-layer="Rectangle Tem" class="RectangleTem" style="width: 62px; height: 36.72px; left: 1261px; top: 1329.33px; position: absolute; background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid"></div>
-    <div data-layer="Rectangle Humd" class="RectangleHumd" style="width: 62px; height: 36.72px; left: 1261px; top: 1422.35px; position: absolute; background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid"></div>
-    <div data-layer="Rectangle PH" class="RectanglePh" style="width: 62px; height: 36.72px; left: 1261px; top: 1514.15px; position: absolute; background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid"></div>
-    <div data-layer="Rectangle Nutri" class="RectangleNutri" style="width: 124px; height: 36.72px; left: 1259px; top: 1605.95px; position: absolute; background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid"></div>
-    <div data-layer="%" style="width: 33px; height: 25.70px; left: 1323px; top: 1432.14px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: Roboto; font-weight: 500; line-height: 28px; word-wrap: break-word">%</div>
-    <div data-layer="°C" class="C" style="width: 33px; height: 25.70px; left: 1323px; top: 1339.73px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: Roboto; font-weight: 500; line-height: 28px; word-wrap: break-word">°C</div>
-    <div data-layer="Rectangle Selec Parcela" class="RectangleSelecParcela" style="width: 254px; height: 50px; left: 1067px; top: 1237px; position: absolute; background: #DAD7CD; border-radius: 7px; border: 2px #344E41 solid"></div>
-    <div data-layer="Seleccione Parcela" class="SeleccioneParcela" style="width: 206px; height: 31px; left: 1095.29px; top: 1246px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: #858D85; font-size: 20px; font-family: Instrument Sans; font-weight: 400; word-wrap: break-word">Seleccione Parcela</div>
-    <img data-layer="ordenar-abajo 4" class="OrdenarAbajo4" style="width: 14.67px; height: 14.67px; left: 1279.67px; top: 1257.33px; position: absolute" src="imagenes/ordenar-abajo.png" />
-    <div data-layer="Sensores" class="Sensores" style="width: 776px; height: 182px; left: 348px; top: 902px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Sensores</div>
+
+    <!-- Selector de parcela dentro del cuadro verde -->
+    <div style="position: absolute; left: 983px; top: 1215px;">
+      <label for="parcelaAsociada" style="font-size: 20px; color: white;"></label><br />
+      <select id="parcelaAsociada" class="choices-select" style="width: 350px; padding: 8px; font-size: 16px; border-radius: 8px; border: 1px solid #344E41;">
+        <option value="">Seleccione una parcela</option>
+      </select>
+    </div>
+
+    <!-- Indicadores -->
+    <div style="position: absolute; left: 983px; top: 1328px; color: white; font-size: 24px;">Temperatura Ambiente</div>
+    <div class="RectangleTem" style="position: absolute; left: 1261px; top: 1329px; width: 62px; height: 36.72px;
+      background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
+      display: flex; align-items: center; justify-content: center;">
+      <span id="tempValor">--</span><span style="margin-left: 3px;">°C</span>
+    </div>
+
+
+    <div style="position: absolute; left: 983px; top: 1421px; color: white; font-size: 24px;">Humedad del Suelo</div>
+    <div class="RectangleHumd" style="position: absolute; left: 1261px; top: 1422px; width: 62px; height: 36.72px;
+      background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
+      display: flex; align-items: center; justify-content: center;">
+      <span id="humedadValor">--</span><span style="margin-left: 3px;">%</span>
+    </div>
+
+
+    <div style="position: absolute; left: 983px; top: 1513px; color: white; font-size: 24px;">Nivel de PH</div>
+    <div class="RectanglePh" style="position: absolute; left: 1261px; top: 1514px; width: 62px; height: 36.72px;
+      background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
+      display: flex; align-items: center; justify-content: center;">
+      <span id="phValor">--</span>
+    </div>
+
+
+    <div style="position: absolute; left: 983px; top: 1606px; color: white; font-size: 24px;">Nivel de Nutrientes</div>
+    <div class="RectangleNutri" style="position: absolute; left: 1259px; top: 1606px; width: 62px; height: 36.72px;
+      background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
+      display: flex; align-items: center; justify-content: center;">
+      <span id="nutrientesValor">--</span>
+    </div>
+
+
     
     <!-- Principal -->
     <img data-layer="Imagen Cultivo" class="ImagenCultivo" style="width: 1597.01px; height: 674px; left: 0px; top: 228px; position: absolute" src="imagenes/imagen-cultivo.JPG" />
@@ -64,4 +93,5 @@
       Atrás
     </a>
   
+     <script src="sensores.js"></script>
  </div>
