@@ -20,5 +20,12 @@
     <div style="width: 1077px; height: 368px; left: 43px; top: 162px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: black; font-size: 32px; font-family: Roboto; font-weight: 300; line-height: 28px; word-wrap: break-word">EcoSmart nace como respuesta a desafíos como el cambio climático,  la escasez de recursos hídricos y reducir el impacto ambiental de las <br/>prácticas agrícolas tradicionales, proporcionando una <br/>plataforma integral que aprovecha tecnologías de <br/>vanguardia para revolucionar la forma en que <br/>se gestiona la agricultura, desde pequeñas <br/>explotaciones hasta operaciones <br/>comerciales a gran <br/>escala.</div>
     <div style="width: 223px; height: 72px; left: 1270px; top: 39px; position: absolute; background: #588157; border-radius: 28px"></div>
     <img style="width: 37px; height: 37px; left: 1287px; top: 56px; position: absolute" src="imagenes/avatar.png" />
-    <div style="width: 127px; height: 45px; left: 1336px; top: 52px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Agricultor</div>
+    <div id="nombre-usuario" style="width: 127px; height: 45px; left: 1336px; top: 52px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Agricultor</div>
+    <script>
+      const nombre = localStorage.getItem("nombreUsuario");
+      if (nombre) {
+        document.getElementById("nombre-usuario").textContent = nombre;
+      }
+    </script>
+
   </div>
