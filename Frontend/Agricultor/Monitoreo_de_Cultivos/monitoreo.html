@@ -1,5 +1,6 @@
 <div data-layer="Agricultor Monitoreo de Cultivos" class="AgricultorMonitoreoDeCultivos" style="width: 1540px; height: 3863px; position: relative; background: #FBF9F4; overflow: hidden">
-    <!--Viasualizacion de datos (Graficos)-->
+    
+  <!--Viasualizacion de datos (Graficos)-->
   <div data-layer="Agricultor Monitoreo de Cultivos" class="AgricultorMonitoreoDeCultivos" style="width: 1540px; height: 3863px; position: relative; background: #FBF9F4; overflow: hidden">
   <div data-layer="Rectangle 29" class="Rectangle29" style="width: 1540px; height: 733px; left: 0px; top: 3130px; position: absolute; background: #344E41"></div>
   <div data-layer="Rectangle 32" class="Rectangle32" style="width: 254px; height: 50px; left: 65.49px; top: 3174.54px; position: absolute; background: #DAD7CD; border-radius: 7px; border: 2px #344E41 solid"></div>
@@ -11,87 +12,84 @@
   <div data-layer="GRÁFICO" class="GrFico" style="width: 277.56px; height: 44.25px; left: 85.71px; top: 3281px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: black; font-size: 20px; font-family: Instrument Sans; font-weight: 400; word-wrap: break-word">GRÁFICO</div>
   <div data-layer="GRÁFICOS DE TEMPERATURA AMBIENTE, HUMEDAD DEL SUELO, NIVEL DE PH Y NUTRIENTES (NITRÓGENO, POTACIO Y FÓSFORO)" class="GrFicosDeTemperaturaAmbienteHumedadDelSueloNivelDePhYNutrientesNitrGenoPotacioYFSforo" style="width: 1288.16px; height: 249.39px; left: 119.84px; top: 3447.17px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: black; font-size: 36px; font-family: Instrument Sans; font-weight: 400; word-wrap: break-word">GRÁFICOS DE TEMPERATURA AMBIENTE, HUMEDAD DEL SUELO, NIVEL DE PH Y NUTRIENTES (NITRÓGENO, POTACIO Y FÓSFORO) </div>
     
-    <!-- Datos Meteorologicos -->
-    <div data-layer="Rectangle Verde Fondo" class="RectangleVerdeFondo" style="width: 1540px; height: 945.88px; left: 0px; top: 2004.12px; position: absolute; background: #344E41; color: white; font-family: 'IBM Plex Mono'; padding: 30px; box-sizing: border-box; overflow-y: auto;">
-      <div id="ubicacion-info" style="margin-top: 0; padding-top: 0;"></div>
-      <div style="background: white; border-radius: 16px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 2rem;">
-        <canvas id="grafico-horas" width="500" height="150" style="border-radius: 16px;"></canvas>
-      </div>
-      <div id="pronostico-dias" style="margin-top:2rem;"></div>
+  <!-- Datos Meteorologicos -->
+  <div data-layer="Rectangle Verde Fondo" class="RectangleVerdeFondo" style="width: 1540px; height: 945.88px; left: 0px; top: 2004.12px; position: absolute; background: #344E41; color: white; font-family: 'IBM Plex Mono'; padding: 30px; box-sizing: border-box; overflow-y: auto;">
+    <div id="ubicacion-info" style="margin-top: 0; padding-top: 0;"></div>
+    <div style="background: white; border-radius: 16px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-top: 2rem;">
+      <canvas id="grafico-horas" width="500" height="150" style="border-radius: 16px;"></canvas>
     </div>
-    <div data-layer="Datos Meteorológicos" class="DatosMeteorolGicos" style="width: 776px; height: 182px; left: 382px; top: 1817px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Datos Meteorológicos</div>
-    <script src="clima.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <div id="pronostico-dias" style="margin-top:2rem;"></div>
+  </div>
+  <div data-layer="Datos Meteorológicos" class="DatosMeteorolGicos" style="width: 776px; height: 182px; left: 382px; top: 1817px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Datos Meteorológicos</div>
+  <script src="clima.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 
-    <!-- Datos de la parcela -->
-    <div style="width: 776px; height: 182px; left: 348px; top: 902px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Sensores</div>    <div data-layer="Rectangle Verde Fondo" class="RectangleVerdeFondo" style="width: 1540px; height: 733px; left: 0px; top: 1084px; position: absolute; background: #344E41"></div>
-    
-    <!--Mapa-->
-    <div id="mapaParcela" style="width: 800px; height: 533px; left: 62px; top: 1184px; position: absolute; border-radius: 16px; z-index: 10;"></div>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-    
-    <!-- Cuadro verde claro -->
-    <div data-layer="Rectangle VerdeO Grande" class="RectangleVerdeoGrande" style="width: 550px; height: 533px; left: 908px; top: 1184px; position: absolute; background: #588157; border-radius: 16px"></div>
-    <div data-layer="Rectangle Verde Chico" class="RectangleVerdeChico" style="width: 520px; height: 503px; left: 923px; top: 1199px; position: absolute; background: rgba(163, 177, 138, 0.55); border-radius: 16px"></div>
-
-    <!-- Selector de parcela dentro del cuadro verde -->
-    <div style="position: absolute; left: 983px; top: 1215px;">
-      <label for="parcelaAsociada" style="font-size: 20px; color: white;"></label><br />
-      <select id="parcelaAsociada" class="choices-select" style="width: 350px; padding: 8px; font-size: 16px; border-radius: 8px; border: 1px solid #344E41;">
-        <option value="">Seleccione una parcela</option>
-      </select>
-    </div>
-
-    <!-- Indicadores -->
-    <div style="position: absolute; left: 983px; top: 1328px; color: white; font-size: 24px;">Temperatura Ambiente</div>
-    <div class="RectangleTem" style="position: absolute; left: 1261px; top: 1329px; width: 62px; height: 36.72px;
-      background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
-      display: flex; align-items: center; justify-content: center;">
-      <span id="tempValor">--</span><span style="margin-left: 3px;">°C</span>
-    </div>
-
-
-    <div style="position: absolute; left: 983px; top: 1421px; color: white; font-size: 24px;">Humedad del Suelo</div>
-    <div class="RectangleHumd" style="position: absolute; left: 1261px; top: 1422px; width: 62px; height: 36.72px;
-      background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
-      display: flex; align-items: center; justify-content: center;">
-      <span id="humedadValor">--</span><span style="margin-left: 3px;">%</span>
-    </div>
-
-
-    <div style="position: absolute; left: 983px; top: 1513px; color: white; font-size: 24px;">Nivel de PH</div>
-    <div class="RectanglePh" style="position: absolute; left: 1261px; top: 1514px; width: 62px; height: 36.72px;
-      background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
-      display: flex; align-items: center; justify-content: center;">
-      <span id="phValor">--</span>
-    </div>
-
-
-    <div style="position: absolute; left: 983px; top: 1606px; color: white; font-size: 24px;">Nivel de Nutrientes</div>
-    <div class="RectangleNutri" style="position: absolute; left: 1259px; top: 1606px; width: 62px; height: 36.72px;
-      background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
-      display: flex; align-items: center; justify-content: center;">
-      <span id="nutrientesValor">--</span>
-    </div>
-
-
-    
-    <!-- Principal -->
-    <img data-layer="Imagen Cultivo" class="ImagenCultivo" style="width: 1597.01px; height: 674px; left: 0px; top: 228px; position: absolute" src="imagenes/imagen-cultivo.JPG" />
-    <div data-layer="Monitoreo de Cultivos" class="MonitoreoDeCultivos" style="width: 725px; height: 272px; left: 93px; top: 181px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 94px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Monitoreo de<br/><br/><br/>Cultivos</div>
-    <div data-layer="Rectangle 1" class="Rectangle1" style="width: 223px; height: 72px; left: 1270px; top: 37px; position: absolute; background: #588157; border-radius: 28px"></div>
-    <img data-layer="avatar" class="Avatar" style="width: 37px; height: 37px; left: 1287px; top: 54px; position: absolute" src="imagenes/avatar.png" />
-    <div data-layer="Agricultor" class="Agricultor" style="width: 127px; height: 45px; left: 1336px; top: 50px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Agricultor</div>
-    <div data-layer="EcoSmart" class="Ecosmart" style="width: 344px; height: 106px; left: 23px; top: 75px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">EcoSmart</div>
-    <img data-layer="plantacion (6)" class="Plantacion6" style="width: 76px; height: 76px; left: 157px; top: 37px; position: absolute" src="imagenes/plantacion (6).png" />
-    <a href="/Frontend/Agricultor/Inicio/inicio_agricultor.html"
-      style="width: 96.62px; height: 45px; left: 1173px; top: 50px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; text-decoration: underline; line-height: 28px; word-wrap: break-word;">
-      Atrás
-    </a>
+  <!-- -------Sensores------- -->
+  <div style="width: 776px; height: 182px; left: 348px; top: 902px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Sensores</div>    <div data-layer="Rectangle Verde Fondo" class="RectangleVerdeFondo" style="width: 1540px; height: 733px; left: 0px; top: 1084px; position: absolute; background: #344E41"></div>
   
-     <script src="sensores.js"></script>
- </div>
+  <!--Mapa-->
+  <div id="mapaParcela" style="width: 800px; height: 533px; left: 62px; top: 1184px; position: absolute; border-radius: 16px; z-index: 10;"></div>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  
+  <!-- Cuadro verde claro -->
+  <div data-layer="Rectangle VerdeO Grande" class="RectangleVerdeoGrande" style="width: 550px; height: 533px; left: 908px; top: 1184px; position: absolute; background: #588157; border-radius: 16px"></div>
+  <div data-layer="Rectangle Verde Chico" class="RectangleVerdeChico" style="width: 520px; height: 503px; left: 923px; top: 1199px; position: absolute; background: rgba(163, 177, 138, 0.55); border-radius: 16px"></div>
+
+  <!-- Selector de parcela dentro del cuadro verde -->
+  <div style="position: absolute; left: 983px; top: 1215px;">
+    <label for="parcelaAsociada" style="font-size: 20px; color: white;"></label><br />
+    <select id="parcelaAsociada" class="choices-select" style="width: 350px; padding: 8px; font-size: 16px; border-radius: 8px; border: 1px solid #344E41;">
+      <option value="">Seleccione una parcela</option>
+    </select>
+  </div>
+
+  <!-- Indicadores -->
+  <div style="position: absolute; left: 983px; top: 1328px; color: white; font-size: 24px;">Temperatura Ambiente</div>
+  <div class="RectangleTem" style="position: absolute; left: 1261px; top: 1329px; width: 62px; height: 36.72px;
+    background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
+    display: flex; align-items: center; justify-content: center;">
+    <span id="tempValor">--</span><span style="margin-left: 3px;">°C</span>
+  </div>
+
+  <div style="position: absolute; left: 983px; top: 1421px; color: white; font-size: 24px;">Humedad del Suelo</div>
+  <div class="RectangleHumd" style="position: absolute; left: 1261px; top: 1422px; width: 62px; height: 36.72px;
+    background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
+    display: flex; align-items: center; justify-content: center;">
+    <span id="humedadValor">--</span><span style="margin-left: 3px;">%</span>
+  </div>
+
+  <div style="position: absolute; left: 983px; top: 1513px; color: white; font-size: 24px;">Nivel de PH</div>
+  <div class="RectanglePh" style="position: absolute; left: 1261px; top: 1514px; width: 62px; height: 36.72px;
+    background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
+    display: flex; align-items: center; justify-content: center;">
+    <span id="phValor">--</span>
+  </div>
+
+  <div style="position: absolute; left: 983px; top: 1606px; color: white; font-size: 24px;">Nivel de Nutrientes</div>
+  <div class="RectangleNutri" style="position: absolute; left: 1259px; top: 1606px; width: 62px; height: 36.72px;
+    background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
+    display: flex; align-items: center; justify-content: center;">
+    <span id="nutrientesValor">--</span>
+  </div>
+
+
+    
+  <!-- Principal -->
+  <img data-layer="Imagen Cultivo" class="ImagenCultivo" style="width: 1597.01px; height: 674px; left: 0px; top: 228px; position: absolute" src="imagenes/imagen-cultivo.JPG" />
+  <div data-layer="Monitoreo de Cultivos" class="MonitoreoDeCultivos" style="width: 725px; height: 272px; left: 93px; top: 181px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 94px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Monitoreo de<br/><br/><br/>Cultivos</div>
+  <div data-layer="Rectangle 1" class="Rectangle1" style="width: 223px; height: 72px; left: 1270px; top: 37px; position: absolute; background: #588157; border-radius: 28px"></div>
+  <img data-layer="avatar" class="Avatar" style="width: 37px; height: 37px; left: 1287px; top: 54px; position: absolute" src="imagenes/avatar.png" />
+  <div data-layer="Agricultor" class="Agricultor" style="width: 127px; height: 45px; left: 1336px; top: 50px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Agricultor</div>
+  <div data-layer="EcoSmart" class="Ecosmart" style="width: 344px; height: 106px; left: 23px; top: 75px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">EcoSmart</div>
+  <img data-layer="plantacion (6)" class="Plantacion6" style="width: 76px; height: 76px; left: 157px; top: 37px; position: absolute" src="imagenes/plantacion (6).png" />
+  <a href="/Frontend/Agricultor/Inicio/inicio_agricultor.html"
+    style="width: 96.62px; height: 45px; left: 1173px; top: 50px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; text-decoration: underline; line-height: 28px; word-wrap: break-word;">
+    Atrás
+  </a>
+
+    <script src="sensores.js"></script>
+</div>
