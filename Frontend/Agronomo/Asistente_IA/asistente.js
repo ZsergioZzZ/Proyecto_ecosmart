@@ -194,14 +194,17 @@ document.addEventListener("DOMContentLoaded", () => {
         eliminarBtn.style.cursor = "pointer";
         eliminarBtn.title = "Eliminar chat";
         eliminarBtn.addEventListener("click", async () => {
-          await fetch(`http://localhost:5000/eliminar_chat/${item.chat_id}`, { method: "DELETE" });
-          if (chat_id === item.chat_id) {
-            chatBox.innerHTML = '';
-            chat_id = null;
-            nombre_chat = null;
-          }
-          cargarListaChats();
-        });
+  const confirmar = window.confirm("¿Estás seguro de que quieres eliminar este chat? Esta acción no se puede deshacer.");
+  if (!confirmar) return;
+
+  await fetch(`http://localhost:5000/eliminar_chat/${item.chat_id}`, { method: "DELETE" });
+  if (chat_id === item.chat_id) {
+    chatBox.innerHTML = '';
+    chat_id = null;
+    nombre_chat = null;
+  }
+  cargarListaChats();
+});
 
         nombreContainer.appendChild(chatLabel);
         nombreContainer.appendChild(editarBtn);
