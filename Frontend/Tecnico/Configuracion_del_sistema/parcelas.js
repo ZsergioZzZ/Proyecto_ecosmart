@@ -1,3 +1,4 @@
+// Inicializar el mapa
 const map = L.map('map'); 
 
 // Intentar geolocalización
@@ -9,33 +10,28 @@ if (navigator.geolocation) {
       map.setView([lat, lng], 14);
     },
     () => {
-      // Si falla, fallback a Santiago
       map.setView([-33.4489, -70.6693], 14);
     }
   );
 } else {
-  // Si el navegador no soporta geolocalización
   map.setView([-33.4489, -70.6693], 14);
 }
-
 
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
   attribution: 'Tiles © Esri'
 }).addTo(map);
 
-
 let drawnPoints = [];
 let markers = [];
 let polygon = null;
-
-let modo = null; 
+let modo = null;
 
 function drawPolygon() {
   if (polygon) {
     map.removeLayer(polygon);
   }
   if (drawnPoints.length >= 3) {
-    polygon = L.polygon(drawnPoints, { color: 'red' }).addTo(map);
+    polygon = L.polygon(drawnPoints, { color: 'red', fillOpacity: 0.15 }).addTo(map);
   }
   document.getElementById("parcelPoints").value = JSON.stringify(drawnPoints);
 }
@@ -47,12 +43,12 @@ function addPoint(latlng) {
     draggable: true
   }).addTo(map);
 
-  // Evita auto-pan manualmente
   marker.on('dragstart', () => {
-    map.dragging.disable(); 
+    map.dragging.disable();
   });
+
   marker.on('dragend', (e) => {
-    map.dragging.enable(); 
+    map.dragging.enable();
     if (modo === 'modificar') {
       const i = markers.indexOf(marker);
       drawnPoints[i] = [e.target.getLatLng().lat, e.target.getLatLng().lng];
@@ -64,21 +60,12 @@ function addPoint(latlng) {
     marker.dragging.disable();
   }
 
-
   marker.on('click', () => {
     const index = markers.indexOf(marker);
     if (modo === 'eliminar') {
       map.removeLayer(marker);
       drawnPoints.splice(index, 1);
       markers.splice(index, 1);
-      drawPolygon();
-    }
-  });
-
-  marker.on('dragend', (e) => {
-    if (modo === 'modificar') {
-      const i = markers.indexOf(marker);
-      drawnPoints[i] = [e.target.getLatLng().lat, e.target.getLatLng().lng];
       drawPolygon();
     }
   });
@@ -108,35 +95,52 @@ function limpiarFormulario() {
   document.getElementById("lngManual").value = "";
 }
 
-
 function guardarParcela() {
-  const datos = {
-    nombre: document.getElementById("nombre").value,
-    numero: document.getElementById("numero").value,
-    ubicacion: document.getElementById("ubicacion").value,
-    cultivo: document.getElementById("cultivo").value,
-    puntos: drawnPoints
-  };
+  const nombre = document.getElementById("nombre").value.trim();
+  const ubicacion = document.getElementById("ubicacion").value.trim();
+  const cultivo = document.getElementById("cultivo").value.trim();
 
- fetch("http://localhost:5000/api/parcelas", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(datos)
+  if (!nombre || !ubicacion || !cultivo || drawnPoints.length < 3) {
+    alert("Completa todos los campos y asegúrate de marcar al menos 3 puntos en el mapa.");
+    return;
+  }
+
+  fetch("http://localhost:5000/api/parcelas-list")
+    .then(res => res.json())
+    .then(parcelas => {
+      const parcelasConNombre = parcelas.filter(p => p.nombre === nombre);
+      const siguienteNumero = parcelasConNombre.length > 0
+        ? Math.max(...parcelasConNombre.map(p => parseInt(p.numero))) + 1
+        : 1;
+
+      const datos = {
+        nombre,
+        numero: siguienteNumero,
+        ubicacion,
+        cultivo,
+        puntos: drawnPoints
+      };
+
+      return fetch("http://localhost:5000/api/parcelas", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(datos)
+      });
     })
     .then(async response => {
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.error || "Error desconocido");
-    alert(result.mensaje);
-    limpiarParcela();
-    limpiarFormulario();
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Error desconocido");
+      alert(result.mensaje);
+      limpiarParcela();
+      limpiarFormulario();
+      desactivarModos();
     })
     .catch(err => {
-    console.error(err);
-    alert(err.message);
+      console.error(err);
+      alert(err.message);
     });
-
 }
 
 function desactivarModos() {
@@ -150,7 +154,6 @@ function activarAgregar() {
   resaltarBotonActivo("btn-agregar");
 }
 
-// Activar modos desde botones
 function activarEliminar() {
   desactivarModos();
   modo = 'eliminar';
@@ -163,13 +166,9 @@ function activarModificar() {
   markers.forEach(marker => {
     marker.dragging.enable();
   });
-
   resaltarBotonActivo("btn-modificar");
 }
 
-
-
-// Control en mapa
 L.Control.ControlesParcela = L.Control.extend({
   onAdd: function () {
     const div = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
@@ -195,30 +194,24 @@ L.Control.ControlesParcela = L.Control.extend({
     </button>
     `;
 
-
     L.DomEvent.disableClickPropagation(div);
     return div;
   },
   onRemove: function () {}
 });
 
-
 function resaltarBotonActivo(id) {
-  // Reinicia todos
   document.querySelectorAll(".leaflet-control button").forEach(btn => {
     btn.style.backgroundColor = "white";
     btn.style.fontWeight = "normal";
   });
 
-  // Resalta el botón activo
   const activo = document.getElementById(id);
   if (activo) {
     activo.style.backgroundColor = "#e6e6e6";
     activo.style.fontWeight = "bold";
   }
 }
-
-
 
 L.control.controlesParcela = function (opts) {
   return new L.Control.ControlesParcela(opts);
@@ -232,7 +225,6 @@ map.on('click', function (e) {
     map.panTo(latlng);
   }
 });
-
 
 window.addEventListener("load", () => {
   setTimeout(() => {
@@ -251,11 +243,9 @@ function agregarPuntoManual() {
 
   const latlng = [lat, lng];
   addPoint(latlng);
-
-  // Centrar el mapa en el nuevo punto:
   map.setView(latlng, 16);
-  
-  // Limpiar inputs
   document.getElementById("latManual").value = "";
   document.getElementById("lngManual").value = "";
 }
+
+

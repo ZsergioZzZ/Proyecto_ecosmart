@@ -18,6 +18,11 @@ def obtener_parcela():
     nombre = request.args.get("nombre")
     numero = request.args.get("numero")
 
+    try:
+        numero = int(numero)
+    except ValueError:
+        return jsonify({"error": "Número inválido"}), 400
+
     if not nombre or not numero:
         return jsonify({"error": "Faltan parámetros"}), 400
 

@@ -21,6 +21,11 @@ def obtener_parcela():
     if not nombre or not numero:
         return jsonify({"error": "Faltan parámetros"}), 400
 
+    try:
+        numero = int(numero)
+    except ValueError:
+        return jsonify({"error": "Número inválido"}), 400
+
     parcela = parcelas.find_one(
         {"nombre": nombre, "numero": numero},
         {"_id": 0, "nombre": 1, "numero": 1, "ubicacion": 1, "cultivo": 1, "puntos": 1}
@@ -31,14 +36,22 @@ def obtener_parcela():
 
     return jsonify(parcela), 200
 
+
 @app.route("/api/datos_sensores", methods=["GET"])
 def obtener_datos_sensores():
     try:
         nombre = request.args.get("nombre")
         numero = request.args.get("numero")
 
+        try:
+            numero = int(numero)
+        except ValueError:
+            return jsonify({"error": "Número inválido"}), 400
+
+
         if not nombre or not numero:
             return jsonify({"error": "Faltan parámetros"}), 400
+        
 
         db_sensores = db["datos_sensores"]
 

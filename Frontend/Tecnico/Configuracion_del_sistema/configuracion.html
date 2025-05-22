@@ -1,4 +1,5 @@
-<div data-layer="Tecnico Configuración del sistema" class="TecnicoConfiguraciNDelSistema" style="width: 1540px; height: 2650px; position: relative; background: #FBF9F4; overflow: hidden">
+<div data-layer="Tecnico Configuración del sistema" class="TecnicoConfiguraciNDelSistema"
+     style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidden;">
   <!-- Principal -->
   <div data-layer="EcoSmart" class="Ecosmart" style="width: 344px; height: 106px; left: 23px; top: 76px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">EcoSmart</div>
   <img data-layer="plantacion (6)" class="Plantacion6" style="width: 76px; height: 76px; left: 157px; top: 38px; position: absolute" src="imagenes/plantacion (6).png" />
@@ -28,10 +29,8 @@
     </div>
 
     <!-- Parcela número -->
-    <div style="flex: 1; min-width: 200px;">
-      <label for="numero" style="font-size: 20px;">Parcela (número)</label><br />
-      <input id="numero" type="number" placeholder="Ej: 1" style="width: 100%; padding: 10px; font-size: 16px;" />
-    </div>
+    <input type="hidden" id="numero" />
+
 
     <!-- Ubicación -->
     <div style="flex: 1; min-width: 300px;">
@@ -70,22 +69,26 @@
       Puedes obtener las coordenadas de latitud y longitud desde Google Maps.
       Haz clic en el lugar deseado del mapa y las coordenadas aparecerán en la parte inferior.
     </div>
+    <script>
+      const infoIcon = document.querySelectorAll('span[style*="cursor: pointer"]')[0];
+      const tooltip = document.querySelectorAll('div#tooltip-info')[0];
+
+      infoIcon.addEventListener('mouseenter', () => {
+        tooltip.style.display = 'block';
+      });
+
+      infoIcon.addEventListener('mouseleave', () => {
+        tooltip.style.display = 'none';
+      });
+    </script>  
   </div>
 </div>
 
-<script>
-  const infoIcon = document.querySelectorAll('span[style*="cursor: pointer"]')[0];
-  const tooltip = document.querySelectorAll('div#tooltip-info')[0];
-
-  infoIcon.addEventListener('mouseenter', () => {
-    tooltip.style.display = 'block';
-  });
-
-  infoIcon.addEventListener('mouseleave', () => {
-    tooltip.style.display = 'none';
-  });
-</script>
-
+  <!-- Coordenadas ocultas -->
+  <div style="display: none;">
+    <label for="coords" style="font-size: 20px;">Coordenadas</label><br />
+    <input id="coords" type="text" placeholder="Ej: -33.4489,-70.6693" style="width: 100%; padding: 10px; font-size: 16px;" />
+  </div>
 
   <!-- Campo oculto para guardar los puntos -->
   <input type="hidden" id="parcelPoints" name="parcelPoints" />
@@ -96,10 +99,6 @@
       Guardar Parcela
     </button>
   </div>
-
-
-
-
 
   </div>
 
@@ -123,23 +122,21 @@
     </div>
 
 
-    <!-- Tipo de Sensor -->
+      <!-- Tipo de Sensor -->
     <div style="flex: 1; min-width: 300px;">
-      <label for="tipoSensor" style="font-size: 20px;">Tipo de Sensor</label><br />
-      <select id="tipoSensor" style="width: 100%; padding: 10px; font-size: 16px;">
-        <option value="">Seleccione tipo</option>
-        <option value="Temperatura Ambiente">Temperatura Ambiente</option>
-        <option value="Humedad del suelo">Humedad del suelo</option>
-        <option value="Nivel de PH">Nivel de PH</option>
-        <option value="Nivel de Nutrientes">Nivel de Nutrientes</option>
-      </select>
+      <label style="font-size: 20px;">Tipos de Sensor</label><br/>
+      <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-top: 10px; align-items: center;">
+        <label style="font-size: 20px; margin-right: -16px;"><input type="checkbox" name="tipoSensor" value="Temperatura Ambiente" /> Temperatura Ambiente</label>
+        <label style="font-size: 20px; margin-right: -16px;"><input type="checkbox" name="tipoSensor" value="Humedad del suelo" /> Humedad del suelo</label>
+        <label style="font-size: 20px; margin-right: -16px;"><input type="checkbox" name="tipoSensor" value="Nivel de PH" /> Nivel de PH</label>
+        <label style="font-size: 20px; margin-right: -16px;"><input type="checkbox" name="tipoSensor" value="Nivel de Nutrientes" /> Nivel de Nutrientes</label>
+      </div>
     </div>
 
+
     <!-- Número de Sensor -->
-    <div style="flex: 1; min-width: 200px;">
-      <label for="numeroSensor" style="font-size: 20px;">Número de Sensor</label><br />
-      <input type="number" id="numeroSensor" placeholder="Ej: 1" style="width: 100%; padding: 10px; font-size: 16px;" />
-    </div>
+    <input type="hidden" id="numeroSensor" />
+
   </div>
 
   <!-- Mapa -->
@@ -194,11 +191,168 @@
     </button>
   </div>
 
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="sensor.js"></script>
 </div>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="sensor.js"></script>
+
+
+<!--
+-------------------------------------
+Modificar o Eliminar Sensor o Parcela
+-------------------------------------
+-->
+<div style="margin-top: 22px; padding: 30px; background: #344E41; border-radius: 20px; color: white; font-family: IBM Plex Mono; min-height: 250px;">
+
+  <hr style="border-color: white;">
+  <h2 style="margin-top: 20px;">Modificar o Eliminar</h2>
+
+  <!-- 
+  Selección de tipo 
+  -->
+  <div style="margin-bottom: 20px;">
+    <label for="tipo-modificacion">¿Qué desea modificar o eliminar?</label><br>
+    <select id="tipo-modificacion" style="padding: 8px; border-radius: 8px; border: none; width: 100%; margin-top: 5px;">
+      <option value="" disabled selected>Seleccione una opción</option>
+      <option value="parcela">Una Parcela</option>
+      <option value="sensor">Un Sensor</option>
+    </select>
+  </div>
+
+  <!-- 
+  Sección Parcela 
+  -->
+  <div id="modificar-parcela" style="display: none;">
+    <h3>Modificar Parcela</h3>
+
+    <label for="parcela-modificar">Seleccione Parcela:</label><br>
+    <select id="parcela-modificar" style="width: 100%; margin-bottom: 10px; padding: 6px; border-radius: 6px;"></select>
+    <label for="parcela-modificar">Nuevo nombre:</label><br>
+    <input type="text" id="nuevo-nombre" placeholder="Nuevo nombre" style="width: 100%; margin-bottom: 10px; padding: 6px; border-radius: 6px;">
+    <label for="parcela-modificar">Nueva Ubicación:</label><br>
+    <input type="text" id="nueva-ubicacion" placeholder="Nueva ubicación" style="width: 100%; margin-bottom: 10px; padding: 6px; border-radius: 6px;">
+    <label for="parcela-modificar">Nuevo Cultivo:</label><br>
+    <input type="text" id="nuevo-cultivo" placeholder="Nuevo cultivo" style="width: 100%; margin-bottom: 15px; padding: 6px; border-radius: 6px;">
+
+    <div style="margin-top: 20px;">
+      <label style="font-size: 20px;">Delimitación de la Parcela</label>
+      <div id="mapModificarParcelaParcela" style="height: 400px; width: 100%; margin-top: 10px; border: 2px solid white; border-radius: 10px;"></div>
+    </div>
+    <div style="margin-top: 20px; background: #ffffff; color: black; padding: 15px; border-radius: 10px; width: fit-content; position: relative;">
+      <label style="margin-right: 10px;">Latitud:</label>
+      <input type="number" id="latModParcelaManual" step="0.000001" placeholder="-33.4489" />
+      <label style="margin: 0 10px;">Longitud:</label>
+      <input type="number" id="lngModParcelaManual" step="0.000001" placeholder="-70.6693" />
+      <button onclick="modificarPuntoParcelaManual()" style="margin-left: 10px;">📌 Agregar punto manual</button>
+
+      <!--Icono + texto -->
+      <div class="tooltip-wrapper" style="display: inline-block; position: relative; margin-left: 10px;">
+        <span class="info-icon" style="font-size: 18px; cursor: pointer; border: 1px solid gray; border-radius: 50%; padding: 1px 6px;">i</span>
+
+        <div class="tooltip-text" style="display: none; position: absolute; top: 25px; left: -100px; width: 250px; background-color: #444; color: white; padding: 10px; border-radius: 6px; font-size: 15px; z-index: 100;">
+          Puedes obtener las coordenadas de latitud y longitud desde Google Maps.
+          Haz clic en el lugar deseado del mapa y las coordenadas aparecerán en la parte inferior.
+        </div>
+      </div>
+
+      <script>
+        document.querySelectorAll(".tooltip-wrapper").forEach(wrapper => {
+          const icon = wrapper.querySelector(".info-icon");
+          const tooltip = wrapper.querySelector(".tooltip-text");
+
+          icon.addEventListener("mouseenter", () => {
+            tooltip.style.display = "block";
+          });
+
+          icon.addEventListener("mouseleave", () => {
+            tooltip.style.display = "none";
+          });
+        });
+      </script>
+    </div>
+    
+    <br>
+
+    <button style="background-color: #588157; color: white; padding: 10px 15px; border-radius: 10px;" onclick="guardarCambiosParcela()">Guardar Cambios</button>
+    <button style="background-color: red; color: white; padding: 10px 15px; border-radius: 10px; margin-left: 10px;" onclick="eliminarParcela()">Eliminar Parcela</button>
+  
+
+
+    <script src="elim_mod_parcela.js"></script>
+  
+  </div>
+
+  
+  <!-- 
+  Sección Sensor 
+  -->
+  <div id="modificar-sensor" style="display: none; margin-top: 30px;">
+    <h3>Modificar Sensor</h3>
+
+    <label for="parcela-sensor">Seleccione Parcela:</label><br>
+    <select id="parcela-sensor" style="width: 100%; margin-bottom: 10px; padding: 6px; border-radius: 6px;"></select>
+
+    <label for="tipo-sensor-modificar">Tipo de Sensor:</label><br>
+    <select id="tipo-sensor-modificar" style="width: 100%; margin-bottom: 15px; padding: 6px; border-radius: 6px;">
+      <option value="" disabled selected>Seleccione un tipo de sensor</option>
+      <option value="Temperatura Ambiente">Temperatura Ambiente</option>
+      <option value="Humedad del suelo">Humedad del suelo</option>
+      <option value="Nivel de PH">Nivel de PH</option>
+      <option value="Nivel de Nutrientes">Nivel de Nutrientes</option>
+    </select>
+
+    <div style="margin-top: 20px;">
+      <label style="font-size: 20px;">Ubicación del Sensor</label>
+      <div id="mapModificarParcelaSensor" style="height: 400px; width: 100%; margin-top: 10px; border: 2px solid white; border-radius: 10px;"></div>
+    </div>
+
+    <div style="margin-top: 20px; background: #ffffff; color: black; padding: 15px; border-radius: 10px; width: fit-content; position: relative;">
+      <label style="margin-right: 10px;">Latitud:</label>
+      <input type="number" id="latModSensorManual" step="0.000001" placeholder="-33.4489" />
+      <label style="margin: 0 10px;">Longitud:</label>
+      <input type="number" id="lngModSensorManual" step="0.000001" placeholder="-70.6693" />
+      <button onclick="modificarrPuntoSensorManual()" style="margin-left: 10px;">📌 Agregar punto manual</button>
+
+      <!--Icono + texto -->
+      <div class="tooltip-wrapper" style="display: inline-block; position: relative; margin-left: 10px;">
+        <span class="info-icon" style="font-size: 18px; cursor: pointer; border: 1px solid gray; border-radius: 50%; padding: 1px 6px;">i</span>
+
+        <div class="tooltip-text" style="display: none; position: absolute; top: 25px; left: -100px; width: 250px; background-color: #444; color: white; padding: 10px; border-radius: 6px; font-size: 15px; z-index: 100;">
+          Puedes obtener las coordenadas de latitud y longitud desde Google Maps.
+          Haz clic en el lugar deseado del mapa y las coordenadas aparecerán en la parte inferior.
+        </div>
+      
+        <script>
+          document.querySelectorAll(".tooltip-wrapper").forEach(wrapper => {
+            const icon = wrapper.querySelector(".info-icon");
+            const tooltip = wrapper.querySelector(".tooltip-text");
+
+            icon.addEventListener("mouseenter", () => {
+              tooltip.style.display = "block";
+            });
+
+            icon.addEventListener("mouseleave", () => {
+              tooltip.style.display = "none";
+            });
+          });
+        </script>
+      
+      </div>
+    </div>
+
+
+    <br>
+
+
+    <button style="background-color: #588157; color: white; padding: 10px 15px; border-radius: 10px;" onclick="guardarCambiosSensor()">Guardar Cambios</button>
+    <button style="background-color: red; color: white; padding: 10px 15px; border-radius: 10px; margin-left: 10px;" onclick="eliminarSensor()">Eliminar Sensor</button>
+  
+    <script src="elim_mod_sensor.js"></script>
+  
+  </div>
+
+</div>
 
 </div>
 
