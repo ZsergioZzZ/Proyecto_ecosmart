@@ -23,6 +23,7 @@ app = Flask(__name__)
 CORS(app)
 
 @app.route("/consulta", methods=["POST"])
+@app.route("/consulta", methods=["POST"])
 def consulta():
     datos = request.json
     pregunta = datos.get("pregunta")
@@ -36,23 +37,30 @@ def consulta():
     if not chat_id:
         chat_id = str(uuid.uuid4())
 
+    # Recuperar historial de la conversación si ya existe
+    mensajes_previos = list(conversaciones_collection.find(
+        {"chat_id": chat_id}).sort("fecha", 1))
+
+    # Construir mensajes con rol
+    mensajes = [
+        {
+            "role": "system",
+            "content": "Eres un asistente experto en agricultura. Solo debes responder preguntas relacionadas con agricultura, cultivos, riego, fertilización, enfermedades de plantas, planificación agrícola, suelos, sensores o técnicas agrícolas. Si te llegan a hacer una pregunta que no es sobre agricultura, dile que solo puedes ayudar con temas agrícolas."
+        }
+    ]
+
+    # Añadir mensajes previos (si existen)
+    for m in mensajes_previos:
+        mensajes.append({"role": "user", "content": m["pregunta"]})
+        mensajes.append({"role": "assistant", "content": m["respuesta"]})
+
+    # Añadir la nueva pregunta del usuario
+    mensajes.append({"role": "user", "content": pregunta})
+
+    # Preparar solicitud a OpenRouter
     payload = {
         "model": modelo,
-        "messages": [
-            {
-                "role": "system",
-                "content": "Eres un asistente experto en agricultura."
-                " Solo debes responder preguntas relacionadas con agricultura,"
-                " cultivos, riego, fertilizacion, enfermedades de plantas, planificacion agrícola, "
-                "suelos, sensores o tecnicas agricolas."
-                " Si te llegan a hacer una pregunta que no es sobre agricultura, "
-                "dile que solo puedes ayudar con temas agricolas."
-            },
-            {
-                "role": "user",
-                "content": pregunta
-            }
-        ]
+        "messages": mensajes
     }
 
     headers = {
@@ -67,16 +75,18 @@ def consulta():
 
     respuesta = response.json()["choices"][0]["message"]["content"]
 
+    # Guardar en la base de datos
     conversaciones_collection.insert_one({
         "chat_id": chat_id,
         "pregunta": pregunta,
         "respuesta": respuesta,
         "modelo": modelo,
         "fecha": datetime.now(),
-        "nombre_chat": nombre_chat  # si se pasa, lo guarda
+        "nombre_chat": nombre_chat
     })
 
     return jsonify({"respuesta": respuesta, "chat_id": chat_id})
+
 
 @app.route("/historial_chats", methods=["GET"])
 def historial_chats():
