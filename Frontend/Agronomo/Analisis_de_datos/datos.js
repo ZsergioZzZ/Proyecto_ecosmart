@@ -86,7 +86,9 @@ document.getElementById("parcelaAsociada").addEventListener("change", function (
       fillOpacity: 0.1        // opacidad del relleno
       }).addTo(map);
 
-     map.fitBounds(poligono.getBounds());
+      const centro = poligono.getBounds().getCenter();
+      map.setView(centro, 16.3);
+
     })
     .catch(err => {
       console.error("Error al obtener la parcela:", err);

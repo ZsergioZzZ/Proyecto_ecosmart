@@ -79,7 +79,7 @@ function agregarPuntoSensorManual() {
 // Limpiar formulario y mapa
 function limpiarSensorForm() {
   document.getElementById("parcelaAsociada").value = "";
-  document.getElementById("tipoSensor").value = "";
+  document.querySelectorAll('input[name="tipoSensor"]:checked').forEach(cb => cb.checked = false);
   document.getElementById("numeroSensor").value = "";
   document.getElementById("sensorCoords").value = "";
   if (markerSensor) {
@@ -114,48 +114,82 @@ function cargarParcelas() {
 // Guardar sensor
 function guardarSensor() {
   const parcela = document.getElementById("parcelaAsociada").value;
-  const tipo = document.getElementById("tipoSensor").value;
-  const numero = document.getElementById("numeroSensor").value;
+  const tiposSeleccionados = Array.from(document.querySelectorAll('input[name="tipoSensor"]:checked')).map(cb => cb.value);
   const coordsRaw = document.getElementById("sensorCoords").value;
 
-  if (!parcela || !tipo || !numero || !coordsRaw) {
+  if (!parcela || tiposSeleccionados.length === 0 || !coordsRaw) {
     alert("Todos los campos y la ubicación son obligatorios.");
     return;
   }
 
   const coords = JSON.parse(coordsRaw);
 
-  const datos = {
-    parcela,
-    tipo,
-    numero,
-    ubicacion: coords
-  };
+  fetch("http://localhost:5000/api/sensores-list")
+    .then(res => res.json())
+    .then(sensores => {
+      const sensoresDeParcela = sensores.filter(s => s.parcela === parcela);
+      const tiposExistentes = sensoresDeParcela.map(s => s.tipo);
 
-  fetch("http://localhost:5000/api/sensores", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(datos)
-  })
-    .then(async res => {
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "Error al guardar el sensor");
-      alert(result.mensaje);
-      limpiarSensorForm();
+      const tiposRepetidos = tiposSeleccionados.filter(tipo => tiposExistentes.includes(tipo));
+
+      if (tiposRepetidos.length > 0) {
+        alert("Ya existe un sensor de tipo: " + tiposRepetidos.join(", ") + " para esta parcela.");
+        return Promise.reject("tipo duplicado");
+      }
+
+      const promesas = tiposSeleccionados.map(tipo => {
+        const datos = {
+          parcela,
+          tipo,
+          ubicacion: coords
+        };
+
+        return fetch("http://localhost:5000/api/sensores", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(datos)
+        });
+      });
+
+      return Promise.all(promesas);
+    })
+    .then(resultados => {
+      if (resultados) {
+        alert("Sensores guardados exitosamente.");
+      }
     })
     .catch(err => {
-      console.error(err);
-      alert(err.message);
-    });
+      if (err !== "tipo duplicado") {
+        console.error(err);
+        alert("Error al guardar sensores: " + err.message);
+      }
+    })
+    .finally(() => {
 
-    if (window.parcelaDibujada) {
+      // Eliminar marcador
+      if (markerSensor) {
+        mapSensor.removeLayer(markerSensor);
+        markerSensor = null;
+      }
+
+      // Limpiar formulario
+      document.getElementById("parcelaAsociada").value = "";
+      document.querySelectorAll('input[name="tipoSensor"]:checked').forEach(cb => cb.checked = false);
+      document.getElementById("sensorCoords").value = "";
+
+      // Eliminar parcela dibujada
+      if (window.parcelaDibujada) {
         mapSensor.removeLayer(window.parcelaDibujada);
         window.parcelaDibujada = null;
-        }
-
+      }
+    });
 }
+
+
+
+
 
 
 // Modos de edición
@@ -243,13 +277,13 @@ document.getElementById("parcelaAsociada").addEventListener("change", function (
   const [nombre, resto] = valor.split(" - Parcela ");
   const numero = parseInt(resto);
 
-  fetch(`http://localhost:5000/api/parcela?nombre=${encodeURIComponent(nombre)}&numero=${encodeURIComponent(numero)}`)
+fetch(`http://localhost:5000/api/parcela?nombre=${encodeURIComponent(nombre)}&numero=${numero}`)
 
     .then(res => res.json())
     .then(data => {
       if (!data.puntos) return;
 
-      const puntos = Object.values(data.puntos).map(p => [p.lat, p.lng]);
+      const puntos = data.puntos.map(p => [p.lat, p.lng]);
 
       // Eliminar parcela anterior si ya había una
       if (window.parcelaDibujada) {
@@ -273,9 +307,5 @@ window.addEventListener("load", () => {
   mapSensor.invalidateSize();
   cargarParcelas();
 });
-
-
-
-
 
 

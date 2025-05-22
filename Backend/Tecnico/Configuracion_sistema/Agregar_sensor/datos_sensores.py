@@ -90,7 +90,6 @@ def limpiar_json_de_respuesta(respuesta):
 def generar_y_guardar_dato(sensor):
     parcela = sensor.get("parcela", "Desconocida")
     tipo = sensor.get("tipo")
-    numero = sensor.get("numero")
     ubicacion = sensor.get("ubicacion", {})
     lat = ubicacion.get("lat")
     lon = ubicacion.get("lng")
@@ -167,7 +166,6 @@ def generar_y_guardar_dato(sensor):
         "timestamp": datetime.datetime.now(),
         "parcela": parcela,
         "tipo": tipo,
-        "numero": numero,
         "ubicacion": {"lat": lat, "lon": lon},
         **datos_generados
     }
@@ -190,5 +188,5 @@ if __name__ == "__main__":
             for sensor in sensores:
                 generar_y_guardar_dato(sensor)
 
-        print("⏳ Esperando 30 segundos para nueva generación...")
-        time.sleep(30)
+        print("⏳ Esperando 60 segundos para nueva generación...")
+        time.sleep(60)

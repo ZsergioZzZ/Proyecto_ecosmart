@@ -27,11 +27,11 @@ def guardar_sensor():
     data = request.json
 
     # Valida campos obligatorios
-    campos = ["parcela", "tipo", "numero", "ubicacion"]
+    campos = ["parcela", "tipo", "ubicacion"]
     if not all(c in data for c in campos):
         return jsonify({"error": "Faltan campos obligatorios"}), 400
 
-    if not data["parcela"].strip() or not data["tipo"].strip() or not str(data["numero"]).strip():
+    if not data["parcela"].strip() or not data["tipo"].strip():
         return jsonify({"error": "Todos los campos deben tener valores válidos"}), 400
 
     if not isinstance(data["ubicacion"], dict) or "lat" not in data["ubicacion"] or "lng" not in data["ubicacion"]:
@@ -41,7 +41,6 @@ def guardar_sensor():
     existe = sensores.find_one({
         "parcela": data["parcela"],
         "tipo": data["tipo"],
-        "numero": int(data["numero"])
     })
 
     if existe:
@@ -50,7 +49,6 @@ def guardar_sensor():
     sensores.insert_one({
         "parcela": data["parcela"],
         "tipo": data["tipo"],
-        "numero": int(data["numero"]),
         "ubicacion": {
             "lat": data["ubicacion"]["lat"],
             "lng": data["ubicacion"]["lng"]
@@ -67,6 +65,11 @@ def obtener_parcela():
 
     if not nombre or not numero:
         return jsonify({"error": "Faltan parámetros"}), 400
+    
+    try:
+        numero = int(numero)
+    except ValueError:
+        return jsonify({"error": "Número inválido"}), 400
 
     parcela = parcelas.find_one(
         {"nombre": nombre, "numero": numero},  
@@ -78,6 +81,10 @@ def obtener_parcela():
 
     return jsonify(parcela), 200
 
+@app.route("/api/sensores-list", methods=["GET"])
+def listar_sensores():
+    lista = list(sensores.find({}, {"_id": 0, "parcela": 1, "tipo": 1, "numero": 1}))
+    return jsonify(lista), 200
 
 # -------------------------------
 # GET /api/parcelas

@@ -18,33 +18,36 @@ parcelas = db[os.getenv("COLLECTION_PARCELAS", "datos_parcelas")]
 def guardar_parcela():
     data = request.json
 
-     # Validar que todos los campos estén presentes
+    # Validar campos obligatorios
     campos = ["nombre", "numero", "ubicacion", "cultivo", "puntos"]
     if not all(c in data for c in campos):
         return jsonify({"error": "Faltan campos obligatorios"}), 400
 
-    # Validar que nombre, numero, ubicacion y cultivo no estén vacíos
+    # Validar que campos no estén vacíos
     if not data["nombre"].strip() or not str(data["numero"]).strip() or not data["ubicacion"].strip() or not data["cultivo"].strip():
         return jsonify({"error": "Todos los campos (nombre, parcela, ubicación, cultivo) son obligatorios"}), 400
 
-    # Validar que haya al menos 3 puntos
+    # Validar que puntos sea una lista válida
     if not isinstance(data["puntos"], list) or len(data["puntos"]) < 3:
         return jsonify({"error": "Debe ingresar al menos 3 puntos para formar una parcela"}), 400
 
-    # Validar que no exista otra parcela con el mismo nombre y número
+    # Convertir numero a entero
+    try:
+        data["numero"] = int(data["numero"])
+    except (ValueError, TypeError):
+        return jsonify({"error": "El número debe ser un entero válido"}), 400
+
+    # Validar que no exista ya la parcela
     existe = parcelas.find_one({
         "nombre": data["nombre"],
         "numero": data["numero"]
     })
 
-    if existe:
-        return jsonify({"error": "Ya existe una parcela con ese número en este mismo fundo"}), 400
 
+    # Formatear puntos
+    puntos_transformados = [{"lat": p[0], "lng": p[1]} for p in data["puntos"]]
 
-    puntos_transformados = [
-        {"lat": punto[0], "lng": punto[1]} for punto in data["puntos"]
-    ]
-
+    # Insertar en MongoDB
     parcelas.insert_one({
         "nombre": data["nombre"],
         "numero": data["numero"],
@@ -54,6 +57,18 @@ def guardar_parcela():
     })
 
     return jsonify({"mensaje": "Parcela guardada exitosamente"}), 201
+
+@app.route("/api/parcelas-list", methods=["GET"])
+def listar_parcelas():
+    lista = []
+    for p in parcelas.find({}, {"_id": 0, "nombre": 1, "numero": 1}):
+        try:
+            p["numero"] = int(p["numero"])
+        except (ValueError, TypeError):
+            p["numero"] = None  
+        lista.append(p)
+    return jsonify(lista)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

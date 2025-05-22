@@ -109,7 +109,9 @@ document.getElementById("parcelaAsociada").addEventListener("change", async func
       weight: 2
     }).addTo(map);
 
-    map.fitBounds(poligono.getBounds());
+    const centro = poligono.getBounds().getCenter();
+    map.setView(centro, 16.5);
+
 
   } catch (error) {
     console.error("Error al cargar datos:", error);
