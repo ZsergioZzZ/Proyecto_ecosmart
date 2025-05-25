@@ -1,19 +1,18 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Blueprint, request, jsonify
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 
+sensores_moni_cultivos_blueprint = Blueprint('sensores_moni_cultivos', __name__)
+
 load_dotenv()
-app = Flask(__name__)
-CORS(app)
 
 # Conexión a MongoDB
 client = MongoClient(os.getenv("MONGO_URI"))
 db = client[os.getenv("DB_NAME")]
 parcelas = db[os.getenv("COLLECTION_PARCELAS", "datos_parcelas")]
 
-@app.route("/api/parcela", methods=["GET"])
+@sensores_moni_cultivos_blueprint.route("/api/parcela", methods=["GET"])
 def obtener_parcela():
     nombre = request.args.get("nombre")
     numero = request.args.get("numero")
@@ -53,7 +52,7 @@ def obtener_valor(doc, tipo):
     return doc.get(campo_valor) if campo_valor in doc else None
 
 
-@app.route("/api/datos_sensores", methods=["GET"])
+@sensores_moni_cultivos_blueprint.route("/api/datos_sensores_monitoreo", methods=["GET"])
 def obtener_datos_sensores():
     try:
         nombre = request.args.get("nombre")
@@ -106,14 +105,9 @@ def obtener_datos_sensores():
         return jsonify({"error": str(e)}), 500
 
 
-
-
-@app.route("/parcelas", methods=["GET"])
+@sensores_moni_cultivos_blueprint.route("/parcelas", methods=["GET"])
 def listar_parcelas():
     resultados = parcelas.find({}, {"nombre": 1, "numero": 1, "_id": 0})
     lista = [{"nombre": p["nombre"], "numero": p["numero"]} for p in resultados]
     return jsonify(lista)
 
-
-if __name__ == "__main__":
-    app.run(debug=True)

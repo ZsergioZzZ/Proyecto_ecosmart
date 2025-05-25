@@ -78,7 +78,6 @@ def generar_datos_ia(prompt):
         print("Error inesperado al llamar a OpenRouter:", e)
         return None
 
-
 def limpiar_json_de_respuesta(respuesta):
     try:
         limpio = re.sub(r"```json|```", "", respuesta).strip()
@@ -177,6 +176,7 @@ def generar_y_guardar_dato(sensor):
 # Simulación continua
 
 if __name__ == "__main__":
+
     print("▶ Iniciando generador de datos para sensores...")
 
     while True:
@@ -189,4 +189,4 @@ if __name__ == "__main__":
                 generar_y_guardar_dato(sensor)
 
         print("⏳ Esperando 60 segundos para nueva generación...")
-        time.sleep(60)
+        time.sleep(300)

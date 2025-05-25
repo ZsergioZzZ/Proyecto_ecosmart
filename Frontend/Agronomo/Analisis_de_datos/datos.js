@@ -58,7 +58,7 @@ document.getElementById("parcelaAsociada").addEventListener("change", function (
   const [nombre, numeroTexto] = valor.split(" - Parcela ");
   const numero = numeroTexto.trim();
 
-  fetch(`http://localhost:5000/api/parcela?nombre=${encodeURIComponent(nombre)}&numero=${encodeURIComponent(numero)}`)
+  fetch(`http://localhost:5000/api/parcela-analisis?nombre=${encodeURIComponent(nombre)}&numero=${encodeURIComponent(numero)}`)
     .then(res => res.json())
     .then(data => {
         // Mostrar datos en el panel izquierdo

@@ -1,0 +1,31 @@
+from flask import Flask
+from flask_cors import CORS
+from dotenv import load_dotenv
+from rutas.auth_routes import auth_blueprint
+from Backend.Tecnico.Configuracion_sistema.Agregar_parcela.parcelas import agregar_parcelas_blueprint
+from Backend.Tecnico.Configuracion_sistema.Agregar_sensor.sensores import agregar_sensores_blueprint
+from Backend.Tecnico.Configuracion_sistema.Historial.historial import historial_tecnico_blueprint
+from Backend.Tecnico.Configuracion_sistema.Modificar_eliminar.modificar_eliminar_parcala_sensor import modificar_eliminar_blueprint
+from Backend.Agronomo.Analisis_datos.datos import analisis_datos_blueprint
+from Backend.Agronomo.Asistente_IA.chat_ia import chat_ia_blueprint
+from Backend.Agricultor.Monitoreo_de_Cultivos.Datos_meteorologicos.datos_meteorologicos import datos_meteo_moni_cultivos_blueprint
+from Backend.Agricultor.Monitoreo_de_Cultivos.Sensores.sensores import sensores_moni_cultivos_blueprint
+
+load_dotenv()
+
+app = Flask(__name__)
+CORS(app)
+
+# Registrar blueprint
+app.register_blueprint(auth_blueprint)
+app.register_blueprint(agregar_parcelas_blueprint)
+app.register_blueprint(agregar_sensores_blueprint)
+app.register_blueprint(historial_tecnico_blueprint)
+app.register_blueprint(modificar_eliminar_blueprint)
+app.register_blueprint(analisis_datos_blueprint)
+app.register_blueprint(chat_ia_blueprint)
+app.register_blueprint(datos_meteo_moni_cultivos_blueprint)
+app.register_blueprint(sensores_moni_cultivos_blueprint)
+
+if __name__ == '__main__':
+    app.run(port=5000, debug=True)
