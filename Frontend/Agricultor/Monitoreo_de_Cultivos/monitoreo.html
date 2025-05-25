@@ -83,7 +83,13 @@
   <div data-layer="Monitoreo de Cultivos" class="MonitoreoDeCultivos" style="width: 725px; height: 272px; left: 93px; top: 181px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 94px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Monitoreo de<br/><br/><br/>Cultivos</div>
   <div data-layer="Rectangle 1" class="Rectangle1" style="width: 223px; height: 72px; left: 1270px; top: 37px; position: absolute; background: #588157; border-radius: 28px"></div>
   <img data-layer="avatar" class="Avatar" style="width: 37px; height: 37px; left: 1287px; top: 54px; position: absolute" src="imagenes/avatar.png" />
-  <div data-layer="Agricultor" class="Agricultor" style="width: 127px; height: 45px; left: 1336px; top: 50px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Agricultor</div>
+  <div id="nombre-usuario" class="Agricultor" style="width: 127px; height: 45px; left: 1336px; top: 50px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Agricultor</div>
+  <script>
+  const nombre = localStorage.getItem("nombreUsuario");
+  if (nombre) {
+    document.getElementById("nombre-usuario").textContent = nombre;
+  }
+  </script>
   <div data-layer="EcoSmart" class="Ecosmart" style="width: 344px; height: 106px; left: 23px; top: 75px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">EcoSmart</div>
   <img data-layer="plantacion (6)" class="Plantacion6" style="width: 76px; height: 76px; left: 157px; top: 37px; position: absolute" src="imagenes/plantacion (6).png" />
   <a href="/Frontend/Agricultor/Inicio/inicio_agricultor.html"

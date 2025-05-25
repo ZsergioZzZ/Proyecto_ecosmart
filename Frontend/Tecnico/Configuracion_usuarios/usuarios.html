@@ -1,0 +1,146 @@
+<div data-layer="Tecnico Ajuste de parámetros" class="TecnicoAjusteDeParMetros" 
+style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidden;">
+  <!-- Principal -->
+  <div data-layer="EcoSmart" class="Ecosmart" style="width: 344px; height: 106px; left: 23px; top: 76px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">EcoSmart</div>
+  <img data-layer="plantacion (6)" class="Plantacion6" style="width: 76px; height: 76px; left: 157px; top: 38px; position: absolute" src="imagenes/plantacion (6).png" />
+  <img data-layer="Imagen Cultivo" class="ImagenCultivo" style="width: 1597.01px; height: 674px; left: 0px; top: 229px; position: absolute" src="imagenes/imagen-cultivo.JPG" />
+  <div data-layer="Rectangle 1" class="Rectangle1" style="width: 223px; height: 72px; left: 1270px; top: 38px; position: absolute; background: #588157; border-radius: 28px"></div>
+  <img data-layer="avatar" class="Avatar" style="width: 37px; height: 37px; left: 1287px; top: 55px; position: absolute" src="imagenes/avatar.png" />
+  <div data-layer="Técnico" class="TCnico" style="width: 127px; height: 45px; left: 1336px; top: 51px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Técnico</div>
+  
+  <!--Navegacion paginas-->
+  <a href="/Frontend/Tecnico/Configuracion_del_sistema/configuracion.html"
+    style="width: 127px; height: 45px; left: 1160px; top: 51px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; text-decoration: underline; line-height: 28px; word-wrap: break-word">
+    Atrás
+  </a>
+  <!---------------------->
+  
+  <div data-layer="Ajuste de parámetros de simulación" class="AjusteDeParMetrosDeSimulaciN" style="width: 1417px; height: 272px; left: 76px; top: 164px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 94px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Configuraciones de<br/><br/><br/><br/>usuarios</div>
+ 
+  <!-- 
+  -------------------------------
+  Registrar Usuario
+  -------------------------------
+  -->
+  <div style="margin-top: 923px;  padding: 30px;  background: #344E41; border-radius: 20px; color: white; font-family: IBM Plex Mono;">
+
+    <div style="width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; margin-top: 0px; color: #344E41; font-family: IBM Plex Mono; position: relative;">
+      <h2 style="text-align: center; font-size: 32px; margin-bottom: 30px;">Registrar Usuario</h2>
+
+      <label>Nombre</label><br>
+      <input type="text" id="nombre" placeholder="Nombre..." style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+      <label>Apellidos</label><br>
+      <input type="text" id="apellidos" placeholder="Apellidos..." style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+      <label>Email</label><br>
+      <input type="email" id="email" placeholder="usuario@gmail.com" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+      <label>Contraseña</label><br>
+      <div style="position: relative; width: 100%; margin-bottom: 10px;">
+        <input type="password" id="password" placeholder="Mínimo 8 caracteres"
+          style="width: 100%; padding: 10px 40px 10px 10px; border-radius: 8px; border: 1px solid #ccc;">
+        <button type="button" onclick="togglePassword()"
+          style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+          <i id="icono-ojo" class="fa-solid fa-eye-slash"></i>
+        </button>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+      </div>
+      
+      <label>Celular</label><br>
+      <input type="tel" id="telefono" placeholder="911111111" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+      <label>Rol</label><br>
+      <select id="rol" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+        <option value="" disabled selected>Selecciona un rol</option>
+        <option value="agricultor">Agricultor</option>
+        <option value="agrónomo">Agrónomo</option>
+        <option value="técnico">Técnico</option>
+      </select><br><br>
+
+      <button onclick="registrarUsuario()" style="width: 100%; padding: 12px; background-color: #588157; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px;">
+        Registrar Usuario
+      </button>
+       
+    </div>
+  </div>
+
+  <!-- 
+  -------------------------------
+  Historial de Usuarios
+  -------------------------------
+  -->
+  <div style="margin-top: 20px; padding: 30px; background: #344E41; border-radius: 20px; font-family: IBM Plex Mono; color: white; min-height: 150px;">
+    <h2 style="text-align: center; font-size: 32px; margin-bottom: 20px;">Historial de Usuarios</h2>
+
+    <div style="text-align: center;">
+      <button onclick="toggleUsuarios()" style="padding: 10px 20px; background-color: #A3B18A; border: none; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer;">
+        📋 Ver usuarios registrados
+      </button>
+    </div>
+
+    <div id="contenedorUsuarios" style="display: none; margin-top: 30px;">
+      <div id="listaUsuarios"></div>
+    </div>
+  </div>
+
+  <!-- 
+  -------------------------------
+  Modificar Usuario 
+  -------------------------------
+  -->
+  <div style="margin-top: 20px; padding: 30px; background: #344E41; border-radius: 20px; color: white; font-family: IBM Plex Mono;">
+    <div style="width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; color: #344E41; position: relative;">
+      <h2 style="text-align: center; font-size: 32px; margin-bottom: 30px;">Modificar o Eliminar Usuario</h2>
+
+      <label>Email (Buscar)</label><br>
+      <input type="email" id="buscarEmail" placeholder="usuario@gmail.com"
+        style="width: 100%; margin-bottom: 20px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+      <button onclick="buscarUsuario()" style="width: 100%; padding: 10px; background-color: #A3B18A; color: black; border: none; border-radius: 10px; font-weight: bold; font-size: 16px;">
+        Buscar usuario
+      </button>
+
+      <hr style="margin: 30px 0;">
+
+      <label>Nombre</label><br>
+      <input type="text" id="modNombre" placeholder="Nombre..." style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+      <label>Apellidos</label><br>
+      <input type="text" id="modApellidos" placeholder="Apellidos..." style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+      <label>Email</label><br>
+      <input type="email" id="modEmail" placeholder="usuario@gmail.com" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+      <label>Contraseña</label><br>
+      <div style="position: relative; width: 100%; margin-bottom: 10px;">
+        <input type="password" id="modPassword" placeholder="Mínimo 8 caracteres"
+          style="width: 100%; padding: 10px 40px 10px 10px; border-radius: 8px; border: 1px solid #ccc;">
+        <button type="button" onclick="togglePasswordMod()"
+          style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+          <i id="icono-ojo-mod" class="fa-solid fa-eye-slash"></i>
+        </button>
+      </div>
+
+      <label>Celular</label><br>
+      <input type="tel" id="modTelefono" placeholder="911111111" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+      <label>Rol</label><br>
+      <select id="modRol" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+        <option value="" disabled selected>Selecciona un rol</option>
+        <option value="agricultor">Agricultor</option>
+        <option value="agronomo">Agrónomo</option>
+        <option value="tecnico">Técnico</option>
+      </select><br><br>
+
+      <button onclick="modificarUsuario()" style="width: 100%; padding: 12px; background-color: #588157; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px;">
+        Guardar cambios
+      </button>
+      <button onclick="eliminarUsuario()" style="width: 100%; padding: 12px; margin-top: 15px; background-color: red; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px;">
+        Eliminar Usuario
+      </button>  
+    </div>
+  </div>
+
+  <script src="usuarios.js"></script>
+</div>
