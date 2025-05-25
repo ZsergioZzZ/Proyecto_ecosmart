@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cambiar Contraseña</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body style="margin: 0; background: #FBF9F4; font-family: Roboto;">
+
+  <div style="width: 100%; max-width: 500px; margin: 80px auto; background: white; padding: 40px; border-radius: 20px; border: 3px solid #344E41;">
+    <h2 style="text-align: center; color: #3D2D4C;">Cambiar Contraseña</h2>
+
+    <!-- Correo -->
+    <label for="email" style="font-size: 18px; color: #3D2D4C;">Correo electrónico</label>
+    <input type="email" id="email" placeholder="usuario@gmail.com" required
+      style="width: 96%; padding: 10px; margin-top: 5px; margin-bottom: 20px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
+
+    <!-- Nueva contraseña -->
+    <label for="nuevaContrasena" style="font-size: 18px; color: #3D2D4C;">Nueva Contraseña</label>
+    <div style="display: flex; align-items: center; border: 1px solid #344E41; border-radius: 6px; background: white; margin-bottom: 20px;">
+      <input type="password" id="nuevaContrasena" placeholder="Mínimo 8 caracteres" required minlength="8"
+        style="flex: 1; padding: 10px; border: none; font-size: 15px; border-radius: 6px 0 0 6px;" />
+      <button type="button" onclick="togglePassword('nuevaContrasena', 'icono-ojo1')" 
+        style="width: 45px; border: none; background: transparent; cursor: pointer;">
+        <i id="icono-ojo1" class="fa-solid fa-eye-slash"></i>
+      </button>
+    </div>
+
+    <!-- Confirmar nueva contraseña -->
+    <label for="confirmarContrasena" style="font-size: 18px; color: #3D2D4C;">Confirmar Nueva Contraseña</label>
+    <div style="display: flex; align-items: center; border: 1px solid #344E41; border-radius: 6px; background: white; margin-bottom: 20px;">
+      <input type="password" id="confirmarContrasena" placeholder="Repetir contraseña" required minlength="8"
+        style="flex: 1; padding: 10px; border: none; font-size: 15px; border-radius: 6px 0 0 6px;" />
+      <button type="button" onclick="togglePassword('confirmarContrasena', 'icono-ojo2')" 
+        style="width: 45px; border: none; background: transparent; cursor: pointer;">
+        <i id="icono-ojo2" class="fa-solid fa-eye-slash"></i>
+      </button>
+    </div>
+
+    <!-- Clave de verificación -->
+    <label for="clave" style="font-size: 18px; color: #3D2D4C;">Clave de verificación</label>
+    <input type="text" id="clave" placeholder="Ingresa la clave de 6 dígitos" required minlength="6" maxlength="6"
+      style="width: 96%; padding: 10px; margin-top: 5px; margin-bottom: 20px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
+
+    <button onclick="enviarClave()"
+    style="width: 50%; padding: 10px; background: #3A5A40; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 500; cursor: pointer; margin-bottom: 20px;">
+    Enviar clave temporal
+    </button>
+
+    <button onclick="cambiarContrasena()"
+      style="width: 100%; padding: 12px; background: #A3B18A; border: 2px solid #344E41; color: #344E41; font-size: 18px; font-weight: 700; border-radius: 6px; cursor: pointer;">
+      Guardar Nueva Contraseña
+    </button>
+  </div>
+
+  <script src="contrasena.js"></script>
+</body>
+</html>
