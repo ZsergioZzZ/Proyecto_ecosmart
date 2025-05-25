@@ -1,14 +1,13 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Blueprint, request, jsonify
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 
+modificar_eliminar_blueprint = Blueprint('modificar_eliminar', __name__)
+
 # Cargar configuración desde .env
 load_dotenv()
 
-app = Flask(__name__)
-CORS(app)
 
 # Conexión a MongoDB
 MONGO_URI = os.getenv("MONGO_URI")
@@ -25,7 +24,7 @@ sensores = db[COLLECTION_SENSORES]
 # 📍 PARCELAS
 # ------------------------
 
-@app.route("/api/parcela", methods=["GET"])
+@modificar_eliminar_blueprint.route("/api/parcela", methods=["GET"])
 def obtener_parcela_por_nombre_y_numero():
     nombre = request.args.get("nombre")
     numero = request.args.get("numero")
@@ -50,7 +49,7 @@ def obtener_parcela_por_nombre_y_numero():
 
 
 
-@app.route("/api/parcelas", methods=["GET"])
+@modificar_eliminar_blueprint.route("/api/parcelas", methods=["GET"])
 def obtener_parcelas():
     lista = []
     for p in parcelas.find({}, {"_id": 0, "nombre": 1, "numero": 1}):
@@ -61,7 +60,7 @@ def obtener_parcelas():
         lista.append(p)
     return jsonify(lista)
 
-@app.route("/parcelas", methods=["PUT"])
+@modificar_eliminar_blueprint.route("/parcelas-modificar", methods=["PUT"])
 def modificar_parcela():
     datos = request.json
     resultado = parcelas.update_one(
@@ -81,7 +80,7 @@ def modificar_parcela():
         return jsonify({"error": "No se modificó ninguna parcela"}), 404
     return jsonify({"mensaje": "Parcela modificada"})
 
-@app.route("/parcelas", methods=["DELETE"])
+@modificar_eliminar_blueprint.route("/parcelas", methods=["DELETE"])
 def eliminar_parcela():
     nombre = request.args.get("nombre")
     numero = request.args.get("numero", type=int)
@@ -99,7 +98,7 @@ def eliminar_parcela():
 # 🔧 SENSORES
 # ------------------------
 
-@app.route("/sensores", methods=["GET"])
+@modificar_eliminar_blueprint.route("/sensores", methods=["GET"])
 def obtener_sensor():
     parcela = request.args.get("parcela")
     tipo = request.args.get("tipo")
@@ -114,7 +113,7 @@ def obtener_sensor():
     return jsonify(sensor), 200
 
 
-@app.route("/sensores", methods=["PUT"])
+@modificar_eliminar_blueprint.route("/sensores", methods=["PUT"])
 def modificar_sensor():
     datos = request.json
     resultado = sensores.update_one(
@@ -128,7 +127,7 @@ def modificar_sensor():
         return jsonify({"error": "No se modificó el sensor"}), 404
     return jsonify({"mensaje": "Sensor modificado"})
 
-@app.route("/sensores", methods=["DELETE"])
+@modificar_eliminar_blueprint.route("/sensores", methods=["DELETE"])
 def eliminar_sensor():
     parcela = request.args.get("parcela")
     tipo = request.args.get("tipo")
@@ -136,7 +135,3 @@ def eliminar_sensor():
     if resultado.deleted_count == 0:
         return jsonify({"error": "Sensor no encontrado"}), 404
     return jsonify({"mensaje": "Sensor eliminado"})
-
-# ------------------------
-if __name__ == "__main__":
-    app.run(debug=True)

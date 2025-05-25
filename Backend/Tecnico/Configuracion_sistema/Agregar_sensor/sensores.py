@@ -1,14 +1,15 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Blueprint, request, jsonify
+
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 
-# Cargar variables de entorno
-load_dotenv()
 
-app = Flask(__name__)
-CORS(app)
+agregar_sensores_blueprint = Blueprint('agregar_sensores', __name__)
+
+# Cargar variables de entorno
+
+load_dotenv()
 
 # Configurar MongoDB
 MONGO_URI = os.getenv("MONGO_URI")
@@ -21,8 +22,7 @@ sensores = db[COLLECTION_SENSORES]
 parcelas = db["datos_parcelas"]  
 
 # -------------------------------
-# POST /api/sensores
-@app.route("/api/sensores", methods=["POST"])
+# POST /api/sensores@agregar_sensores_blueprint.route("/api/sensores", methods=["POST"])
 def guardar_sensor():
     data = request.json
 
@@ -57,8 +57,7 @@ def guardar_sensor():
 
     return jsonify({"mensaje": "Sensor guardado exitosamente"}), 201
 
-
-@app.route("/api/parcela", methods=["GET"])
+@agregar_sensores_blueprint.route("/api/parcela_ag_sensores", methods=["GET"])
 def obtener_parcela():
     nombre = request.args.get("nombre")
     numero = request.args.get("numero")
@@ -81,19 +80,16 @@ def obtener_parcela():
 
     return jsonify(parcela), 200
 
-@app.route("/api/sensores-list", methods=["GET"])
+@agregar_sensores_blueprint.route("/api/sensores-list", methods=["GET"])
 def listar_sensores():
     lista = list(sensores.find({}, {"_id": 0, "parcela": 1, "tipo": 1, "numero": 1}))
     return jsonify(lista), 200
 
 # -------------------------------
 # GET /api/parcelas
-@app.route("/api/parcelas", methods=["GET"])
+@agregar_sensores_blueprint.route("/api/parcelas_ag_sensores", methods=["GET"])
 def obtener_parcelas():
     resultado = parcelas.find({}, {"_id": 0, "nombre": 1, "numero": 1})
     lista = list(resultado)
     return jsonify(lista), 200
 
-# -------------------------------
-if __name__ == "__main__":
-    app.run(debug=True)

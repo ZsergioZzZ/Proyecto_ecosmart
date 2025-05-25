@@ -1,9 +1,11 @@
-from flask import Flask, jsonify, request
-from flask_cors import CORS
+from flask import Blueprint, jsonify, request
 import requests
 import os
 from dotenv import load_dotenv
 from pymongo import MongoClient
+
+
+datos_meteo_moni_cultivos_blueprint = Blueprint('datos_meteo_moni_cultivos', __name__)
 
 # Cargar variables desde .env
 load_dotenv()
@@ -20,18 +22,15 @@ client = MongoClient(MONGO_URI)
 db = client[DB_NAME]
 parcelas_collection = db[COLLECTION_PARCELAS]
 
-# Inicializar app Flask
-app = Flask(__name__)
-CORS(app)
 
 # Ruta para obtener parcelas
-@app.route("/parcelas")
+@datos_meteo_moni_cultivos_blueprint.route("/parcelas")
 def obtener_parcelas():
     parcelas = list(parcelas_collection.find({}, {"_id": 0, "nombre": 1, "lat": 1, "lon": 1}))
     return jsonify(parcelas)
 
 # Ruta para obtener datos meteorológicos desde OpenWeatherMap por coordenadas
-@app.route("/clima")
+@datos_meteo_moni_cultivos_blueprint.route("/clima")
 def clima():
     lat = request.args.get("lat")
     lon = request.args.get("lon")
@@ -45,6 +44,3 @@ def clima():
         return jsonify(forecast_res)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-if __name__ == "__main__":
-    app.run(debug=True)

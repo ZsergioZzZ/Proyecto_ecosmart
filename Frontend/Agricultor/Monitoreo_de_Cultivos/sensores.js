@@ -86,7 +86,7 @@ document.getElementById("parcelaAsociada").addEventListener("change", async func
 
   try {
     // Obtener datos de sensores
-    const resSensores = await fetch(`http://localhost:5000/api/datos_sensores?nombre=${nombre}&numero=${numero}`);
+    const resSensores = await fetch(`http://localhost:5000/api/datos_sensores_monitoreo?nombre=${nombre}&numero=${numero}`);
     const datos = await resSensores.json();
     if (!datos.error) actualizarIndicadores(datos);
 

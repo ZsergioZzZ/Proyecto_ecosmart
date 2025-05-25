@@ -333,7 +333,7 @@ function eliminarParcela() {
 
   if (!confirm(`¿Estás seguro de eliminar la parcela "${nombre}" número ${numero}?`)) return;
 
-  fetch(`http://localhost:5000/parcelas?nombre=${encodeURIComponent(nombre)}&numero=${numero}`, {
+  fetch(`http://localhost:5000/parcelas-modificar?nombre=${encodeURIComponent(nombre)}&numero=${numero}`, {
     method: "DELETE"
   })
     .then(res => res.json())

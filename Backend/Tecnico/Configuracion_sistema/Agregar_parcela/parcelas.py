@@ -1,20 +1,22 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Blueprint, request, jsonify
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 
 # Cargar configuración
+
+agregar_parcelas_blueprint = Blueprint('agregar_parcelas', __name__)
+
+# Cargar variables de entorno
+
 load_dotenv()
-app = Flask(__name__)
-CORS(app)
 
 # Conexión MongoDB
 client = MongoClient(os.getenv("MONGO_URI"))
 db = client[os.getenv("DB_NAME")]
 parcelas = db[os.getenv("COLLECTION_PARCELAS", "datos_parcelas")]
 
-@app.route("/api/parcelas", methods=["POST"])
+@agregar_parcelas_blueprint.route("/api/parcelas", methods=["POST"])
 def guardar_parcela():
     data = request.json
 
@@ -58,7 +60,7 @@ def guardar_parcela():
 
     return jsonify({"mensaje": "Parcela guardada exitosamente"}), 201
 
-@app.route("/api/parcelas-list", methods=["GET"])
+@agregar_parcelas_blueprint.route("/api/parcelas-list", methods=["GET"])
 def listar_parcelas():
     lista = []
     for p in parcelas.find({}, {"_id": 0, "nombre": 1, "numero": 1}):
@@ -68,7 +70,3 @@ def listar_parcelas():
             p["numero"] = None  
         lista.append(p)
     return jsonify(lista)
-
-
-if __name__ == "__main__":
-    app.run(debug=True)

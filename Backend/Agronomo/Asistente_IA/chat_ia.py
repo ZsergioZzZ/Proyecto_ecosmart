@@ -1,12 +1,12 @@
-
 from pymongo import MongoClient
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask import Blueprint, request, jsonify
 from datetime import datetime
 import requests
 import os
 from dotenv import load_dotenv
 import uuid
+
+chat_ia_blueprint = Blueprint('chat_ia', __name__)
 
 # Cargar variables de entorno desde .env
 load_dotenv()
@@ -19,11 +19,8 @@ client = MongoClient(MONGO_URI)
 db = client["EcoSmart"]
 conversaciones_collection = db["conversaciones_ia"]
 
-app = Flask(__name__)
-CORS(app)
 
-@app.route("/consulta", methods=["POST"])
-@app.route("/consulta", methods=["POST"])
+@chat_ia_blueprint.route("/consulta", methods=["POST"])
 def consulta():
     datos = request.json
     pregunta = datos.get("pregunta")
@@ -87,8 +84,7 @@ def consulta():
 
     return jsonify({"respuesta": respuesta, "chat_id": chat_id})
 
-
-@app.route("/historial_chats", methods=["GET"])
+@chat_ia_blueprint.route("/historial_chats", methods=["GET"])
 def historial_chats():
     chats = conversaciones_collection.aggregate([
         {"$sort": {"fecha": -1}},
@@ -104,18 +100,18 @@ def historial_chats():
         for chat in chats
     ])
 
-@app.route("/historial/<chat_id>", methods=["GET"])
+@chat_ia_blueprint.route("/historial/<chat_id>", methods=["GET"])
 def historial_chat(chat_id):
     historial = conversaciones_collection.find({"chat_id": chat_id}).sort("fecha", 1)
     resultado = [{"pregunta": c["pregunta"], "respuesta": c["respuesta"]} for c in historial]
     return jsonify(resultado)
 
-@app.route("/eliminar_chat/<chat_id>", methods=["DELETE"])
+@chat_ia_blueprint.route("/eliminar_chat/<chat_id>", methods=["DELETE"])
 def eliminar_chat(chat_id):
     result = conversaciones_collection.delete_many({"chat_id": chat_id})
     return jsonify({"eliminado": result.deleted_count})
 
-@app.route("/renombrar_chat/<chat_id>", methods=["PATCH"])
+@chat_ia_blueprint.route("/renombrar_chat/<chat_id>", methods=["PATCH"])
 def renombrar_chat(chat_id):
     datos = request.json
     nuevo_nombre = datos.get("nombre_chat")
@@ -128,5 +124,3 @@ def renombrar_chat(chat_id):
     )
     return jsonify({"modificados": result.modified_count, "nombre_chat": nuevo_nombre})
 
-if __name__ == "__main__":
-    app.run(debug=True)
