@@ -1,6 +1,5 @@
-from flask import Flask, request, jsonify
+from flask import Blueprint, request, jsonify
 from pymongo import MongoClient
-from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import re
@@ -9,12 +8,13 @@ import smtplib
 from email.mime.text import MIMEText
 
 
+cambiar_contrasena_blueprint = Blueprint('cambiar-contrasena', __name__)
+
 load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME")
 
-app = Flask(__name__)
-CORS(app)
+
 client = MongoClient(MONGO_URI)
 db = client[DB_NAME]
 coleccion_usuarios = db["datos_usuarios"]
@@ -22,7 +22,7 @@ coleccion_usuarios = db["datos_usuarios"]
 def validar_password(password):
     return len(password) >= 8 and re.search(r"[A-Z]", password) and re.search(r"\d", password)
 
-@app.route("/cambiar-contrasena", methods=["POST"])
+@cambiar_contrasena_blueprint.route("/cambiar-contrasena", methods=["POST"])
 def cambiar_contrasena():
     data = request.get_json()
     email = data.get("email")
@@ -89,7 +89,7 @@ def enviar_clave_por_correo(destinatario, clave):
         server.send_message(mensaje)
 
 
-@app.route("/enviar-clave-verificacion", methods=["POST"])
+@cambiar_contrasena_blueprint.route("/enviar-clave-verificacion", methods=["POST"])
 def enviar_clave_verificacion():
     data = request.get_json()
     email = data.get("email")
@@ -112,7 +112,3 @@ def enviar_clave_verificacion():
     except Exception as e:
         return jsonify({"success": False, "message": f"Error al enviar el correo: {e}"}), 500
 
-
-
-if __name__ == "__main__":
-    app.run(debug=True, port=5000)

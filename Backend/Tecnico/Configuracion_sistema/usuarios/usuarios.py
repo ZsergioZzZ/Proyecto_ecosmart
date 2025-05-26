@@ -1,17 +1,18 @@
-from flask import Flask, request, jsonify
+from flask import Blueprint, request, jsonify
 from pymongo import MongoClient
-from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import re
 import unicodedata
 
+
+cambiar_usuario_tecnico_blueprint = Blueprint('cambiar_usuario_tecnico', __name__)
+
 load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME")
 
-app = Flask(__name__)
-CORS(app)
+
 client = MongoClient(MONGO_URI)
 db = client[DB_NAME]
 coleccion_usuarios = db["datos_usuarios"]
@@ -30,7 +31,7 @@ def validar_rol(rol):
     return rol.lower() in ["agricultor", "agronomo", "tecnico"]
 
 
-@app.route("/usuarios", methods=["POST"])
+@cambiar_usuario_tecnico_blueprint.route("/usuarios", methods=["POST"])
 def registrar_usuario():
     datos = request.json
     email = datos.get("email")
@@ -62,12 +63,12 @@ def registrar_usuario():
     return jsonify({"mensaje": "Usuario registrado exitosamente"}), 201
 
 
-@app.route('/usuarios', methods=['GET'])
+@cambiar_usuario_tecnico_blueprint.route('/usuarios', methods=['GET'])
 def obtener_usuarios():
     usuarios = list(coleccion_usuarios.find({}, {'_id': 0, 'password': 0}))
     return jsonify(usuarios), 200
 
-@app.route('/usuarios/<email>', methods=['GET'])
+@cambiar_usuario_tecnico_blueprint.route('/usuarios/<email>', methods=['GET'])
 def obtener_usuario(email):
     from urllib.parse import unquote
     email = unquote(email).strip().lower()
@@ -82,7 +83,7 @@ def limpiar_rol(rol):
     return unicodedata.normalize('NFD', rol).encode('ascii', 'ignore').decode('utf-8')
 
 
-@app.route('/usuarios/<email>', methods=['PUT'])
+@cambiar_usuario_tecnico_blueprint.route('/usuarios/<email>', methods=['PUT'])
 def actualizar_usuario(email):
     from urllib.parse import unquote
     email = unquote(email)
@@ -103,7 +104,7 @@ def actualizar_usuario(email):
         return jsonify({'mensaje': 'Usuario actualizado'}), 200
     return jsonify({'mensaje': 'No se encontró el usuario'}), 404
 
-@app.route('/usuarios/<email>', methods=['DELETE'])
+@cambiar_usuario_tecnico_blueprint.route('/usuarios/<email>', methods=['DELETE'])
 def eliminar_usuario(email):
     from urllib.parse import unquote
     email = unquote(email)
@@ -111,6 +112,3 @@ def eliminar_usuario(email):
     if resultado.deleted_count > 0:
         return jsonify({'mensaje': 'Usuario eliminado'}), 200
     return jsonify({'mensaje': 'No se encontró el usuario'}), 404
-
-if __name__ == '__main__':
-    app.run(debug=True, port=5050)
