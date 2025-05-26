@@ -10,6 +10,10 @@ from Backend.Agronomo.Analisis_datos.datos import analisis_datos_blueprint
 from Backend.Agronomo.Asistente_IA.chat_ia import chat_ia_blueprint
 from Backend.Agricultor.Monitoreo_de_Cultivos.Datos_meteorologicos.datos_meteorologicos import datos_meteo_moni_cultivos_blueprint
 from Backend.Agricultor.Monitoreo_de_Cultivos.Sensores.sensores import sensores_moni_cultivos_blueprint
+from Backend.Usuario.cambiar_contrasena import cambiar_contrasena_blueprint
+from Backend.Tecnico.Configuracion_sistema.Usuarios.usuarios import cambiar_usuario_tecnico_blueprint
+from Backend.Agricultor.Monitoreo_de_Cultivos.Visualizacion_datos.visualizacion_graficos import visualizacion_g_blueprint
+
 
 load_dotenv()
 
@@ -26,6 +30,10 @@ app.register_blueprint(analisis_datos_blueprint)
 app.register_blueprint(chat_ia_blueprint)
 app.register_blueprint(datos_meteo_moni_cultivos_blueprint)
 app.register_blueprint(sensores_moni_cultivos_blueprint)
+app.register_blueprint(cambiar_contrasena_blueprint)
+app.register_blueprint(cambiar_usuario_tecnico_blueprint)
+app.register_blueprint(visualizacion_g_blueprint)
+
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(port=5001, debug=True)

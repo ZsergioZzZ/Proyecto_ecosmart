@@ -23,7 +23,7 @@ async function registrarUsuario() {
 
 
   try {
-    const res = await fetch("http://localhost:5050/usuarios", {
+    const res = await fetch("http://localhost:5001/usuarios", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -88,7 +88,7 @@ async function buscarUsuario() {
   }
 
   try {
-    const res = await fetch(`http://localhost:5050/usuarios/${encodeURIComponent(email)}`);
+    const res = await fetch(`http://localhost:5001/usuarios/${encodeURIComponent(email)}`);
     const data = await res.json();
 
     if (res.ok) {
@@ -140,7 +140,7 @@ async function modificarUsuario() {
   }
 
   try {
-    const res = await fetch(`http://localhost:5050/usuarios/${encodeURIComponent(email)}`, {
+    const res = await fetch(`http://localhost:5001/usuarios/${encodeURIComponent(email)}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
@@ -174,7 +174,7 @@ async function eliminarUsuario() {
   if (!confirmar) return;
 
   try {
-    const res = await fetch(`http://localhost:5050/usuarios/${encodeURIComponent(email)}`, {
+    const res = await fetch(`http://localhost:5001/usuarios/${encodeURIComponent(email)}`, {
       method: "DELETE"
     });
 
@@ -210,7 +210,7 @@ async function cargarUsuarios() {
   lista.innerHTML = "Cargando usuarios...";
 
   try {
-    const res = await fetch("http://localhost:5050/usuarios");
+    const res = await fetch("http://localhost:5001/usuarios");
     const data = await res.json();
 
     if (!Array.isArray(data)) throw new Error("Respuesta inválida");

@@ -22,7 +22,7 @@ sensores = db[COLLECTION_SENSORES]
 parcelas = db["datos_parcelas"]  
 
 # -------------------------------
-# POST /api/sensores@agregar_sensores_blueprint.route("/api/sensores", methods=["POST"])
+@agregar_sensores_blueprint.route("/api/sensores", methods=["POST"])
 def guardar_sensor():
     data = request.json
 
