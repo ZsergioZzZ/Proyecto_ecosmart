@@ -43,11 +43,36 @@
   <img data-layer="mantenimiento-web 1" class="MantenimientoWeb1" style="width: 186px; height: 186px; left: 1042px; top: 1343px; position: absolute" src="imagenes/mantenimiento-web.png" />
   <img data-layer="ajustar 1" class="Ajustar1" style="width: 186px; height: 186px; left: 812px; top: 1972px; position: absolute" src="imagenes/ajustar.png" />
   <img data-layer="ajustar 2" class="Ajustar2" style="width: 186px; height: 186px; left: 541px; top: 1972px; position: absolute" src="imagenes/ajustar.png" />
-  <div id="nombre-usuario" style="width: 127px; height: 45px; left: 1336px; top: 51px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Técnico</div>
+  <div id="nombre-usuario-tecnico" style="width: 127px; height: 45px; left: 1336px; top: 51px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Técnico</div>
   <script>
     const nombre = localStorage.getItem("nombreUsuario");
     if (nombre) {
-      document.getElementById("nombre-usuario").textContent = nombre;
+      document.getElementById("nombre-usuario-tecnico").textContent = nombre;
     }
   </script>
+
+  <!-- 
+  Menú desplegable oculto 
+  -->
+  <div id="menuOpciones" style="display: none; width: 203px; position: absolute; top: 120px; left: 1270px; background: #344E41; border-radius: 10px; padding: 10px;">
+    <a href="/Frontend/Inicio_de_sesion/Inicio/inicio.html"
+      style="display: flex; justify-content: center; color: white; text-decoration: none; font-family: IBM Plex Mono; font-weight: 550; font-size: 18px;">
+      Cerrar sesión
+    </a>
+  </div>
+
+  <script>
+    // Mostrar/ocultar menú al hacer clic en el avatar o nombre
+    const avatar = document.querySelector('img[src="imagenes/avatar.png"]');
+    const nombreUsuario = document.getElementById("nombre-usuario-tecnico");
+    const menu = document.getElementById("menuOpciones");
+
+    function toggleMenu() {
+      menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
+    }
+
+    avatar.addEventListener("click", toggleMenu);
+    nombreUsuario.addEventListener("click", toggleMenu);
+  </script>
+
 </div>
