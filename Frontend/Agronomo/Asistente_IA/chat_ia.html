@@ -128,13 +128,38 @@
 
   <div style="width: 223px; height: 72px; background: #588157; border-radius: 28px; display: flex; align-items: center; padding-left: 15px;">
     <img src="imagenes/avatar.png" alt="Avatar" style="width: 37px; height: 37px;" />
-    <div id="nombre-usuario" style="color: white; font-size: 20px; font-family: 'IBM Plex Mono', monospace; font-weight: 700; margin-left: 10px;">Agrónomo</div>
+    <div id="nombre-usuario-agronomo" style="color: white; font-size: 20px; text-align: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-weight: 700; margin-left: 10px;">Agrónomo</div>
     <script>
     const nombre = localStorage.getItem("nombreUsuario");
     if (nombre) {
-      document.getElementById("nombre-usuario").textContent = nombre;
+      document.getElementById("nombre-usuario-agronomo").textContent = nombre;
     }
     </script>
+
+  <!-- 
+  Menú desplegable oculto 
+  -->
+  <div id="menuOpciones" style="display: none; width: 203px; position: absolute; top: 120px; left: 1250px; background: #344E41; border-radius: 10px; padding: 10px;">
+    <a href="/Frontend/Inicio_de_sesion/Inicio/inicio.html"
+      style="display: flex; justify-content: center; color: white; text-decoration: none; font-family: IBM Plex Mono; font-weight: 550; font-size: 18px;">
+      Cerrar sesión
+    </a>
+  </div>
+
+  <script>
+    // Mostrar/ocultar menú al hacer clic en el avatar o nombre
+    const avatar = document.querySelector('img[src="imagenes/avatar.png"]');
+    const nombreUsuario = document.getElementById("nombre-usuario-agronomo");
+    const menu = document.getElementById("menuOpciones");
+
+    function toggleMenu() {
+      menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
+    }
+
+    avatar.addEventListener("click", toggleMenu);
+    nombreUsuario.addEventListener("click", toggleMenu);
+  </script>
+
   </div>
 </div>
 

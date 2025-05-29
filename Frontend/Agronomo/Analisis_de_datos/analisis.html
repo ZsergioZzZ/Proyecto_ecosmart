@@ -5,13 +5,39 @@
   <img data-layer="Imagen Cultivo" class="ImagenCultivo" style="width: 1597.01px; height: 674px; left: 0.41px; top: 230px; position: absolute" src="imagenes/imagen-cultivo.JPG" />
   <div data-layer="Rectangle 1" class="Rectangle1" style="width: 223px; height: 72px; left: 1270.41px; top: 39px; position: absolute; background: #588157; border-radius: 28px"></div>
   <img data-layer="avatar" class="Avatar" style="width: 37px; height: 37px; left: 1287.41px; top: 56px; position: absolute" src="imagenes/avatar.png" />
-  <div id="nombre-usuario" class="AgrNomo" style="width: 127px; height: 45px; left: 1336.41px; top: 52px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Agrónomo</div>
+  <div id="nombre-usuario-agronomo" class="AgrNomo" style="width: 127px; height: 45px; left: 1336.41px; top: 52px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Agrónomo</div>
   <script>
   const nombre = localStorage.getItem("nombreUsuario");
   if (nombre) {
-    document.getElementById("nombre-usuario").textContent = nombre;
+    document.getElementById("nombre-usuario-agronomo").textContent = nombre;
   }
   </script>
+
+  <!-- 
+  Menú desplegable oculto 
+  -->
+  <div id="menuOpciones" style="display: none; width: 203px; position: absolute; top: 120px; left: 1270px; background: #344E41; border-radius: 10px; padding: 10px;">
+    <a href="/Frontend/Inicio_de_sesion/Inicio/inicio.html"
+      style="display: flex; justify-content: center; color: white; text-decoration: none; font-family: IBM Plex Mono; font-weight: 550; font-size: 18px;">
+      Cerrar sesión
+    </a>
+  </div>
+
+  <script>
+    // Mostrar/ocultar menú al hacer clic en el avatar o nombre
+    const avatar = document.querySelector('img[src="imagenes/avatar.png"]');
+    const nombreUsuario = document.getElementById("nombre-usuario-agronomo");
+    const menu = document.getElementById("menuOpciones");
+
+    function toggleMenu() {
+      menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
+    }
+
+    avatar.addEventListener("click", toggleMenu);
+    nombreUsuario.addEventListener("click", toggleMenu);
+  </script>
+
+
   <a href="/Frontend/Agronomo/Inicio/inicio_agronomo.html"
     style="width: 127px; height: 45px; left: 1160.41px; top: 52px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; text-decoration: underline; line-height: 28px; word-wrap: break-word">Atrás
   </a>
