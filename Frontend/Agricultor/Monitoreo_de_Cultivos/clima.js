@@ -60,17 +60,21 @@ function traducirDescripcion(desc) {
 
 
 
+let ubicacionParcelaSeleccionada = "";
 
 
 async function cargarParcelas() {
   try {
-    const res = await fetch("http://127.0.0.1:5000/parcelas");
+    const res = await fetch("http://127.0.0.1:5000/meteo/parcelas");
+
     parcelasGlobal = await res.json();
     console.log("Parcelas recibidas:", parcelasGlobal);
   if (parcelasGlobal.length > 0) {
-    nombreParcelaSeleccionada = parcelasGlobal[0].nombre;
+    nombreParcelaSeleccionada = `${parcelasGlobal[0].nombre} - Parcela ${parcelasGlobal[0].numero}`;
+    ubicacionParcelaSeleccionada = parcelasGlobal[0].ubicacion;
     obtenerDatosPorCoords(parcelasGlobal[0].lat, parcelasGlobal[0].lon);
   }
+
   } catch (err) {
     console.error("Error al cargar parcelas:", err);
   }
@@ -81,13 +85,19 @@ function seleccionarParcela(value) {
   const [lat, lon] = value.split(",");
   const select = document.getElementById("parcela-select");
   const selectedOption = select.options[select.selectedIndex];
+  const index = select.selectedIndex - 1; 
+
   nombreParcelaSeleccionada = selectedOption.textContent;
+  ubicacionParcelaSeleccionada = parcelasGlobal[index].ubicacion;
+
   obtenerDatosPorCoords(lat, lon);
 }
 
 
+
 async function obtenerDatosPorCoords(lat, lon) {
-  const url = `http://127.0.0.1:5000/clima?lat=${lat}&lon=${lon}`;
+  const url = `http://127.0.0.1:5000/meteo/clima?lat=${lat}&lon=${lon}`;
+
   try {
     const res = await fetch(url);
     const data = await res.json();
@@ -107,10 +117,11 @@ async function obtenerDatosPorCoords(lat, lon) {
 
 function actualizarUI(data) {
   const actual = data.list[0];
-  const tempC = (actual.main.temp - 273.15).toFixed(1);
-  const sensacion = (actual.main.feels_like - 273.15).toFixed(1);
+  const tempC = actual.main.temp.toFixed(1);
+  const sensacion = actual.main.feels_like.toFixed(1);
+
   const humedad = `${actual.main.humidity}%`;
-  const viento = `${(actual.wind.speed * 3.6).toFixed(1)} km/h`; // m/s to km/h
+  const viento = `${(actual.wind.speed * 3.6).toFixed(1)} km/h`; 
   const presion = `${actual.main.pressure} hPa`;
   const icono = actual.weather[0].icon;
   const descripcion = traducirDescripcion(actual.weather[0].description);
@@ -118,14 +129,22 @@ function actualizarUI(data) {
 
   const fecha = new Date(actual.dt * 1000);
   const dia = fecha.toLocaleDateString("es-CL", { weekday: "long" });
-  const hora = fecha.toLocaleTimeString("es-CL", { hour: "numeric", minute: "2-digit" });
+  const offsetMs = data.city.timezone * 1000;
+  const localFecha = new Date(actual.dt * 1000 + offsetMs);
+
+  const hora = localFecha.toLocaleTimeString("es-CL", {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+
 
   document.getElementById("ubicacion-info").innerHTML = `
     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
       
       <!-- IZQUIERDA: Ciudad y buscador -->
       <div style="display: flex; flex-direction: column; align-items: flex-start;">
-        <h1 style="margin: 0 0 0.5rem 0;">${data.city.name}, ${data.city.country}</h1>
+        <h1 style="margin: 0 0 0.5rem 0;">${ubicacionParcelaSeleccionada}</h1>
+
         ${
           nombreParcelaSeleccionada
             ? `<h3 style="margin: 0 0 0.5rem 0; font-weight: bold;">${nombreParcelaSeleccionada}</h3>`
@@ -154,7 +173,6 @@ function actualizarUI(data) {
       <!-- DERECHA: Clima y hora -->
       <div style="text-align: right;">
         <h3 style="margin: 0;">Clima</h3>
-        <p style="margin: 0;">${dia}, ${hora}</p>
         <p style="margin: 0;">${descripcion}</p>
       </div>
 
@@ -164,7 +182,7 @@ function actualizarUI(data) {
   if (select && parcelasGlobal.length > 0) {
     const valorSeleccionado = select.value;
 
-    select.innerHTML = ''; // Limpiar todo
+    select.innerHTML = ''; 
 
     const defaultOption = document.createElement("option");
     defaultOption.textContent = "Seleccione una parcela";
@@ -176,18 +194,18 @@ function actualizarUI(data) {
       const value = `${p.lat},${p.lon}`;
       const option = document.createElement("option");
       option.value = value;
-      option.textContent = p.nombre;
+      option.textContent = `${p.nombre} - Parcela ${p.numero}`;
 
       if (value === valorSeleccionado) {
         option.selected = true;
-        defaultOption.selected = false; // ya hay una seleccionada
+        defaultOption.selected = false; 
       }
 
       select.appendChild(option);
     });
 
   }
-  const temperaturas = data.list.slice(0, 12).map(p => (p.main.temp - 273.15).toFixed(1));
+  const temperaturas = data.list.slice(0, 12).map(p => p.main.temp.toFixed(1));
   const horas = data.list.slice(0, 12).map(p => new Date(p.dt * 1000).getHours() + ":00");
   renderizarGrafico(temperaturas, horas);
 
@@ -256,30 +274,35 @@ function renderizarPronosticoDias(lista) {
   fila.style.marginTop = "1rem";
 
   for (let i = 0; i < lista.length; i += 8) {
-    const dia = lista[i];
-    const fecha = new Date(dia.dt * 1000);
-    const diaSemana = fecha.toLocaleDateString("es-CL", { weekday: "long" });
-    const min = (dia.main.temp_min - 273.15).toFixed(1);
-    const max = (dia.main.temp_max - 273.15).toFixed(1);
-    const icono = dia.weather[0].icon;
-  const desc = traducirDescripcion(dia.weather[0].description);
+  const diaGrupo = lista.slice(i, i + 8); 
 
-    const card = document.createElement("div");
-    card.style.display = "flex";
-    card.style.flexDirection = "column";
-    card.style.alignItems = "center";
-    card.style.padding = "8px";
-    card.style.minWidth = "100px";
+  const temps = diaGrupo.map(d => d.main.temp);
+  const min = Math.min(...temps).toFixed(1);
+  const max = Math.max(...temps).toFixed(1);
 
-    card.innerHTML = `
-      <img src="https://openweathermap.org/img/wn/${icono}@2x.png" alt="${desc}" width="48" height="48">
-      <strong>${diaSemana}</strong>
-      <span>${min}°C / ${max}°C</span>
-      <span>${desc}</span>
-    `;
+  const fecha = new Date(diaGrupo[0].dt * 1000);
+  const diaSemana = fecha.toLocaleDateString("es-CL", { weekday: "long" });
 
-    fila.appendChild(card);
-  }
+  const icono = diaGrupo[0].weather[0].icon;
+  const desc = traducirDescripcion(diaGrupo[0].weather[0].description);
+
+  const card = document.createElement("div");
+  card.style.display = "flex";
+  card.style.flexDirection = "column";
+  card.style.alignItems = "center";
+  card.style.padding = "8px";
+  card.style.minWidth = "100px";
+
+  card.innerHTML = `
+    <img src="https://openweathermap.org/img/wn/${icono}@2x.png" alt="${desc}" width="48" height="48">
+    <strong>${diaSemana}</strong>
+    <span>${min}°C / ${max}°C</span>
+    <span>${desc}</span>
+  `;
+
+  fila.appendChild(card);
+}
+
 
   contenedor.appendChild(fila);
 }
@@ -287,4 +310,3 @@ function renderizarPronosticoDias(lista) {
 window.onload = () => {
   cargarParcelas();
 };
-

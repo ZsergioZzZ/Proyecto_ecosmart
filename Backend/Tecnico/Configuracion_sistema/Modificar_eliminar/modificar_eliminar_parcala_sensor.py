@@ -88,11 +88,18 @@ def eliminar_parcela():
     if not nombre or numero is None:
         return jsonify({"error": "Faltan datos para eliminar"}), 400
 
-    resultado = parcelas.delete_one({"nombre": nombre, "numero": numero})
-    if resultado.deleted_count == 0:
+    resultado_parcela = parcelas.delete_one({"nombre": nombre, "numero": numero})
+    if resultado_parcela.deleted_count == 0:
         return jsonify({"error": "Parcela no encontrada"}), 404
 
-    return jsonify({"mensaje": "Parcela eliminada"})
+    identificador_parcela = f"{nombre} - Parcela {numero}"
+
+    resultado_sensores = sensores.delete_many({"parcela": identificador_parcela})
+
+    return jsonify({
+        "mensaje": "Parcela eliminada",
+        "sensores_eliminados": resultado_sensores.deleted_count
+    }), 200
 
 # ------------------------
 # 🔧 SENSORES
