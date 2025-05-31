@@ -26,12 +26,14 @@ let poligono = null;
 //---------------
 // Cargar parcelas en el select
 //---------------
-async function cargarParcelas() {
+async function cargarParcelasSensores() {
   const select = document.getElementById("parcelaAsociada");
   if (!select) return;
 
   try {
-    const res = await fetch("http://localhost:5000/parcelas");
+    const res = await fetch("http://localhost:5000/api/sensores/parcelas");
+
+
     const parcelas = await res.json();
 
     select.innerHTML = '<option value="">Seleccione una parcela</option>';
@@ -78,7 +80,24 @@ function obtenerValorMasReciente(lista) {
 //---------------
 document.getElementById("parcelaAsociada").addEventListener("change", async function () {
   const seleccion = this.value;
-  if (!seleccion) return;
+
+  // ✅ Si no hay selección, limpiar el polígono y salir
+  if (!seleccion) {
+    if (poligono) {
+      map.removeLayer(poligono);
+      poligono = null;
+    }
+
+    // También puedes limpiar los indicadores si quieres:
+    actualizarIndicadores({
+      "Temperatura Ambiente": [],
+      "Humedad del suelo": [],
+      "Nivel de PH": [],
+      "Nivel de Nutrientes": []
+    });
+
+    return;
+  }
 
   const partes = seleccion.split(" - Parcela ");
   const nombre = partes[0];
@@ -86,12 +105,12 @@ document.getElementById("parcelaAsociada").addEventListener("change", async func
 
   try {
     // Obtener datos de sensores
-    const resSensores = await fetch(`http://localhost:5000/api/datos_sensores_monitoreo?nombre=${nombre}&numero=${numero}`);
+    const resSensores = await fetch(`http://localhost:5000/api/sensores/datos?nombre=${nombre}&numero=${numero}`);
     const datos = await resSensores.json();
     if (!datos.error) actualizarIndicadores(datos);
 
     // Obtener datos de parcela (con puntos)
-    const resParcela = await fetch(`http://localhost:5000/api/parcela?nombre=${nombre}&numero=${numero}`);
+    const resParcela = await fetch(`http://localhost:5000/api/sensores/parcela?nombre=${nombre}&numero=${numero}`);
     const parcela = await resParcela.json();
 
     if (!parcela.puntos || parcela.puntos.length < 3) {
@@ -112,11 +131,11 @@ document.getElementById("parcelaAsociada").addEventListener("change", async func
     const centro = poligono.getBounds().getCenter();
     map.setView(centro, 16.5);
 
-
   } catch (error) {
     console.error("Error al cargar datos:", error);
   }
 });
 
+
 // Ejecutar carga de parcelas al inicio
-document.addEventListener("DOMContentLoaded", cargarParcelas);
+document.addEventListener("DOMContentLoaded", cargarParcelasSensores);

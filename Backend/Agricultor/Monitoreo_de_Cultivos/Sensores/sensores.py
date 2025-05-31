@@ -12,7 +12,8 @@ client = MongoClient(os.getenv("MONGO_URI"))
 db = client[os.getenv("DB_NAME")]
 parcelas = db[os.getenv("COLLECTION_PARCELAS", "datos_parcelas")]
 
-@sensores_moni_cultivos_blueprint.route("/api/parcela", methods=["GET"])
+@sensores_moni_cultivos_blueprint.route("/api/sensores/parcela", methods=["GET"])
+
 def obtener_parcela():
     nombre = request.args.get("nombre")
     numero = request.args.get("numero")
@@ -52,7 +53,8 @@ def obtener_valor(doc, tipo):
     return doc.get(campo_valor) if campo_valor in doc else None
 
 
-@sensores_moni_cultivos_blueprint.route("/api/datos_sensores_monitoreo", methods=["GET"])
+@sensores_moni_cultivos_blueprint.route("/api/sensores/datos", methods=["GET"])
+
 def obtener_datos_sensores():
     try:
         nombre = request.args.get("nombre")
@@ -105,7 +107,8 @@ def obtener_datos_sensores():
         return jsonify({"error": str(e)}), 500
 
 
-@sensores_moni_cultivos_blueprint.route("/parcelas", methods=["GET"])
+@sensores_moni_cultivos_blueprint.route("/api/sensores/parcelas", methods=["GET"])
+
 def listar_parcelas():
     resultados = parcelas.find({}, {"nombre": 1, "numero": 1, "_id": 0})
     lista = [{"nombre": p["nombre"], "numero": p["numero"]} for p in resultados]
