@@ -130,6 +130,11 @@ async function cargarDatosSensores(nombre, numero) {
 
     graficoTemperatura.data.labels = labels;
     graficoTemperatura.data.datasets[0].data = temperaturas;
+
+
+    document.getElementById("ultimo-temp").textContent = `${temperaturas[temperaturas.length - 1]} °C`;
+
+
     } else {
     graficoTemperatura.data.labels = [];
     graficoTemperatura.data.datasets[0].data = [];
@@ -142,6 +147,9 @@ async function cargarDatosSensores(nombre, numero) {
 
     graficoHumedad.data.labels = labels;
     graficoHumedad.data.datasets[0].data = humedad;
+
+    document.getElementById("ultimo-humedad").textContent = `${humedad[humedad.length - 1]} %`;
+
     } else {
     graficoHumedad.data.labels = [];
     graficoHumedad.data.datasets[0].data = [];
@@ -154,6 +162,9 @@ async function cargarDatosSensores(nombre, numero) {
 
     graficoPh.data.labels = labels;
     graficoPh.data.datasets[0].data = ph;
+
+    document.getElementById("ultimo-ph").textContent = `${ph[ph.length - 1]}`;
+
     } else {
     graficoPh.data.labels = [];
     graficoPh.data.datasets[0].data = [];
@@ -170,6 +181,9 @@ async function cargarDatosSensores(nombre, numero) {
     graficoNutrientes.data.datasets[0].data = nitr;
     graficoNutrientes.data.datasets[1].data = fosf;
     graficoNutrientes.data.datasets[2].data = pota;
+    document.getElementById("ultimo-n").textContent = `${nitr[nitr.length - 1]} ppm`;
+    document.getElementById("ultimo-p").textContent = `${fosf[fosf.length - 1]} ppm`;
+    document.getElementById("ultimo-k").textContent = `${pota[pota.length - 1]} ppm`;
     } else {
     graficoNutrientes.data.labels = [];
     graficoNutrientes.data.datasets.forEach(ds => ds.data = []);
@@ -270,3 +284,26 @@ document.getElementById("btnExportarCSV").addEventListener("click", () => {
     alert("Primero selecciona una parcela para exportar sus datos.");
   }
 });
+
+
+//---------------
+// Actualización automática cada 60 segundos
+//---------------
+setInterval(() => {
+  if (infoActualParcela.nombre && infoActualParcela.numero) {
+    console.log("Actualizando datos de sensores automáticamente...");
+    cargarDatosSensores(infoActualParcela.nombre, infoActualParcela.numero);
+    mostrarMensajeActualizacion();
+  }
+}, 60000); // 60 segundos = 1 minuto
+
+function mostrarMensajeActualizacion() {
+  const mensaje = document.getElementById("mensaje-actualizacion");
+  if (!mensaje) return;
+
+  mensaje.style.display = "block";
+  setTimeout(() => {
+    mensaje.style.display = "none";
+  }, 1500); // se oculta después de 1.5 segundos
+}
+
