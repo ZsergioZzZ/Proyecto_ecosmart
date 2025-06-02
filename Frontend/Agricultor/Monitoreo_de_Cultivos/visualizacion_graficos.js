@@ -1,4 +1,4 @@
-// Configuración
+
 const config = {
     apiBaseUrl: 'http://localhost:5001/api',  // Usa el puerto 5001 que tienes configurado
     colores: {
