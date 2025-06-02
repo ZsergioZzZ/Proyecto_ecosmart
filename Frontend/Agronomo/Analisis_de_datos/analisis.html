@@ -91,10 +91,21 @@
       <div style="flex: 1;">
         <h3 style="font-family: IBM Plex Mono; font-size: 20px; color: #344E41;">Temperatura Promedio</h3>
         <canvas id="graficoTemperatura" width="400" height="250"></canvas>
+
+        <div style="margin-top: 10px; font-family: IBM Plex Mono; font-size: 16px; color: #344E41;">
+          Última temperatura: <span id="ultimo-temp">—</span>
+        </div>
+
+
       </div>
       <div style="flex: 1;">
         <h3 style="font-family: IBM Plex Mono; font-size: 20px; color: #344E41;">Humedad del Suelo</h3>
         <canvas id="graficoHumedad" width="400" height="250"></canvas>
+
+        <div style="margin-top: 10px; font-family: IBM Plex Mono; font-size: 16px; color: #344E41;">
+           Última humedad: <span id="ultimo-humedad">—</span>
+        </div>
+
       </div>
     </div>
 
@@ -103,10 +114,24 @@
       <div style="flex: 1;">
         <h3 style="font-family: IBM Plex Mono; font-size: 20px; color: #344E41;">pH del Suelo</h3>
         <canvas id="graficoPh" width="400" height="250"></canvas>
+
+        <div style="margin-top: 10px; font-family: IBM Plex Mono; font-size: 16px; color: #344E41;">
+          Último pH: <span id="ultimo-ph">—</span>
+        </div>
+
       </div>
       <div style="flex: 1;">
         <h3 style="font-family: IBM Plex Mono; font-size: 20px; color: #344E41;">Nivel de Nutrientes</h3>
         <canvas id="graficoNutrientes" width="400" height="250"></canvas>
+
+        <div style="margin-top: 10px; font-family: IBM Plex Mono; font-size: 16px; color: #344E41;">
+          Últimos nutrientes: 
+          N: <span id="ultimo-n">—</span>,
+          P: <span id="ultimo-p">—</span>,
+          K: <span id="ultimo-k">—</span>
+        </div>
+
+
       </div>
     </div>
 
@@ -120,6 +145,18 @@
     </button>
 
   </div>
+
+  <div id="mensaje-actualizacion" style="
+  display: none;
+  text-align: center;
+  margin-top: 10px;
+  font-family: 'IBM Plex Mono';
+  color: #588157;
+  font-size: 16px;
+  font-weight: bold;">
+  Datos actualizados
+</div>
+
 
 
 
