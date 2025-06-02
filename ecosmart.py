@@ -13,7 +13,7 @@ from Backend.Agricultor.Monitoreo_de_Cultivos.Sensores.sensores import sensores_
 from Backend.Usuario.cambiar_contrasena import cambiar_contrasena_blueprint
 from Backend.Tecnico.Configuracion_sistema.Usuarios.usuarios import cambiar_usuario_tecnico_blueprint
 from Backend.Agricultor.Monitoreo_de_Cultivos.Visualizacion_datos.visualizacion_graficos import visualizacion_g_blueprint
-
+from Backend.Agronomo.Asistente_IA.recomendacion import sensores_bp
 
 load_dotenv()
 
@@ -33,7 +33,8 @@ app.register_blueprint(sensores_moni_cultivos_blueprint)
 app.register_blueprint(cambiar_contrasena_blueprint)
 app.register_blueprint(cambiar_usuario_tecnico_blueprint)
 app.register_blueprint(visualizacion_g_blueprint)
+app.register_blueprint(sensores_bp)
 
 
-if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
