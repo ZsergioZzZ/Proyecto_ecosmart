@@ -1,5 +1,6 @@
+
 const config = {
-    apiBaseUrl: 'http://localhost:5000/api',
+    apiBaseUrl: 'http://localhost:5001/api',  // Usa el puerto 5001 que tienes configurado
     colores: {
         temperatura: 'rgba(255, 99, 132, 0.8)',
         humedad: 'rgba(54, 162, 235, 0.8)',
@@ -10,164 +11,147 @@ const config = {
     }
 };
 
-// Variables globales
-let chart = null;
-let currentData = [];
+let radarChart = null;
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', function() {
-    initSelectParcela();
-    initEventListeners();
+    cargarParcelas();
+    document.getElementById('btn-aplicar').addEventListener('click', actualizarGraficoRadar);
 });
 
-function initSelectParcela() {
-    fetch(`${config.apiBaseUrl}/parcelas`)
-        .then(response => {
-            if (!response.ok) throw new Error('Error en la respuesta del servidor');
-            return response.json();
-        })
-        .then(data => {
-            const select = document.getElementById('select-parcela');
-
-            // Limpiar y agregar opciones
-            select.innerHTML = '<option value="">Seleccione Parcela</option>';
-            data.forEach(parcela => {
-                const option = document.createElement('option');
-                option.value = parcela;
-                option.textContent = parcela;
-                select.appendChild(option);
-            });
-
-            // Cargar datos de la primera parcela si existe
-            if (data.length > 0) {
-                loadSensorData(data[0]);
-            }
-        })
-        .catch(error => {
-            console.error('Error al cargar parcelas:', error);
-            alert('Error al cargar las parcelas. Verifica la conexión con el servidor.');
+// Cargar parcelas desde MongoDB
+async function cargarParcelas() {
+    try {
+        const response = await fetch(`${config.apiBaseUrl}/parcelas`);
+        if (!response.ok) throw new Error('Error al cargar parcelas');
+        
+        const parcelas = await response.json();
+        const selector = document.getElementById('select-parcela');
+        
+        // Limpiar opciones existentes
+        selector.innerHTML = '<option value="" disabled selected>Seleccione Parcela</option>';
+        
+        parcelas.forEach(parcela => {
+            const option = document.createElement('option');
+            option.value = parcela;
+            option.textContent = parcela;
+            selector.appendChild(option);
         });
+    } catch (error) {
+        console.error('Error cargando parcelas:', error);
+        alert('Error al cargar las parcelas disponibles');
+    }
 }
 
-function initEventListeners() {
-    document.getElementById('select-parcela').addEventListener('change', function() {
-        if (this.value) loadSensorData(this.value);
-    });
+// Actualizar gráfico radial
+async function actualizarGraficoRadar() {
+    const parcela = document.getElementById('select-parcela').value;
+    if (!parcela) {
+        alert('Por favor, seleccione una parcela.');
+        return;
+    }
 
-    document.getElementById('btn-aplicar').addEventListener('click', updateMainChart);
+    try {
+        const response = await fetch(`${config.apiBaseUrl}/datos-radar/${encodeURIComponent(parcela)}`);
+        if (!response.ok) throw new Error('Error al obtener datos');
+        
+        const datos = await response.json();
+        
+        if (Object.keys(datos).length === 0) {
+            alert('No hay datos disponibles para esta parcela.');
+            return;
+        }
+        
+        renderizarGraficoRadar(datos);
+    } catch (error) {
+        console.error('Error al obtener datos:', error);
+        alert('Error al cargar datos para el gráfico');
+    }
 }
 
-function loadSensorData(parcela) {
-    fetch(`${config.apiBaseUrl}/datos-sensores/${parcela}`)
-        .then(response => {
-            if (!response.ok) throw new Error('Error al obtener datos');
-            return response.json();
-        })
-        .then(data => {
-            currentData = data;
-            updateMainChart();
-            updateSensorIndicators(data);
-        })
-        .catch(error => {
-            console.error('Error al cargar datos:', error);
-            alert('Error al cargar datos de sensores. Intente nuevamente.');
-        });
-}
+// Renderizar gráfico radial
+function renderizarGraficoRadar(datos) {
+    const ctx = document.getElementById('radar-chart').getContext('2d');
+    
+    // Destruir gráfico existente
+    if (radarChart) radarChart.destroy();
 
-function updateMainChart() {
-    const ctx = document.getElementById('farmer-chart-container').getContext('2d');
-    const chartType = document.getElementById('select-grafico').value;
-
-    if (chart) chart.destroy();
-
-    const datasets = [];
-    const labels = currentData.map(d => formatDate(d.fecha));
-
-    // Agregar cada parámetro seleccionado
-    if (document.getElementById('check-temperatura').checked) {
-        datasets.push(createDataset('temperatura', 'Temperatura (°C)', config.colores.temperatura));
+    // Preparar datos según checkboxes seleccionados
+    const labels = [];
+    const valores = [];
+    const colores = [];
+    
+    if (document.getElementById('check-temperatura').checked && datos.temperatura) {
+        labels.push('Temperatura (°C)');
+        valores.push(datos.temperatura);
+        colores.push(config.colores.temperatura);
     }
-
-    if (document.getElementById('check-humedad').checked) {
-        datasets.push(createDataset('humedad_suelo', 'Humedad (%)', config.colores.humedad));
+    
+    if (document.getElementById('check-humedad').checked && datos.humedad) {
+        labels.push('Humedad (%)');
+        valores.push(datos.humedad);
+        colores.push(config.colores.humedad);
     }
-
-    if (document.getElementById('check-ph').checked) {
-        datasets.push(createDataset('ph', 'pH', config.colores.ph));
+    
+    if (document.getElementById('check-ph').checked && datos.ph) {
+        labels.push('pH');
+        valores.push(datos.ph);
+        colores.push(config.colores.ph);
     }
-
-    if (document.getElementById('check-nitrogeno').checked) {
-        datasets.push(createDataset('nitrogeno', 'Nitrógeno (ppm)', config.colores.nitrogeno));
+    
+    if (document.getElementById('check-nitrogeno').checked && datos.nitrogeno) {
+        labels.push('Nitrógeno (ppm)');
+        valores.push(datos.nitrogeno);
+        colores.push(config.colores.nitrogeno);
     }
-
-    if (document.getElementById('check-fosforo').checked) {
-        datasets.push(createDataset('fosforo', 'Fósforo (ppm)', config.colores.fosforo));
+    
+    if (document.getElementById('check-fosforo').checked && datos.fosforo) {
+        labels.push('Fósforo (ppm)');
+        valores.push(datos.fosforo);
+        colores.push(config.colores.fosforo);
     }
-
-    if (document.getElementById('check-potasio').checked) {
-        datasets.push(createDataset('potasio', 'Potasio (ppm)', config.colores.potasio));
+    
+    if (document.getElementById('check-potasio').checked && datos.potasio) {
+        labels.push('Potasio (ppm)');
+        valores.push(datos.potasio);
+        colores.push(config.colores.potasio);
     }
-
-    chart = new Chart(ctx, {
-        type: chartType,
+    
+    // Crear gráfico radial
+    radarChart = new Chart(ctx, {
+        type: 'radar',
         data: {
             labels: labels,
-            datasets: datasets
+            datasets: [{
+                label: 'Promedios',
+                data: valores,
+                backgroundColor: colores.map(color => color.replace('0.8', '0.2')),
+                borderColor: colores,
+                borderWidth: 2,
+                pointBackgroundColor: colores,
+                pointRadius: 4
+            }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: `Resumen de ${document.getElementById('select-parcela').value}`
+                }
+            },
             scales: {
-                y: {
-                    beginAtZero: false
+                r: {
+                    angleLines: {
+                        display: true
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 100
                 }
             }
         }
     });
-}
-
-function updateSensorIndicators(sensorData) {
-    if (sensorData.length > 0) {
-        const lastReading = sensorData[sensorData.length - 1];
-
-        // Actualizar indicadores
-        document.getElementById('tempValor').textContent = lastReading.temperatura?.toFixed(1) || '--';
-        document.getElementById('humedadValor').textContent = lastReading.humedad_suelo?.toFixed(1) || '--';
-        document.getElementById('phValor').textContent = lastReading.ph?.toFixed(1) || '--';
-
-        // Calcular promedio de nutrientes
-        const nutrientes = [
-            lastReading.nitrogeno || 0,
-            lastReading.fosforo || 0,
-            lastReading.potasio || 0
-        ].filter(n => n > 0);
-
-        const avgNutrientes = nutrientes.length > 0 ? 
-            (nutrientes.reduce((a, b) => a + b, 0) / nutrientes.length).toFixed(1) : '--';
-
-        document.getElementById('nutrientesValor').textContent = avgNutrientes;
-    }
-}
-
-// Funciones auxiliares
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-}
-
-function createDataset(field, label, color) {
-    return {
-        label: label,
-        data: currentData.map(d => d[field]),
-        borderColor: color,
-        backgroundColor: color,
-        borderWidth: 2,
-        fill: false
-    };
 }
