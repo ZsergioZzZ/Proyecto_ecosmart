@@ -1,256 +1,181 @@
 <div data-layer="Agricultor Monitoreo de Cultivos" class="AgricultorMonitoreoDeCultivos" style="width: 1540px; height: 3863px; position: relative; background: #FBF9F4; overflow: hidden">
   
-  <!-- Sección de Visualización de Datos -->
-  <div data-layer="Rectangle 29" style="width: 1540px; height: 733px; left: 0px; top: 3080px; position: absolute; background: #344E41"></div>
+  <!-- Visualización de datos (Gráficos) - Sección corregida -->
+<div data-layer="Agricultor Monitoreo de Cultivos" style="width: 1540px; height: 3863px; position: relative; background: #FBF9F4; overflow: hidden">
   
-  <!-- Título -->
+  <!-- Sección de Visualización de Datos -->
+  <div data-layer="Rectangle 29" style="width: 1540px; height: 733px; left: 0px; top: 3080px; position: absolute; background: #344E41"></div> <!-- Ajustado a 3080px -->
+  
+  <!-- Título (POSICIÓN REAJUSTADA) -->
   <div data-layer="Visualización de Datos" style="width: 952px; height: 182px; left: 294px; top: 2947px; position: absolute; text-align: center; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700;">
     Visualización de Datos
   </div>
   
-  <!-- Selector de Parcela - Mejorado -->
-  <div data-layer="Rectangle 32" style="width: 254px; height: 50px; left: 65px; top: 3125px; position: absolute; background: #DAD7CD; border-radius: 7px; border: 2px #344E41 solid">
-    <select id="select-parcela" style="width: 100%; height: 100%; background: transparent; border: none; padding: 0 15px; color: #344E41; font-size: 20px; font-family: Instrument Sans;">
-      <option value="" disabled selected>Seleccione Parcela</option>
+  <!-- Selector de Parcela -->
+  <div data-layer="Rectangle 32" style="width: 254px; height: 50px; left: 65px; top: 3125px; position: absolute; background: #DAD7CD; border-radius: 7px; border: 2px #344E41 solid"> <!-- Ajustado a 3125px -->
+    <select id="select-parcela" style="width: 100%; height: 100%; background: transparent; border: none; padding: 0 15px; color: #858D85; font-size: 20px; font-family: Instrument Sans;">
+      <option value="">Seleccione Parcela</option>
     </select>
   </div>
-  <img data-layer="ordenar-abajo 4" style="width: 15px; height: 15px; left: 285px; top: 3140px; position: absolute" src="imagenes/ordenar-abajo.png" />
+  <img data-layer="ordenar-abajo 4" style="width: 15px; height: 15px; left: 285px; top: 3140px; position: absolute" src="imagenes/ordenar-abajo.png" /> <!-- Ajustado a 3140px -->
   
-  <!-- Selector de Tipo de Gráfico - Mejorado -->
-  <div data-layer="Rectangle 63" style="width: 290px; height: 50px; left: 64px; top: 3223px; position: absolute; background: #A3B18A; border-radius: 10px; border: 2px black solid">
+  <!-- Selector de Tipo de Gráfico -->
+  <div data-layer="Rectangle 63" style="width: 290px; height: 50px; left: 64px; top: 3223px; position: absolute; background: #A3B18A; border-radius: 10px; border: 2px black solid"> <!-- Ajustado a 3223px -->
     <select id="select-grafico" style="width: 100%; height: 100%; background: transparent; border: none; padding: 0 15px; color: black; font-size: 20px; font-family: Instrument Sans;">
       <option value="line">Gráfico de Líneas</option>
       <option value="bar">Gráfico de Barras</option>
-      <option value="radar">Gráfico Radial</option>
     </select>
   </div>
   
-  <!-- Controles de Parámetros - Mejorado -->
-  <div style="width: 1412px; height: 60px; left: 64px; top: 3280px; position: absolute; background: #A3B18A; border-radius: 10px; border: 2px black solid; display: flex; align-items: center; justify-content: space-around; padding: 0 20px;">
-    <!-- Checkboxes con tooltips -->
-    <div style="display: flex; align-items: center; gap: 5px;" title="Temperatura ambiente en °C">
+  <!-- Controles de Parámetros -->
+  <div style="width: 1412px; height: 60px; left: 64px; top: 3280px; position: absolute; background: #A3B18A; border-radius: 10px; border: 2px black solid; display: flex; align-items: center; justify-content: space-around; padding: 0 20px;"> <!-- Ajustado a 3280px -->
+    <div style="display: flex; align-items: center; gap: 5px;">
       <input type="checkbox" id="check-temperatura" checked style="width: 18px; height: 18px;">
-      <label for="check-temperatura" style="color: black; font-size: 16px; cursor: pointer;">Temperatura</label>
+      <label for="check-temperatura" style="color: black; font-size: 16px;">Temperatura</label>
     </div>
-    <div style="display: flex; align-items: center; gap: 5px;" title="Humedad del suelo en %">
+    <div style="display: flex; align-items: center; gap: 5px;">
       <input type="checkbox" id="check-humedad" checked style="width: 18px; height: 18px;">
-      <label for="check-humedad" style="color: black; font-size: 16px; cursor: pointer;">Humedad</label>
+      <label for="check-humedad" style="color: black; font-size: 16px;">Humedad</label>
     </div>
-    <div style="display: flex; align-items: center; gap: 5px;" title="Nivel de pH del suelo">
-      <input type="checkbox" id="check-ph" style="width: 18px; height: 18px;">
-      <label for="check-ph" style="color: black; font-size: 16px; cursor: pointer;">pH</label>
+    <div style="display: flex; align-items: center; gap: 5px;">
+      <input type="checkbox" id="check-ph" checked style="width: 18px; height: 18px;">
+      <label for="check-ph" style="color: black; font-size: 16px;">pH</label>
     </div>
-    <div style="display: flex; align-items: center; gap: 5px;" title="Nitrógeno en ppm">
-      <input type="checkbox" id="check-nitrogeno" style="width: 18px; height: 18px;">
-      <label for="check-nitrogeno" style="color: black; font-size: 16px; cursor: pointer;">Nitrógeno</label>
+    <div style="display: flex; align-items: center; gap: 5px;">
+      <input type="checkbox" id="check-nitrogeno" checked style="width: 18px; height: 18px;">
+      <label for="check-nitrogeno" style="color: black; font-size: 16px;">Nitrógeno</label>
     </div>
-    <div style="display: flex; align-items: center; gap: 5px;" title="Fósforo en ppm">
-      <input type="checkbox" id="check-fosforo" style="width: 18px; height: 18px;">
-      <label for="check-fosforo" style="color: black; font-size: 16px; cursor: pointer;">Fósforo</label>
+    <div style="display: flex; align-items: center; gap: 5px;">
+      <input type="checkbox" id="check-fosforo" checked style="width: 18px; height: 18px;">
+      <label for="check-fosforo" style="color: black; font-size: 16px;">Fósforo</label>
     </div>
-    <div style="display: flex; align-items: center; gap: 5px;" title="Potasio en ppm">
-      <input type="checkbox" id="check-potasio" style="width: 18px; height: 18px;">
-      <label for="check-potasio" style="color: black; font-size: 16px; cursor: pointer;">Potasio</label>
+    <div style="display: flex; align-items: center; gap: 5px;">
+      <input type="checkbox" id="check-potasio" checked style="width: 18px; height: 18px;">
+      <label for="check-potasio" style="color: black; font-size: 16px;">Potasio</label>
     </div>
-    <button id="btn-aplicar" style="padding: 8px 20px; background: #344E41; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">Aplicar Filtros</button>
+    <button id="btn-aplicar" style="padding: 8px 20px; background: #344E41; color: white; border: none; border-radius: 5px; font-size: 16px;">Aplicar</button>
   </div>
   
-  <!-- Contenedor del Gráfico - Mejorado -->
-  <div data-layer="Rectangle 60" style="width: 1412px; height: 484px; left: 64px; top: 3350px; position: absolute; background: white; border: 2px black solid; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-    <canvas id="farmer-chart-container" width="1400" height="460" style="padding: 10px;"></canvas>
+  <!-- Contenedor del Gráfico Principal -->
+  <div data-layer="Rectangle 60" style="width: 1412px; height: 484px; left: 64px; top: 3350px; position: absolute; background: #D9D9D9; border: 2px black solid"> <!-- Ajustado a 3350px -->
+    <canvas id="farmer-chart-container" width="1400" height="460"></canvas>
   </div>
-  
-  <!-- Mensaje de carga/error -->
-  <div id="chart-message" style="display: none; width: 1412px; left: 64px; top: 3350px; position: absolute; text-align: center; padding-top: 220px; color: #344E41; font-size: 24px; font-family: IBM Plex Mono;"></div>
 </div>
 
-<!-- Scripts Mejorados -->
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/luxon@3.0.1"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.2.0"></script>
-<script>
-  // Configuración global
-  const config = {
-    apiBaseUrl: 'http://localhost:5000/api',
-    colors: {
-      temperatura: 'rgba(255, 99, 132, 0.8)',
-      humedad: 'rgba(54, 162, 235, 0.8)',
-      ph: 'rgba(75, 192, 192, 0.8)',
-      nitrogeno: 'rgba(153, 102, 255, 0.8)',
-      fosforo: 'rgba(255, 159, 64, 0.8)',
-      potasio: 'rgba(255, 205, 86, 0.8)'
-    }
-  };
-
-  // Variables globales
-  let chart = null;
-  let sensorData = [];
-
-  // Inicialización
-  document.addEventListener('DOMContentLoaded', async () => {
-    await cargarParcelas();
-    document.getElementById('btn-aplicar').addEventListener('click', actualizarGrafico);
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Variables globales
+    let chart = null;
+    const apiBaseUrl = 'http://localhost:5000/api';
     
-    // Cargar datos iniciales si hay una parcela seleccionada por defecto
-    const parcelaSelect = document.getElementById('select-parcela');
-    if (parcelaSelect.options.length > 1) {
-      parcelaSelect.selectedIndex = 1;
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', function() {
+      // Cargar datos de ejemplo al iniciar 
+      cargarDatosEjemplo();
+      
+      // Configurar eventos
+      document.getElementById('btn-aplicar').addEventListener('click', actualizarGrafico);
+    });
+    
+    // Función temporal para pruebas 
+    function cargarDatosEjemplo() {
+      window.sensorData = [
+        {fecha: '2023-01-01T08:00:00', temperatura: 22, humedad_suelo: 65, ph: 6.5, nitrogeno: 15, fosforo: 8, potasio: 12},
+        {fecha: '2023-01-01T12:00:00', temperatura: 26, humedad_suelo: 60, ph: 6.7, nitrogeno: 14, fosforo: 9, potasio: 11},
+        {fecha: '2023-01-01T16:00:00', temperatura: 24, humedad_suelo: 62, ph: 6.6, nitrogeno: 16, fosforo: 8, potasio: 13}
+      ];
       actualizarGrafico();
     }
-  });
-
-  // Cargar parcelas desde el backend
-  async function cargarParcelas() {
-    try {
-      showMessage('Cargando parcelas...');
-      const response = await axios.get(`${config.apiBaseUrl}/parcelas`);
+    
+    // Actualizar el gráfico
+    function actualizarGrafico() {
+      if (!window.sensorData || window.sensorData.length === 0) return;
       
-      const selector = document.getElementById('select-parcela');
-      response.data.forEach(parcela => {
-        const option = document.createElement('option');
-        option.value = parcela;
-        option.textContent = parcela;
-        selector.appendChild(option);
-      });
+      const ctx = document.getElementById('farmer-chart-container').getContext('2d');
+      const tipo = document.getElementById('select-grafico').value;
       
-      hideMessage();
-    } catch (error) {
-      showMessage('Error al cargar parcelas', true);
-      console.error('Error cargando parcelas:', error);
-    }
-  }
-
-  // Actualizar gráfico con datos reales
-  async function actualizarGrafico() {
-    const parcela = document.getElementById('select-parcela').value;
-    if (!parcela) {
-      showMessage('Seleccione una parcela primero', true);
-      return;
-    }
-
-    try {
-      showMessage('Cargando datos...');
-      const response = await axios.get(`${config.apiBaseUrl}/datos-sensores/${encodeURIComponent(parcela)}`);
+      if (chart) chart.destroy();
       
-      if (!response.data || response.data.length === 0) {
-        showMessage('No hay datos disponibles', true);
-        return;
+      const datasets = [];
+      const labels = window.sensorData.map(d => new Date(d.fecha).toLocaleTimeString());
+      
+      if (document.getElementById('check-temperatura').checked) {
+        datasets.push({
+          label: 'Temperatura (°C)',
+          data: window.sensorData.map(d => d.temperatura),
+          borderColor: 'rgba(255, 99, 132, 1)',
+          backgroundColor: 'rgba(255, 99, 132, 0.2)',
+          borderWidth: 2
+        });
       }
       
-      sensorData = response.data;
-      renderizarGrafico();
-      hideMessage();
-    } catch (error) {
-      showMessage('Error al cargar datos', true);
-      console.error('Error al obtener datos:', error);
-    }
-  }
-
-  // Renderizar el gráfico
-  function renderizarGrafico() {
-    const ctx = document.getElementById('farmer-chart-container').getContext('2d');
-    const tipoGrafico = document.getElementById('select-grafico').value;
-    
-    if (chart) chart.destroy();
-
-    // Formatear fechas con Luxon para mejor visualización
-    const labels = sensorData.map(d => new Date(d.fecha).toLocaleString());
-    
-    // Crear datasets dinámicamente
-    const datasets = [];
-    
-    // Mapeo de parámetros
-    const parametros = {
-      temperatura: document.getElementById('check-temperatura').checked,
-      humedad: document.getElementById('check-humedad').checked,
-      ph: document.getElementById('check-ph').checked,
-      nitrogeno: document.getElementById('check-nitrogeno').checked,
-      fosforo: document.getElementById('check-fosforo').checked,
-      potasio: document.getElementById('check-potasio').checked
-    };
-
-    // Añadir cada parámetro seleccionado
-    for (const [param, activo] of Object.entries(parametros)) {
-      if (activo) {
-        datasets.push(createDataset(param));
+      if (document.getElementById('check-humedad').checked) {
+        datasets.push({
+          label: 'Humedad (%)',
+          data: window.sensorData.map(d => d.humedad_suelo),
+          borderColor: 'rgba(54, 162, 235, 1)',
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderWidth: 2
+        });
       }
-    }
-
-    // Configuración del gráfico
-    chart = new Chart(ctx, {
-      type: tipoGrafico,
-      data: { labels, datasets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'top' },
-          tooltip: {
-            mode: 'index',
-            intersect: false,
-            callbacks: {
-              label: function(context) {
-                return `${context.dataset.label}: ${context.raw ?? 'N/D'}`;
-              }
-            }
-          }
-        },
-        scales: {
-          x: {
-            display: true,
-            title: { display: true, text: 'Fecha y Hora' }
-          },
-          y: {
-            display: true,
-            beginAtZero: false,
-            title: { display: true, text: 'Valores' }
-          }
-        },
-        interaction: { mode: 'nearest', axis: 'x', intersect: false }
+      
+      if (document.getElementById('check-ph').checked) {
+        datasets.push({
+          label: 'pH',
+          data: window.sensorData.map(d => d.ph),
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderWidth: 2
+        });
       }
-    });
-  }
-
-  // Helper para crear datasets
-  function createDataset(param) {
-    const configDataset = {
-      temperatura: { label: 'Temperatura (°C)', color: config.colors.temperatura },
-      humedad: { label: 'Humedad (%)', color: config.colors.humedad },
-      ph: { label: 'pH', color: config.colors.ph },
-      nitrogeno: { label: 'Nitrógeno (ppm)', color: config.colors.nitrogeno },
-      fosforo: { label: 'Fósforo (ppm)', color: config.colors.fosforo },
-      potasio: { label: 'Potasio (ppm)', color: config.colors.potasio }
-    };
-    
-    return {
-      label: configDataset[param].label,
-      data: sensorData.map(d => {
-        if (['nitrogeno', 'fosforo', 'potasio'].includes(param)) {
-          return d.nutrientes?.[param] ?? null;
+      
+      if (document.getElementById('check-nitrogeno').checked) {
+        datasets.push({
+          label: 'Nitrógeno (ppm)',
+          data: window.sensorData.map(d => d.nitrogeno),
+          borderColor: 'rgba(153, 102, 255, 1)',
+          backgroundColor: 'rgba(153, 102, 255, 0.2)',
+          borderWidth: 2
+        });
+      }
+      
+      if (document.getElementById('check-fosforo').checked) {
+        datasets.push({
+          label: 'Fósforo (ppm)',
+          data: window.sensorData.map(d => d.fosforo),
+          borderColor: 'rgba(255, 159, 64, 1)',
+          backgroundColor: 'rgba(255, 159, 64, 0.2)',
+          borderWidth: 2
+        });
+      }
+      
+      if (document.getElementById('check-potasio').checked) {
+        datasets.push({
+          label: 'Potasio (ppm)',
+          data: window.sensorData.map(d => d.potasio),
+          borderColor: 'rgba(255, 205, 86, 1)',
+          backgroundColor: 'rgba(255, 205, 86, 0.2)',
+          borderWidth: 2
+        });
+      }
+      
+      chart = new Chart(ctx, {
+        type: tipo,
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { y: { beginAtZero: false } }
         }
-        return d[param] ?? null;
-      }),
-      borderColor: configDataset[param].color,
-      backgroundColor: configDataset[param].color.replace('0.8', '0.2'),
-      borderWidth: 2,
-      tension: 0.1,
-      fill: tipoGrafico === 'line'
-    };
-  }
+      });
+    }
+  </script>
+</div>
 
-  // Mostrar mensajes de estado
-  function showMessage(text, isError = false) {
-    const msg = document.getElementById('chart-message');
-    msg.style.display = 'block';
-    msg.textContent = text;
-    msg.style.color = isError ? '#ff3333' : '#344E41';
-  }
 
-  function hideMessage() {
-    document.getElementById('chart-message').style.display = 'none';
-  }
-</script>
+
 
 
 
@@ -326,13 +251,7 @@
   <div data-layer="Monitoreo de Cultivos" class="MonitoreoDeCultivos" style="width: 725px; height: 272px; left: 93px; top: 181px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 94px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Monitoreo de<br/><br/><br/>Cultivos</div>
   <div data-layer="Rectangle 1" class="Rectangle1" style="width: 223px; height: 72px; left: 1270px; top: 37px; position: absolute; background: #588157; border-radius: 28px"></div>
   <img data-layer="avatar" class="Avatar" style="width: 37px; height: 37px; left: 1287px; top: 54px; position: absolute" src="imagenes/avatar.png" />
-  <div id = "nombre-usuario-agricultor" class="Agricultor" style="width: 127px; height: 45px; left: 1336px; top: 50px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Agricultor</div>
-   <script>
-   const nombre = localStorage.getItem("nombreUsuario");
-   if (nombre) {
-     document.getElementById("nombre-usuario-agricultor").textContent = nombre;
-   }
-   </script>
+  <div data-layer="Agricultor" class="Agricultor" style="width: 127px; height: 45px; left: 1336px; top: 50px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Agricultor</div>
   <div data-layer="EcoSmart" class="Ecosmart" style="width: 344px; height: 106px; left: 23px; top: 75px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">EcoSmart</div>
   <img data-layer="plantacion (6)" class="Plantacion6" style="width: 76px; height: 76px; left: 157px; top: 37px; position: absolute" src="imagenes/plantacion (6).png" />
   <a href="/Frontend/Agricultor/Inicio/inicio_agricultor.html"
@@ -340,29 +259,5 @@
     Atrás
   </a>
 
-  <!-- 
-  Menú desplegable oculto 
-  -->
-  <div id="menuOpciones" style="display: none; width: 203px; position: absolute; top: 120px; left: 1270px; background: #344E41; border-radius: 10px; padding: 10px;">
-    <a href="/Frontend/Inicio_de_sesion/Inicio/inicio.html"
-      style="display: flex; justify-content: center; color: white; text-decoration: none; font-family: IBM Plex Mono; font-weight: 550; font-size: 18px;">
-      Cerrar sesión
-    </a>
-  </div>
-
-  <script>
-    // Mostrar/ocultar menú al hacer clic en el avatar o nombre
-    const avatar = document.querySelector('img[src="imagenes/avatar.png"]');
-    const nombreUsuario = document.getElementById("nombre-usuario-agricultor");
-    const menu = document.getElementById("menuOpciones");
-
-    function toggleMenu() {
-      menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
-    }
-
-    avatar.addEventListener("click", toggleMenu);
-    nombreUsuario.addEventListener("click", toggleMenu);
-  </script>
-
-  <script src="sensores.js"></script>
+    <script src="sensores.js"></script>
 </div>
