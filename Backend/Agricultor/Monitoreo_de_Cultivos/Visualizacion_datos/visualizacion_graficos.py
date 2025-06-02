@@ -5,7 +5,6 @@ import os
 from dotenv import load_dotenv
 import certifi
 
-# Configuración inicial
 load_dotenv()
 
 # Crear blueprint
