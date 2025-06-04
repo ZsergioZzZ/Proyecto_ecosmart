@@ -1,6 +1,4 @@
-<div data-layer="Tecnico Mantenimineto" class="TecnicoMantenimineto" style="width: 1540px; height: 2464px; position: relative; background: #FBF9F4; overflow: hidden">
-  <div data-layer="Rectangle fondo verde oscuro" class="RectangleFondoVerdeOscuro" style="width: 1540px; height: 1379px; left: 0px; top: 903px; position: absolute; background: #344E41"></div>
-  
+<div data-layer="Tecnico Alertas" class="TecnicoAlertas" style="width: 1540px; height: 3464px; position: relative; background: #FBF9F4; overflow: hidden">
   <!-- Principal -->
   <div data-layer="EcoSmart" class="Ecosmart" style="width: 344px; height: 106px; left: 23px; top: 76px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">EcoSmart</div>
   <img data-layer="plantacion (6)" class="Plantacion6" style="width: 76px; height: 76px; left: 157px; top: 38px; position: absolute" src="imagenes/plantacion (6).png" />
@@ -47,4 +45,62 @@
   <!---------------------->
   
   <div data-layer="Configuracion de Alertas" class="Configuracion de Alertas" style="width: 1001px; height: 272px; left: 76px; top: 173px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 94px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Configuración de<br><br><br>Alertas</div>
+
+  <!-- 
+  -------------------------------
+  Configurar Umbrales de Alerta
+  -------------------------------
+  -->
+  <div style="margin-top: 923px; padding: 30px; background: #344E41; border-radius: 20px; color: white; font-family: IBM Plex Mono;">
+    <div style="width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; margin-top: 0px; color: #344E41; font-family: IBM Plex Mono; position: relative;">
+      <h2 style="text-align: center; font-size: 32px; margin-bottom: 30px;">Configurar Umbrales de Alerta</h2>
+
+      <label>Nombre de la alerta</label><br>
+      <input type="text" id="nombre-alerta" placeholder="Ej: Alerta sequía parcela norte"
+        style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+      <label>Parcela</label><br>
+      <select id="select-parcela" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"></select><br>
+
+      <label>Sensor</label><br>
+      <select id="select-sensor" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"></select><br>
+
+      <hr style="margin: 30px 0; border: none; border-top: 2px solid #ccc;">
+
+      <label>Umbral alto</label><br>
+      <input type="number" id="umbral-alto" placeholder="Ej: 35.5"
+        style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+      <label>Descripción del evento si se supera el umbral alto</label><br>
+      <input type="text" id="descripcion-alto" placeholder="Ej: Riesgo de sequía"
+        style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+      <label>Umbral bajo</label><br>
+      <input type="number" id="umbral-bajo" placeholder="Ej: 5.0"
+        style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+      <label>Descripción del evento si se baja del umbral bajo</label><br>
+      <input type="text" id="descripcion-bajo" placeholder="Ej: Riesgo de helada"
+        style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+      <hr style="margin: 30px 0; border: none; border-top: 2px solid #ccc;">
+
+      <label>Notificación por:</label><br>
+      <div style="margin-bottom: 20px;">
+        <label><input type="checkbox" name="notificacion" value="correo"> Correo</label><br>
+        <label><input type="checkbox" name="notificacion" value="app"> App</label><br>
+      </div>
+
+      <button style="width: 100%; padding: 12px; background-color: #588157; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px;">
+        Guardar configuración
+      </button>
+    </div>
+    <script src = "configurar_alertas.js"></script>
+  </div>
+
+
+
+
+
+
 </div>
