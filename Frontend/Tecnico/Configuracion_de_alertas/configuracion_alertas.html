@@ -67,29 +67,86 @@
 
       <hr style="margin: 30px 0; border: none; border-top: 2px solid #ccc;">
 
-      <label>Umbral alto</label><br>
-      <input type="number" id="umbral-alto" placeholder="Ej: 35.5"
-        style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+      <!-- Campos generales (no nutrientes) -->
+      <div id="campos-generales">
+        <label>Umbral alto</label><br>
+        <input type="number" id="umbral-alto" placeholder="Ej: 35.5" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
 
-      <label>Descripción del evento si se supera el umbral alto</label><br>
-      <input type="text" id="descripcion-alto" placeholder="Ej: Riesgo de sequía"
-        style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+        <label>Descripción si se supera el umbral</label><br>
+        <input type="text" id="descripcion-alto" placeholder="Ej: Riesgo de sequía" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
 
-      <label>Umbral bajo</label><br>
-      <input type="number" id="umbral-bajo" placeholder="Ej: 5.0"
-        style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+        <label>Umbral bajo</label><br>
+        <input type="number" id="umbral-bajo" placeholder="Ej: 5.0" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
 
-      <label>Descripción del evento si se baja del umbral bajo</label><br>
-      <input type="text" id="descripcion-bajo" placeholder="Ej: Riesgo de helada"
-        style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+        <label>Descripción si se baja del umbral</label><br>
+        <input type="text" id="descripcion-bajo" placeholder="Ej: Riesgo de helada" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+      </div>
+
+      <!-- Campos específicos para Nutrientes -->
+      <div id="campos-nutrientes" style="display: none;">
+        <h3 style="margin-top: 30px;">Nitrógeno</h3>
+
+        <label>Umbral alto</label><br>
+        <input type="number" id="n-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+
+        <label>Descripción si se supera el umbral</label><br>
+        <input type="text" id="n-desc-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+
+        <label>Umbral bajo</label><br>
+        <input type="number" id="n-bajo" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+
+        <label>Descripción si se baja del umbral</label><br>
+        <input type="text" id="n-desc-bajo" style="width: 100%; margin-bottom: 20px; padding: 10px;"><br>
+
+        <h3 style="margin-top: 30px;">Fósforo</h3>
+
+        <label>Umbral alto</label><br>
+        <input type="number" id="p-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+
+        <label>Descripción si se supera el umbral</label><br>
+        <input type="text" id="p-desc-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+
+        <label>Umbral bajo</label><br>
+        <input type="number" id="p-bajo" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+
+        <label>Descripción si se baja del umbral</label><br>
+        <input type="text" id="p-desc-bajo" style="width: 100%; margin-bottom: 20px; padding: 10px;"><br>
+
+        <h3 style="margin-top: 30px;">Potasio</h3>
+
+        <label>Umbral alto</label><br>
+        <input type="number" id="k-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+
+        <label>Descripción si se supera el umbral</label><br>
+        <input type="text" id="k-desc-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+
+        <label>Umbral bajo</label><br>
+        <input type="number" id="k-bajo" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+
+        <label>Descripción si se baja del umbral</label><br>
+        <input type="text" id="k-desc-bajo" style="width: 100%; margin-bottom: 20px; padding: 10px;"><br>
+      </div>
 
       <hr style="margin: 30px 0; border: none; border-top: 2px solid #ccc;">
 
       <label>Notificación por:</label><br>
       <div style="margin-bottom: 20px;">
-        <label><input type="checkbox" name="notificacion" value="correo"> Correo</label><br>
-        <label><input type="checkbox" name="notificacion" value="app"> App</label><br>
+        <!-- Correo -->
+        <label><input type="checkbox" name="notificacion" value="correo" id="checkbox-correo"> Correo</label><br>
+        <div id="campo-correo" style="display: none; margin-top: 10px;">
+          <input type="email" id="correo-alerta" placeholder="ejemplo@correo.com"
+            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+        </div>
+
+        <!-- App -->
+        <label><input type="checkbox" name="notificacion" value="app" id="checkbox-app"> App</label><br>
+        <div id="campo-app" style="display: none; margin-top: 10px;">
+          <input type="email" id="correo-app" placeholder="correo del usuario de App"
+            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+        </div>
       </div>
+
+
 
       <button style="width: 100%; padding: 12px; background-color: #588157; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px;">
         Guardar configuración
