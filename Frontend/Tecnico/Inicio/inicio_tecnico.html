@@ -1,4 +1,4 @@
-<div data-layer="Tecnico Inicio" class="TecnicoInicio" style="width: 1543px; height: 2455px; position: relative; background: #FBF9F4; overflow: hidden">
+<div data-layer="Tecnico Inicio" class="TecnicoInicio" style="width: 1543px; height: 1800px; position: relative; background: #FBF9F4; overflow: hidden">
   <div data-layer="Con EcoSmart tienes información oportuna para la toma de desiciones del control de tu cosecha" class="ConEcosmartTienesInformaciNOportunaParaLaTomaDeDesicionesDelControlDeTuCosecha" style="width: 1201px; height: 241px; left: 190px; top: 910px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 48px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Con EcoSmart tienes información oportuna<br/><br/>para la toma de desiciones del control de<br/> <br/>tu cosecha</div>
   <div data-layer="Rectangle 24" class="Rectangle24" style="width: 645px; height: 541px; left: 82px; top: 1180px; position: absolute; background: #A3B18A; border-radius: 14px"></div>
   
@@ -11,16 +11,8 @@
 
   <div data-layer="Agrega, modifica o elimina parcelas y sensores." class="AgregaParcelasSensores" style="width: 589px; height: 128px; left: 112px; top: 1550px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: black; font-size: 32px; font-family: Roboto; font-weight: 300; line-height: 28px; word-wrap: break-word">Agrega, modifica o elimina parcelas y sensores.</div>
   <div data-layer="datos 1" class="Datos1" style="width: 186.06px; height: 186.06px; left: 305.47px; top: 1357.47px; position: absolute"></div>
-  <div data-layer="Rectangle 24" class="Rectangle24" style="width: 1373px; height: 541px; left: 84px; top: 1818px; position: absolute; background: #A3B18A; border-radius: 14px"></div>
   
-  <!--Navegacion paginas-->
-  <a href="/Frontend/Tecnico/Ajuste_de_parametros/ajuste.html"
-    style="width: 853.60px; height: 89px; left: 330.93px; top: 1844px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: black; font-size: 36px; font-family: IBM Plex Mono; font-weight: 700; text-decoration: underline; line-height: 28px; word-wrap: break-word">
-    Ajuste de parámetros de simulación
-  </a>
-  <!---------------------->
 
-  <div data-layer="Ajusta los valores de sensores para simular distintas condiciones de cultivo y probar el sistema." class="AjustaLosValoresDeSensoresParaSimularDistintasCondicionesDeCultivoYProbarElSistema" style="width: 1253.79px; height: 128px; left: 147.86px; top: 2180px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: black; font-size: 32px; font-family: Roboto; font-weight: 300; line-height: 28px; word-wrap: break-word">Ajusta los valores de sensores para simular distintas condiciones de cultivo.</div>
   <div data-layer="inversion (1)" class="Inversion1" style="width: 169.04px; height: 169.04px; left: 685.48px; top: 1971.99px; position: absolute"></div>
   <div data-layer="Rectangle 25" class="Rectangle25" style="width: 645px; height: 541px; left: 812px; top: 1180px; position: absolute; background: #A3B18A; border-radius: 14px"></div>
   
@@ -41,8 +33,6 @@
   <img data-layer="avatar" class="Avatar" style="width: 37px; height: 37px; left: 1287px; top: 55px; position: absolute" src="imagenes/avatar.png" />
   <img data-layer="configuracion-del-sistema 1" class="ConfiguracionDelSistema1" style="width: 186px; height: 186px; left: 313px; top: 1343px; position: absolute" src="imagenes/configuracion-del-sistema.png" />
   <img data-layer="mantenimiento-web 1" class="MantenimientoWeb1" style="width: 186px; height: 186px; left: 1042px; top: 1343px; position: absolute" src="imagenes/mantenimiento-web.png" />
-  <img data-layer="ajustar 1" class="Ajustar1" style="width: 186px; height: 186px; left: 812px; top: 1972px; position: absolute" src="imagenes/ajustar.png" />
-  <img data-layer="ajustar 2" class="Ajustar2" style="width: 186px; height: 186px; left: 541px; top: 1972px; position: absolute" src="imagenes/ajustar.png" />
   <div id="nombre-usuario-tecnico" style="width: 127px; height: 45px; left: 1336px; top: 51px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Técnico</div>
   <script>
     const nombre = localStorage.getItem("nombreUsuario");
@@ -50,6 +40,7 @@
       document.getElementById("nombre-usuario-tecnico").textContent = nombre;
     }
   </script>
+
 
   <!-- 
   Menú desplegable oculto 
@@ -74,5 +65,134 @@
     avatar.addEventListener("click", toggleMenu);
     nombreUsuario.addEventListener("click", toggleMenu);
   </script>
+
+
+  <!--
+  --------------------------------
+  notificaciones emergentes
+  --------------------------------
+  -->
+
+  <!-- Campana de notificaciones con SVG -->
+  <div id="notificacion-contenedor" style="position: absolute; top: 59px; left: 1150px; cursor: pointer;">
+    <svg id="campana-icono" xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 24 24" width="32" fill="#344E41" title="Notificaciones">
+      <path d="M0 0h24v24H0z" fill="none"/>
+      <path d="M12 22c1.1 0 1.99-.9 1.99-2h-4A1.99 1.99 0 0012 22zm6-6V9a6 6 0 00-12 0v7l-2 2v1h16v-1l-2-2z"/>
+    </svg>
+    <!-- Burbuja de conteo -->
+    <span id="burbuja-noti" style="
+      display: none;
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: red;
+      color: white;
+      font-size: 12px;
+      padding: 3px 7px;
+      border-radius: 50%;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      z-index: 1000;">0</span>
+  </div>
+
+
+
+  <!-- Panel de notificaciones emergentes -->
+  <div id="panel-notificaciones" style="
+    display: none; position: absolute; top: 115px; left: 1150px; width: 280px; background-color: white; border: 1px solid #ccc; border-radius: 10px; 
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.15); padding: 12px; z-index: 999; font-family: 'IBM Plex Mono'; font-size: 14px; color: #344E41;">
+    <strong>Notificaciones recientes</strong>
+    <ul id="lista-notificaciones" style="list-style: none; padding: 0; margin-top: 10px;">
+      <li>No hay notificaciones nuevas.</li>
+    </ul>
+  </div>
+
+  <script>
+    const campana = document.getElementById("campana-icono");
+    const panel = document.getElementById("panel-notificaciones");
+    const burbuja = document.getElementById("burbuja-noti");
+
+    // Abrir/cerrar panel
+    campana.addEventListener("click", () => {
+      panel.style.display = panel.style.display === "none" ? "block" : "none";
+    });
+
+    // Cargar notificaciones desde backend
+    async function cargarNotificaciones() {
+      const correo = localStorage.getItem("correoUsuario");
+      const ul = document.getElementById("lista-notificaciones");
+      
+      if (!correo) {
+        ul.innerHTML = "<li>No se encontró correo de usuario</li>";
+        burbuja.style.display = "none";
+        return;
+      }
+
+      ul.innerHTML = "<li>Cargando notificaciones...</li>";
+
+      try {
+        const res = await fetch(`http://localhost:5000/notificaciones?correo=${correo}`);
+        const datos = await res.json();
+
+        ul.innerHTML = "";
+
+        // Actualizar burbuja
+        if (datos.length > 0) {
+          burbuja.textContent = datos.length;
+          burbuja.style.display = "inline-block";
+        } else {
+          burbuja.style.display = "none";
+          ul.innerHTML = "<li>No hay notificaciones activas.</li>";
+          return;
+        }
+
+        datos.forEach(noti => {
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <strong>${noti.nombre_alerta}</strong><br>
+            ${noti.descripcion}<br>
+            <em>${noti.parcela}</em><br>
+            <small>${new Date(noti.timestamp_alerta).toLocaleString()}</small><br>
+            <button style="margin-top: 5px; background-color:#a3b18a; border:none; padding:5px 10px; border-radius:6px; cursor:pointer"
+              onclick="marcarLeida('${noti._id}')">Descartar</button>
+          `;
+          li.style.marginBottom = "10px";
+          ul.appendChild(li);
+        });
+      } catch (error) {
+        console.error("Error al cargar notificaciones:", error);
+        ul.innerHTML = "<li>Error al conectar con el servidor.</li>";
+        burbuja.style.display = "none";
+      }
+    }
+
+    // Marcar como leída una notificación
+    async function marcarLeida(id) {
+      try {
+        const res = await fetch("http://localhost:5000/notificaciones/marcar-leida", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id })
+        });
+
+        if (res.ok) {
+          cargarNotificaciones();
+        } else {
+          alert("Error al marcar como leída");
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        alert("No se pudo conectar al servidor.");
+      }
+    }
+
+    // Cargar al abrir el panel
+    campana.addEventListener("click", cargarNotificaciones);
+
+    // Cargar automáticamente al entrar a la página
+    document.addEventListener("DOMContentLoaded", cargarNotificaciones);
+  </script>
+
+
 
 </div>

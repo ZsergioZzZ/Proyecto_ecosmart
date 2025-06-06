@@ -19,6 +19,8 @@
     
           const rol = data.rol;
           localStorage.setItem("nombreUsuario", data.nombre);
+          localStorage.setItem("correoUsuario", data.email);
+
 
     
           if (rol === "tecnico") {
