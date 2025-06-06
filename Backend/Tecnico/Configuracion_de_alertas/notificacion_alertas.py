@@ -126,7 +126,6 @@ def evaluar_y_guardar(alerta, sensor_general, sensor_nutriente, valor, umbral_ba
         "estado": "Activa",
         "notificaciones": alerta.get("notificaciones", []),
         "correo": alerta.get("correo"),
-        "correo_app": alerta.get("correo_app")
     }
 
     alertas_activas.insert_one(alerta_nueva)
@@ -135,9 +134,6 @@ def evaluar_y_guardar(alerta, sensor_general, sensor_nutriente, valor, umbral_ba
         #enviar_correo()
         #Aqui va la función para enviar el correo
         print(f"📧 Notificación enviada a {alerta['correo']}")
-
-    if "app" in alerta.get("notificaciones", []) and alerta.get("correo_app"):
-        print(f"📱 Notificación enviada a la app para {alerta['correo_app']}")
 
 if __name__ == "__main__":
     while True:

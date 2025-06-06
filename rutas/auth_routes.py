@@ -76,9 +76,9 @@ def login():
             {"$set": {"clave_tecnico": clave_temporal}}
         )
         enviar_clave_por_correo(usuario["email"], clave_temporal)
-        return jsonify(success=True, rol="tecnico", clave_enviada=True, nombre=usuario["nombre"])
+        return jsonify(success=True, rol="tecnico", clave_enviada=True, nombre=usuario["nombre"], email=usuario["email"] )
 
-    return jsonify(success=True, rol=usuario["rol"], nombre=usuario["nombre"])
+    return jsonify(success=True, rol=usuario["rol"], nombre=usuario["nombre"], email=usuario["email"] )
 
 @auth_blueprint.route('/verificar-clave', methods=['POST'])
 def verificar_clave():
