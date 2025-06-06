@@ -6,6 +6,7 @@ import requests
 import re
 from dotenv import load_dotenv
 from pymongo import MongoClient
+from zoneinfo import ZoneInfo
 
 # ----------------------------------------
 # Cargar variables de entorno
@@ -162,7 +163,7 @@ def generar_y_guardar_dato(sensor):
         return
 
     documento = {
-        "timestamp": datetime.datetime.now(),
+        "timestamp": datetime.datetime.now(ZoneInfo("America/Santiago")),
         "parcela": parcela,
         "tipo": tipo,
         "ubicacion": {"lat": lat, "lon": lon},

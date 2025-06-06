@@ -2,6 +2,10 @@ from flask import Blueprint, request, jsonify
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+
 
 analisis_datos_blueprint = Blueprint('analisis_datos', __name__)
 
@@ -11,6 +15,21 @@ load_dotenv()
 client = MongoClient(os.getenv("MONGO_URI"))
 db = client[os.getenv("DB_NAME")]
 parcelas = db[os.getenv("COLLECTION_PARCELAS", "datos_parcelas")]
+
+
+
+def insertar_nuevo_registro(parcela, tipo, otros_campos):
+    # Obtiene "ahora" en zona horaria "America/Santiago"
+    timestamp_chileno = datetime.now(ZoneInfo("America/Santiago"))
+
+    documento = {
+        "parcela": parcela,
+        "tipo": tipo,
+        # … tus otros campos (p. ej. 'ubicacion', 'nutrientes', etc.)
+        "timestamp": timestamp_chileno,
+    }
+
+    db_sensores.insert_one(documento)
 
 @analisis_datos_blueprint.route("/api/parcela-analisis", methods=["GET"])
 def obtener_parcela():
