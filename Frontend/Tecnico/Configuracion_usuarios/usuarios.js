@@ -23,7 +23,7 @@ async function registrarUsuario() {
 
 
   try {
-    const res = await fetch("http://localhost:5001/usuarios", {
+    const res = await fetch("http://localhost:5000/registrar_tecnico", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -88,9 +88,11 @@ async function buscarUsuario() {
   }
 
   try {
-    const res = await fetch(`http://localhost:5001/usuarios/${encodeURIComponent(email)}`);
+    const res = await fetch(
+      `http://localhost:5000/usuarios/${encodeURIComponent(email)}`
+    );
     const data = await res.json();
-
+    
     if (res.ok) {
       document.getElementById("modNombre").value = data.nombre || "";
       document.getElementById("modApellidos").value = data.apellidos || "";
@@ -140,11 +142,14 @@ async function modificarUsuario() {
   }
 
   try {
-    const res = await fetch(`http://localhost:5001/usuarios/${encodeURIComponent(email)}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+    const res = await fetch(
+      `http://localhost:5000/actualizar_usuarios/${encodeURIComponent(email)}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }
+    );
 
     const data = await res.json();
     if (res.ok) {
@@ -174,9 +179,10 @@ async function eliminarUsuario() {
   if (!confirmar) return;
 
   try {
-    const res = await fetch(`http://localhost:5001/usuarios/${encodeURIComponent(email)}`, {
-      method: "DELETE"
-    });
+    const res = await fetch(
+      `http://localhost:5000/eliminar_usuarios/${encodeURIComponent(email)}`,
+      { method: "DELETE" }
+    );
 
     const data = await res.json();
 
@@ -210,7 +216,7 @@ async function cargarUsuarios() {
   lista.innerHTML = "Cargando usuarios...";
 
   try {
-    const res = await fetch("http://localhost:5001/usuarios");
+    const res = await fetch("http://localhost:5000/obtener_usuarios");
     const data = await res.json();
 
     if (!Array.isArray(data)) throw new Error("Respuesta inválida");
