@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 import re
 import unicodedata
-
+from urllib.parse import unquote
 
 cambiar_usuario_tecnico_blueprint = Blueprint('cambiar_usuario_tecnico', __name__)
 
@@ -31,7 +31,7 @@ def validar_rol(rol):
     return rol.lower() in ["agricultor", "agronomo", "tecnico"]
 
 
-@cambiar_usuario_tecnico_blueprint.route("/usuarios", methods=["POST"])
+@cambiar_usuario_tecnico_blueprint.route("/registrar_tecnico", methods=["POST"])
 def registrar_usuario():
     datos = request.json
     email = datos.get("email")
@@ -63,14 +63,14 @@ def registrar_usuario():
     return jsonify({"mensaje": "Usuario registrado exitosamente"}), 201
 
 
-@cambiar_usuario_tecnico_blueprint.route('/usuarios', methods=['GET'])
+@cambiar_usuario_tecnico_blueprint.route('/obtener_usuarios', methods=['GET'])
 def obtener_usuarios():
     usuarios = list(coleccion_usuarios.find({}, {'_id': 0, 'password': 0}))
     return jsonify(usuarios), 200
 
 @cambiar_usuario_tecnico_blueprint.route('/usuarios/<email>', methods=['GET'])
 def obtener_usuario(email):
-    from urllib.parse import unquote
+
     email = unquote(email).strip().lower()
     usuario = coleccion_usuarios.find_one({'email': email}, {'_id': 0, 'password': 0})
     if usuario:
@@ -83,9 +83,9 @@ def limpiar_rol(rol):
     return unicodedata.normalize('NFD', rol).encode('ascii', 'ignore').decode('utf-8')
 
 
-@cambiar_usuario_tecnico_blueprint.route('/usuarios/<email>', methods=['PUT'])
+@cambiar_usuario_tecnico_blueprint.route('/actualizar_usuarios/<email>', methods=['PUT'])
 def actualizar_usuario(email):
-    from urllib.parse import unquote
+
     email = unquote(email)
     datos = request.json
 
@@ -104,7 +104,7 @@ def actualizar_usuario(email):
         return jsonify({'mensaje': 'Usuario actualizado'}), 200
     return jsonify({'mensaje': 'No se encontró el usuario'}), 404
 
-@cambiar_usuario_tecnico_blueprint.route('/usuarios/<email>', methods=['DELETE'])
+@cambiar_usuario_tecnico_blueprint.route('/eliminar_usuarios/<email>', methods=['DELETE'])
 def eliminar_usuario(email):
     from urllib.parse import unquote
     email = unquote(email)
