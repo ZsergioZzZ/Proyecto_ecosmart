@@ -1,44 +1,252 @@
-<div data-layer="Agricultor Alertas" class="AgricultorAlertas" style="width: 1540px; height: 2733px; position: relative; background: #FBF9F4; overflow: hidden">
-  <!-- Principal -->
-  <img data-layer="Imagen Cultivo" class="ImagenCultivo" style="width: 1597.01px; height: 674px; left: 0px; top: 229px; position: absolute" src="imagenes/imagen-cultivo.JPG" />
-  <div data-layer="Alertas" class="Alertas" style="width: 516px; height: 106px; left: 68px; top: 271px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 94px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Alertas</div>
-  <div data-layer="Rectangle 1" class="Rectangle1" style="width: 223px; height: 72px; left: 1270px; top: 38px; position: absolute; background: #588157; border-radius: 28px"></div>
-  <img data-layer="avatar" class="Avatar" style="width: 37px; height: 37px; left: 1287px; top: 55px; position: absolute" src="imagenes/avatar.png" />
-  <div id="nombre-usuario-agricultor" class="Agricultor" style="width: 127px; height: 45px; left: 1336px; top: 51px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Agricultor</div>
-  <script>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>EcoSmart - Alertas</title>
+  <style>
+    body {
+      background: #FBF9F4;
+      font-family: 'IBM Plex Mono', monospace;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Encabezado superior */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 30px 60px;
+    }
+
+    .logo-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .logo-block img {
+      width: 50px;
+      margin-bottom: 4px;
+    }
+
+    .logo-block span {
+      font-size: 32px;
+      font-weight: bold;
+      color: #344E41;
+    }
+
+    .user-section {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .user-section a {
+      color: #344E41;
+      font-weight: bold;
+      text-decoration: underline;
+      font-size: 16px;
+    }
+
+    .user-badge {
+      background: #588157;
+      color: white;
+      border-radius: 30px;
+      padding: 10px 20px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-badge img {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Imagen con título */
+    .hero {
+      position: relative;
+    }
+
+    .hero img {
+      width: 100%;
+      display: block;
+    }
+
+    .hero h1 {
+      position: absolute;
+      left: 80px;
+      top: 20%;
+      transform: translateY(-20%);
+      color: #344E41;
+      font-size: 72px;
+      font-weight: bold;
+    }
+
+    /* Selector y tarjetas */
+    .titulo-alertas {
+      text-align: center;
+      font-size: 36px;
+      color: #344E41;
+      margin-top: 30px;
+      margin-bottom: 10px;
+    }
+
+    select {
+      font-family: 'IBM Plex Mono';
+      font-size: 16px;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 0 auto 30px;
+      display: block;
+    }
+
+    .tarjetas {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      gap: 30px;
+      padding: 40px;
+      margin-bottom: 60px;
+      background: #344E41;
+      border-radius: 20px;
+      width: 90%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .tarjeta {
+      background: #A3B18A;
+      border: 8px solid #DAD7CD;
+      border-radius: 25px;
+      padding: 20px;
+      color: #1E1E1E;
+      width: 45%;
+      box-shadow: 2px 2px 12px rgba(0,0,0,0.2);
+    }
+
+    .tarjeta h2 {
+      text-align: center;
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+
+    .tarjeta p {
+      margin: 6px 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Encabezado con logo + usuario -->
+<div class="header">
+  <div class="logo-block">
+    <img src="imagenes/plantacion (6).png" alt="icono planta" />
+    <span>EcoSmart</span>
+  </div>
+  <div class="user-section">
+    <a href="/Frontend/Agricultor/Inicio/inicio_agricultor.html">Atrás</a>
+    <div class="user-badge">
+      <img src="imagenes/avatar.png" alt="usuario" />
+      <span id="nombre-usuario-agricultor">Agricultor</span>
+    </div>
+  </div>
+</div>
+
+<!-- Imagen de fondo curva con título encima -->
+<div class="hero">
+  <img src="imagenes/imagen-cultivo.JPG" alt="cultivo fondo" />
+  <h1>Alertas</h1>
+</div>
+
+<!-- Subtítulo -->
+<h2 class="titulo-alertas">Alertas activas</h2>
+
+<!-- Selector de parcela -->
+<select id="selector-parcela">
+  <option value="">Selecciona una parcela</option>
+</select>
+
+<!-- Contenedor de tarjetas -->
+<div class="tarjetas" id="contenedor-categorias"></div>
+
+<!-- Script funcional -->
+<script>
   const nombre = localStorage.getItem("nombreUsuario");
   if (nombre) {
     document.getElementById("nombre-usuario-agricultor").textContent = nombre;
   }
-  </script>
-  <div data-layer="EcoSmart" class="Ecosmart" style="width: 344px; height: 106px; left: 23px; top: 76px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">EcoSmart</div>
-  <img data-layer="plantacion (6)" class="Plantacion6" style="width: 76px; height: 76px; left: 157px; top: 38px; position: absolute" src="imagenes/plantacion (6).png" />
-  <a href="/Frontend/Agricultor/Inicio/inicio_agricultor.html"
-    style="width: 96.62px; height: 45px; left: 1173px; top: 50px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; text-decoration: underline; line-height: 28px; word-wrap: break-word;">
-    Atrás
-  </a>
 
-  <!-- 
-  Menú desplegable oculto 
-  -->
-  <div id="menuOpciones" style="display: none; width: 203px; position: absolute; top: 120px; left: 1270px; background: #344E41; border-radius: 10px; padding: 10px;">
-    <a href="/Frontend/Inicio_de_sesion/Inicio/inicio.html"
-      style="display: flex; justify-content: center; color: white; text-decoration: none; font-family: IBM Plex Mono; font-weight: 550; font-size: 18px;">
-      Cerrar sesión
-    </a>
-  </div>
+  fetch("http://localhost:5050/parcelas")
+    .then(res => res.json())
+    .then(parcelas => {
+      const selector = document.getElementById("selector-parcela");
+      parcelas.forEach(parcela => {
+        const option = document.createElement("option");
+        option.value = parcela;
+        option.textContent = parcela;
+        selector.appendChild(option);
+      });
+    });
 
-  <script>
-    // Mostrar/ocultar menú al hacer clic en el avatar o nombre
-    const avatar = document.querySelector('img[src="imagenes/avatar.png"]');
-    const nombreUsuario = document.getElementById("nombre-usuario-agricultor");
-    const menu = document.getElementById("menuOpciones");
+  document.getElementById("selector-parcela").addEventListener("change", (e) => {
+    const nombre = e.target.value;
+    if (!nombre) return;
 
-    function toggleMenu() {
-      menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
-    }
+    fetch(`http://localhost:5050/alertas_por_parcela?nombre=${encodeURIComponent(nombre)}`)
+      .then(res => res.json())
+      .then(data => {
+        const contenedor = document.getElementById("contenedor-categorias");
+        contenedor.innerHTML = "";
 
-    avatar.addEventListener("click", toggleMenu);
-    nombreUsuario.addEventListener("click", toggleMenu);
-  </script>
-</div>
+        const orden = [
+          "temperatura ambiente",
+          "humedad del suelo",
+          "nivel de ph",
+          "nivel de nutrientes"
+        ];
+
+        orden.forEach(clave => {
+          const alerta = data[clave];
+          if (!alerta) return;
+
+          const tarjeta = document.createElement("div");
+          tarjeta.classList.add("tarjeta");
+
+          if (clave === "nivel de nutrientes" && alerta.n && alerta.p && alerta.k) {
+            tarjeta.innerHTML = `
+              <h2>${alerta.titulo}</h2>
+              <p><strong>Nitrógeno (N):</strong><br>
+                ENTRE ${alerta.n.umbral_bajo} - ${alerta.n.umbral_alto}<br>
+                ${alerta.n.descripcion_bajo} / ${alerta.n.descripcion_alto}
+              </p>
+              <p><strong>Potasio (K):</strong><br>
+                ENTRE ${alerta.k.umbral_bajo} - ${alerta.k.umbral_alto}<br>
+                ${alerta.k.descripcion_bajo} / ${alerta.k.descripcion_alto}
+              </p>
+              <p><strong>Fósforo (P):</strong><br>
+                ENTRE ${alerta.p.umbral_bajo} - ${alerta.p.umbral_alto}<br>
+                ${alerta.p.descripcion_bajo} / ${alerta.p.descripcion_alto}
+              </p>
+              <p><strong>Cultivo:</strong> ${alerta.cultivo}</p>
+            `;
+          } else {
+            tarjeta.innerHTML = `
+              <h2>${alerta.titulo}</h2>
+              <p><strong>Valor Actual:</strong> ${alerta.valor_actual}</p>
+              <p>${alerta.menor}</p>
+              <p>${alerta.mayor}</p>
+              <p><strong>Cultivo:</strong> ${alerta.cultivo}</p>
+            `;
+          }
+
+          contenedor.appendChild(tarjeta);
+        });
+      });
+  });
+</script>
+
+</body>
+</html>
