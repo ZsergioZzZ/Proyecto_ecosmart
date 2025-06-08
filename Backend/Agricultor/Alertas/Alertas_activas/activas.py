@@ -1,22 +1,22 @@
-from flask import Flask, jsonify, request
+from flask import Blueprint, jsonify, request
 from pymongo import MongoClient
-from flask_cors import CORS
+from dotenv import load_dotenv
+import os
 
-app = Flask(__name__)
-CORS(app)
+alertas_agricultor_blueprint = Blueprint(´alertas_agricultor´, __name__)
 
-client = MongoClient("mongodb+srv://SergioZ:AltF4EcoSmart@cluster0.xqc6cre.mongodb.net/")
-db = client["EcoSmart"]
+client = MongoClient(os.getenv("MONGO_URI"))
+db = client[os.getenv("DB_NAME")]
 
 alertas_collection = db["alertas"]
 datos_collection = db["datos_sensores"]
 
-@app.route("/parcelas", methods=["GET"])
+@alertas_agricultor_blueprint.route("/parcelas", methods=["GET"])
 def obtener_parcelas():
     parcelas = alertas_collection.distinct("parcela")
     return jsonify(parcelas)
 
-@app.route("/alertas_por_parcela", methods=["GET"])
+@alertas_agricultor_blueprint.route("/alertas_por_parcela", methods=["GET"])
 def alertas_por_parcela():
     nombre_parcela = request.args.get("nombre")
     categorias = ["temperatura ambiente", "humedad del suelo", "nivel de ph", "nivel de nutrientes"]
@@ -48,6 +48,3 @@ def alertas_por_parcela():
             }
 
     return jsonify(resultado)
-
-if __name__ == "__main__":
-    app.run(port=5050, debug=True)
