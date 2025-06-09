@@ -8,6 +8,8 @@ from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
 
+sys.stdout.reconfigure(encoding='utf-8')
+
 # ----------------------------------------
 # Cargar variables de entorno para la app
 # ----------------------------------------
@@ -159,7 +161,7 @@ if __name__ == "__main__":
         print("✅ Generador de datos corriendo en background.")
 
     # Iniciamos el proceso de notificación de alertas
-    notificacion_proc = iniciar_notificacion()
+    #notificacion_proc = iniciar_notificacion()
     if notificacion_proc is None:
         print("‼️ No se inició la notificación de alertas. Verifica la ruta.")
     else:

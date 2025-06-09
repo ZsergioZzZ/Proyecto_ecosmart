@@ -20,7 +20,27 @@ alertas_activas = db["alertas_activas"]
 # Log para enviar correos
 #------------------------
 
-#def enviar_correo():
+def enviar_correo(destinatario, asunto, contenido):
+    remitente = os.getenv("EMAIL_SENDER")
+    contrasena = os.getenv("EMAIL_PASSWORD")
+
+    if not remitente or not contrasena:
+        print("❌ EMAIL_SENDER o EMAIL_PASSWORD no están definidos en .env")
+        return
+
+    mensaje = EmailMessage()
+    mensaje["Subject"] = asunto
+    mensaje["From"] = remitente
+    mensaje["To"] = destinatario
+    mensaje.set_content(contenido)
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+            smtp.login(remitente, contrasena)
+            smtp.send_message(mensaje)
+            print(f"📧 Correo enviado a {destinatario}")
+    except Exception as e:
+        print(f"❌ Error al enviar correo: {e}")
 
 #------------------------
 #------------------------
@@ -131,9 +151,29 @@ def evaluar_y_guardar(alerta, sensor_general, sensor_nutriente, valor, umbral_ba
     alertas_activas.insert_one(alerta_nueva)
 
     if "correo" in alerta.get("notificaciones", []) and alerta.get("correo"):
-        #enviar_correo()
-        #Aqui va la función para enviar el correo
-        print(f"📧 Notificación enviada a {alerta['correo']}")
+        mensaje_correo = f"""\
+        Estimado(a),
+
+        Le informamos que se ha activado una alerta en el sistema de monitoreo para la siguiente parcela:
+
+        🧭 Parcela: {alerta['parcela']}
+        📍 Sensor: {sensor_nutriente or sensor_general}
+        📊 Valor detectado: {valor}
+
+        ℹ️ Descripción: {descripcion}
+
+        Por favor, revise el estado de la parcela a la brevedad y tome las acciones correspondientes en caso de ser necesario.
+
+        —
+        Este es un mensaje automático del sistema EcoSmart.
+        No responda a este correo.
+        """
+
+    enviar_correo(
+        alerta["correo"],
+        f"⚠️ Alerta activa: {alerta['nombre_alerta']}",
+        mensaje_correo
+    )
 
 if __name__ == "__main__":
     while True:
