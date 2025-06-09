@@ -159,7 +159,7 @@ if __name__ == "__main__":
         print("✅ Generador de datos corriendo en background.")
 
     # Iniciamos el proceso de notificación de alertas
-    notificacion_proc = iniciar_notificacion()
+    #notificacion_proc = iniciar_notificacion()
     if notificacion_proc is None:
         print("‼️ No se inició la notificación de alertas. Verifica la ruta.")
     else:

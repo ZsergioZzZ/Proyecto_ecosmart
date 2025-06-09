@@ -1,4 +1,5 @@
-<div data-layer="Tecnico Alertas" class="TecnicoAlertas" style="width: 1540px; height: 3464px; position: relative; background: #FBF9F4; overflow: hidden">
+<div data-layer="Tecnico Alertas" class="TecnicoAlertas" 
+style="width: 1540px; position: relative; background: #FBF9F4; overflow: hidden">
   <!-- Principal -->
   <div data-layer="EcoSmart" class="Ecosmart" style="width: 344px; height: 106px; left: 23px; top: 76px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">EcoSmart</div>
   <img data-layer="plantacion (6)" class="Plantacion6" style="width: 76px; height: 76px; left: 157px; top: 38px; position: absolute" src="imagenes/plantacion (6).png" />
@@ -70,16 +71,16 @@
       <!-- Campos generales (no nutrientes) -->
       <div id="campos-generales">
         <label>Umbral alto</label><br>
-        <input type="number" id="umbral-alto" placeholder="Ej: 35.5" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <input type="number" id="umbral-alto" placeholder="Ej: 35.5" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
         <label>Descripción si se supera el umbral</label><br>
-        <input type="text" id="descripcion-alto" placeholder="Ej: Riesgo de sequía" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <input type="text" id="descripcion-alto" placeholder="Ej: Riesgo de sequía" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
         <label>Umbral bajo</label><br>
-        <input type="number" id="umbral-bajo" placeholder="Ej: 5.0" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <input type="number" id="umbral-bajo" placeholder="Ej: 5.0" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
         <label>Descripción si se baja del umbral</label><br>
-        <input type="text" id="descripcion-bajo" placeholder="Ej: Riesgo de helada" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <input type="text" id="descripcion-bajo" placeholder="Ej: Riesgo de helada" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
       </div>
 
       <!-- Campos específicos para Nutrientes -->
@@ -87,64 +88,52 @@
         <h3 style="margin-top: 30px;">Nitrógeno</h3>
 
         <label>Umbral alto</label><br>
-        <input type="number" id="n-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <input type="number" id="n-alto" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
         <label>Descripción si se supera el umbral</label><br>
-        <input type="text" id="n-desc-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <input type="text" id="n-desc-alto" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
         <label>Umbral bajo</label><br>
-        <input type="number" id="n-bajo" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <input type="number" id="n-bajo" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
         <label>Descripción si se baja del umbral</label><br>
-        <input type="text" id="n-desc-bajo" style="width: 100%; margin-bottom: 20px; padding: 10px;"><br>
+        <input type="text" id="n-desc-bajo" style="width: 100%; margin-bottom: 20px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
         <h3 style="margin-top: 30px;">Fósforo</h3>
 
         <label>Umbral alto</label><br>
-        <input type="number" id="p-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <input type="number" id="p-alto" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
         <label>Descripción si se supera el umbral</label><br>
-        <input type="text" id="p-desc-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <input type="text" id="p-desc-alto" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
         <label>Umbral bajo</label><br>
-        <input type="number" id="p-bajo" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <input type="number" id="p-bajo" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
         <label>Descripción si se baja del umbral</label><br>
-        <input type="text" id="p-desc-bajo" style="width: 100%; margin-bottom: 20px; padding: 10px;"><br>
+        <input type="text" id="p-desc-bajo" style="width: 100%; margin-bottom: 20px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
         <h3 style="margin-top: 30px;">Potasio</h3>
 
         <label>Umbral alto</label><br>
-        <input type="number" id="k-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <input type="number" id="k-alto" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
         <label>Descripción si se supera el umbral</label><br>
-        <input type="text" id="k-desc-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <input type="text" id="k-desc-alto" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
         <label>Umbral bajo</label><br>
-        <input type="number" id="k-bajo" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <input type="number" id="k-bajo" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
         <label>Descripción si se baja del umbral</label><br>
-        <input type="text" id="k-desc-bajo" style="width: 100%; margin-bottom: 20px; padding: 10px;"><br>
+        <input type="text" id="k-desc-bajo" style="width: 100%; margin-bottom: 20px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
       </div>
 
       <hr style="margin: 30px 0; border: none; border-top: 2px solid #ccc;">
 
       <label>Notificación por:</label><br>
-      <div style="margin-bottom: 20px;">
-        <!-- Correo -->
-        <label><input type="checkbox" name="notificacion" value="correo" id="checkbox-correo"> Correo</label><br>
-        <div id="campo-correo" style="display: none; margin-top: 10px;">
-          <input type="email" id="correo-alerta" placeholder="ejemplo@correo.com"
-            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
-        </div>
+      <label><input type="checkbox" name="notificacion" value="correo" id="checkbox-correo"> Correo</label><br>
+      <label><input type="checkbox" name="notificacion" value="app" id="checkbox-app"> App</label><br><br>
 
-        <!-- App -->
-        <label><input type="checkbox" name="notificacion" value="app" id="checkbox-app"> App</label><br>
-        <div id="campo-app" style="display: none; margin-top: 10px;">
-          <input type="email" id="correo-app" placeholder="correo del usuario de App"
-            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
-        </div>
-      </div>
 
 
 
@@ -153,6 +142,107 @@
       </button>
     </div>
     <script src = "configurar_alertas.js"></script>
+  </div>
+
+
+  <!-- 
+    -------------------------------
+    Editar Alerta
+    -------------------------------
+  -->
+  <div style="margin-top: 20px; padding: 30px; background: #344E41; border-radius: 20px; color: white; font-family: IBM Plex Mono;">
+    <div style="width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; color: #344E41; position: relative;">
+      <h2 style="text-align: center; font-size: 32px; margin-bottom: 30px;">Editar Alerta</h2>
+
+      <label>Parcela</label><br>
+      <select id="parcela-editar" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"></select><br>
+
+      <label>Sensor</label><br>
+      <select id="sensor-editar" style="width: 100%; margin-bottom: 20px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"></select><br>
+
+      <label>Alerta existente</label><br>
+      <select id="alerta-editar" style="width: 100%; margin-bottom: 20px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
+        <option value="">Seleccione una alerta</option>
+      </select>
+
+      <hr style="margin: 30px 0;">
+
+      <label>Nombre de la alerta</label><br>
+      <input type="text" id="editNombreAlerta" style="width: 100%; margin-bottom: 20px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+      <!-- Campos dinámicos -->
+      <div id="campos-generales-editar">
+        <label>Umbral alto</label><br>
+        <input type="number" id="editUmbralAlto" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+        <label>Descripción si se supera el umbral alto</label><br>
+        <input type="text" id="editDescripcionAlto" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+        <label>Umbral bajo</label><br>
+        <input type="number" id="editUmbralBajo" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
+        <label>Descripción si se baja del umbral bajo</label><br>
+        <input type="text" id="editDescripcionBajo" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+      </div>
+
+      <div id="campos-nutrientes-editar" style="display: none;">
+        <!-- Campos para N -->
+        <h3>Nitrógeno</h3>
+        <label>Umbral alto</label><input type="number" id="edit-n-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <label>Descripción si se supera</label><input type="text" id="edit-n-desc-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <label>Umbral bajo</label><input type="number" id="edit-n-bajo" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <label>Descripción si se baja</label><input type="text" id="edit-n-desc-bajo" style="width: 100%; margin-bottom: 20px; padding: 10px;"><br>
+
+        <!-- Campos para P -->
+        <h3>Fósforo</h3>
+        <label>Umbral alto</label><input type="number" id="edit-p-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <label>Descripción si se supera</label><input type="text" id="edit-p-desc-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <label>Umbral bajo</label><input type="number" id="edit-p-bajo" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <label>Descripción si se baja</label><input type="text" id="edit-p-desc-bajo" style="width: 100%; margin-bottom: 20px; padding: 10px;"><br>
+
+        <!-- Campos para K -->
+        <h3>Potasio</h3>
+        <label>Umbral alto</label><input type="number" id="edit-k-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <label>Descripción si se supera</label><input type="text" id="edit-k-desc-alto" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <label>Umbral bajo</label><input type="number" id="edit-k-bajo" style="width: 100%; margin-bottom: 10px; padding: 10px;"><br>
+        <label>Descripción si se baja</label><input type="text" id="edit-k-desc-bajo" style="width: 100%; margin-bottom: 20px; padding: 10px;"><br>
+      </div>
+
+      <hr style="margin: 30px 0;">
+
+      <label>Notificación por:</label><br>
+      <div style="margin-bottom: 20px;">
+        <label><input type="checkbox" name="editNotificacion" value="correo" id="edit-check-correo"> Correo</label><br>
+        <label><input type="checkbox" name="editNotificacion" value="app" id="edit-check-app"> App</label><br>
+      </div>
+
+      <button onclick="guardarCambiosAlerta()" style="width: 100%; padding: 12px; background-color: #588157; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px;">
+        Guardar cambios
+      </button>
+
+      <button onclick="eliminarAlerta()" style="width: 100%; padding: 12px; margin-top: 15px; background-color: red; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px;">
+        Eliminar alerta
+      </button>
+    </div>
+    <script src="editar_alertas.js"></script>
+  </div>
+
+
+  <!-- 
+    ------------------------------
+    Historial de Alertas Activadas
+    ------------------------------ 
+  -->
+  <div style="margin-top: 22px; padding: 30px; background: #3E5C49; border-radius: 20px; color: white; font-family: IBM Plex Mono; min-height: 190px;">
+    <h2 style="font-size: 45px; text-align: center; margin-bottom: 20px;">Historial de Alertas</h2>
+    <div style="text-align: center;">
+      <button id="btn-ver-alertas" style="font-size: 18px; padding: 10px 20px; border-radius: 8px; border: none; background: #B5C99A; color: black; font-weight: bold; cursor: pointer;">
+        🔔 Ver alertas registradas
+      </button>
+    </div>
+    <div id="contenedor-historial-alertas" style="display: none; margin-top: 30px;"></div>
+
+    <script src="historialAlertas.js"></script>
   </div>
 
 
@@ -185,9 +275,9 @@
       z-index: 1000;">0</span>
   </div>
 
-
-
-  <!-- Panel de notificaciones emergentes -->
+  <!-- 
+  Panel de notificaciones emergentes 
+  -->
   <div id="panel-notificaciones" style="
     display: none; position: absolute; top: 115px; left: 1150px; width: 280px; background-color: white; border: 1px solid #ccc; border-radius: 10px; 
     box-shadow: 0px 4px 10px rgba(0,0,0,0.15); padding: 12px; z-index: 999; font-family: 'IBM Plex Mono'; font-size: 14px; color: #344E41;">
@@ -282,6 +372,7 @@
     // Cargar automáticamente al entrar a la página
     document.addEventListener("DOMContentLoaded", cargarNotificaciones);
   </script>
+
 
 
 

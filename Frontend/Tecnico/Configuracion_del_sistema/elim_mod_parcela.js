@@ -198,9 +198,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-document.addEventListener("DOMContentLoaded", () => {
-  cargarParcelasModificar();
+document.addEventListener("DOMContentLoaded", async () => {
+  await cargarUsuariosModificar();
+  cargarParcelasModificar();  
 });
+
 
 async function cargarParcelasModificar() {
   try {
@@ -217,6 +219,13 @@ async function cargarParcelasModificar() {
     opcionInicial.disabled = true;
     opcionInicial.selected = true;
     selectParcela.appendChild(opcionInicial);
+    parcelas.sort((a, b) => {
+      const nombreA = a.nombre.toLowerCase();
+      const nombreB = b.nombre.toLowerCase();
+      if (nombreA < nombreB) return -1;
+      if (nombreA > nombreB) return 1;
+      return a.numero - b.numero;
+    });
 
     parcelas.forEach(p => {
       const option = document.createElement("option");
@@ -224,6 +233,7 @@ async function cargarParcelasModificar() {
       option.textContent = option.value;
       selectParcela.appendChild(option);
     });
+
 
     selectParcela.addEventListener("change", activarModificarPuntos);
 
@@ -265,6 +275,11 @@ fetch(`http://localhost:5000/api/parcela?nombre=${encodeURIComponent(nombre)}&nu
     document.getElementById("nueva-ubicacion").value = data.ubicacion || "";
     document.getElementById("nuevo-cultivo").value = data.cultivo || "";
 
+    if (data.usuario) {
+      document.getElementById("nuevo-usuario").value = data.usuario;
+    }
+
+
     const bounds = L.latLngBounds(drawnPointsMod);
     mapMod.fitBounds(bounds, { padding: [30, 30] });
 
@@ -285,6 +300,11 @@ function guardarCambiosParcela() {
   const nuevo_nombre = document.getElementById("nuevo-nombre").value.trim() || nombre_original;
   const ubicacion = document.getElementById("nueva-ubicacion").value.trim();
   const cultivo = document.getElementById("nuevo-cultivo").value.trim();
+  const usuario = document.getElementById("nuevo-usuario").value.trim();
+  if (!usuario) {
+    alert("Debe seleccionar un usuario responsable para la parcela.");
+    return;
+  }
 
   if (!ubicacion || !cultivo || drawnPointsMod.length < 3) {
     alert("Todos los campos y al menos 3 puntos son obligatorios.");
@@ -297,11 +317,12 @@ function guardarCambiosParcela() {
     numero: parseInt(num),
     ubicacion,
     cultivo,
-    puntos: drawnPointsMod.map(p => ({ lat: p[0], lng: p[1] }))
-
+    puntos: drawnPointsMod.map(p => ({ lat: p[0], lng: p[1] })),
+    usuario
   };
 
-  fetch("http://localhost:5000/parcelas", {
+  fetch("http://localhost:5000/parcelas-modificar", {
+
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(datos)
@@ -383,4 +404,23 @@ function limpiarFormularioParcela() {
   document.getElementById("nuevo-cultivo").value = "";
   document.getElementById("latModParcelaManual").value = "";
   document.getElementById("lngModParcelaManual").value = "";
+  document.getElementById("nuevo-usuario").selectedIndex = 0;
+}
+
+async function cargarUsuariosModificar() {
+  try {
+    const res = await fetch("http://localhost:5000/api/parcelas-configuracion/usuarios");
+    const usuarios = await res.json();
+    const select = document.getElementById("nuevo-usuario");
+
+    usuarios.forEach(u => {
+    const option = document.createElement("option");
+    option.value = u.value; // esto debe ser el EMAIL
+    option.textContent = u.label; // esto es lo visible: Rol - Nombre Apellido
+
+      select.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Error al cargar usuarios:", err);
+  }
 }

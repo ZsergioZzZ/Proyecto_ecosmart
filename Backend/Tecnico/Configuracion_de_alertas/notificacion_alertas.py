@@ -126,6 +126,7 @@ def evaluar_y_guardar(alerta, sensor_general, sensor_nutriente, valor, umbral_ba
         "estado": "Activa",
         "notificaciones": alerta.get("notificaciones", []),
         "correo": alerta.get("correo"),
+        "correo_app": alerta.get("correo_app")
     }
 
     alertas_activas.insert_one(alerta_nueva)
@@ -139,4 +140,4 @@ if __name__ == "__main__":
     while True:
         verificar_alertas()
         print("[🕐] Esperando 60 segundos para la siguiente verificación...\n")
-        time.sleep(60)
+        time.sleep(10)

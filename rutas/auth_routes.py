@@ -122,7 +122,7 @@ def verificar_email_real():
 def crear_usuario():
     data = request.get_json()
 
-    # Validaciones
+    # Validaciones locales
     if not validar_email(data["email"]):
         return jsonify({"success": False, "message": "Email inválido."}), 400
 
@@ -138,6 +138,21 @@ def crear_usuario():
     if not validar_rol(data["rol"]):
         return jsonify({"success": False, "message": "Rol inválido. Usa 'agricultor', 'agronomo' o 'tecnico'."}), 400
 
+    # Validación externa del correo
+    api_key = os.getenv("ABSTRACT_API_KEY")
+    res = requests.get(
+        "https://emailvalidation.abstractapi.com/v1/",
+        params={"api_key": api_key, "email": data["email"]}
+    )
+
+    if res.status_code != 200:
+        return jsonify({"success": False, "message": "Error al verificar el correo real."}), 500
+
+    resultado = res.json()
+    if resultado.get("deliverability") != "DELIVERABLE":
+        return jsonify({"success": False, "message": "El correo ingresado no es válido o no existe."}), 400
+
+    # Si todo está correcto, registrar
     usuario = {
         "nombre": data["nombre"],
         "apellidos": data["apellido"],
@@ -154,4 +169,3 @@ def crear_usuario():
         "message": "Usuario creado exitosamente.",
         "id": str(resultado.inserted_id)
     }), 201
-#

@@ -1,10 +1,30 @@
+let correoUsuario = "";
+
 document.addEventListener("DOMContentLoaded", async () => {
   await alertaConfig_cargarParcelas();
 
   document.getElementById("select-parcela").addEventListener("change", async (e) => {
     const parcela = e.target.value;
+
+    // Cargar sensores
     await alertaConfig_cargarSensores(parcela);
+
+    // Buscar correo del usuario asociado
+    try {
+      const res = await fetch(`http://localhost:5000/configuracion-alertas/correo-usuario?parcela=${encodeURIComponent(parcela)}`);
+      const data = await res.json();
+      if (data && data.correo) {
+      correoUsuario = data.correo;
+      localStorage.setItem("correoUsuario", correoUsuario);  
+    }else {
+        console.warn("No se encontró correo para esta parcela.");
+      }
+    } catch (err) {
+      console.error("Error al obtener correo del usuario:", err);
+    }
+
   });
+
 
   const botonGuardar = document.querySelector("button");
   botonGuardar.addEventListener("click", alertaConfig_guardar);
@@ -17,6 +37,15 @@ async function alertaConfig_cargarParcelas() {
     const select = document.getElementById("select-parcela");
 
     select.innerHTML = '<option value="">Seleccione una parcela</option>';
+
+    parcelas.sort((a, b) => {
+      const nombreA = a.nombre.toLowerCase();
+      const nombreB = b.nombre.toLowerCase();
+      if (nombreA < nombreB) return -1;
+      if (nombreA > nombreB) return 1;
+      return a.numero - b.numero;
+    });
+
     parcelas.forEach(p => {
       const nombreCompleto = `${p.nombre} - Parcela ${p.numero}`;
       const option = document.createElement("option");
@@ -29,6 +58,7 @@ async function alertaConfig_cargarParcelas() {
   }
 }
 
+
 async function alertaConfig_cargarSensores(parcela) {
   try {
     const res = await fetch(`http://localhost:5000/configuracion-alertas/sensores?parcela=${encodeURIComponent(parcela)}`);
@@ -36,16 +66,21 @@ async function alertaConfig_cargarSensores(parcela) {
     const select = document.getElementById("select-sensor");
 
     select.innerHTML = '<option value="">Seleccione un sensor</option>';
+
+    sensores.sort((a, b) => a.tipo.localeCompare(b.tipo));  // Ordenar por tipo
+
     sensores.forEach(s => {
       const option = document.createElement("option");
-      option.value = s.tipo;  
+      option.value = s.tipo;
       option.textContent = s.tipo;
       select.appendChild(option);
     });
+
   } catch (error) {
     console.error("Error al cargar sensores:", error);
   }
 }
+
 
 async function alertaConfig_guardar(event) {
   event.preventDefault();
@@ -54,6 +89,9 @@ async function alertaConfig_guardar(event) {
   const parcela = document.getElementById("select-parcela").value;
   const sensor = document.getElementById("select-sensor").value.trim().toLowerCase();
   const notificaciones = Array.from(document.querySelectorAll("input[name='notificacion']:checked")).map(el => el.value);
+  const correoSeleccionado = document.getElementById("checkbox-correo").checked;
+  const appSeleccionada = document.getElementById("checkbox-app").checked;
+
 
   if (!nombreAlerta || !parcela || !sensor) {
     alert("Por favor completa todos los campos obligatorios.");
@@ -62,22 +100,6 @@ async function alertaConfig_guardar(event) {
 
   if (notificaciones.length === 0) {
     alert("Debes seleccionar al menos una forma de notificación: Correo o App.");
-    return;
-  }
-
-  const correo = document.getElementById("correo-alerta").value.trim();
-  const correoApp = document.getElementById("correo-app").value.trim();
-
-  const correoSeleccionado = document.getElementById("checkbox-correo").checked;
-  const appSeleccionada = document.getElementById("checkbox-app").checked;
-
-  if (correoSeleccionado && correo === "") {
-    alert("Por favor ingresa un correo electrónico para la notificación por correo.");
-    return;
-  }
-
-  if (appSeleccionada && correoApp === "") {
-    alert("Por favor ingresa un correo de usuario de la App.");
     return;
   }
 
@@ -101,8 +123,8 @@ async function alertaConfig_guardar(event) {
   parcela: parcela,
   sensor: sensor,
   notificaciones: notificaciones,
-  correo: correoSeleccionado ? correo : null,
-  correo_app: appSeleccionada ? correoApp : null
+  correo: correoSeleccionado ? correoUsuario : null,
+  correo_app: appSeleccionada ? correoUsuario : null
   };
 
   // Y dependiendo del tipo de sensor:
@@ -159,8 +181,8 @@ async function alertaConfig_guardar(event) {
     umbral_bajo: umbralBajo,
     descripcion_bajo: descripcionBajo,
     notificaciones: notificaciones,
-    correo: correoSeleccionado ? correo : null,
-    correo_app: appSeleccionada ? correoApp : null
+    correo: correoSeleccionado ? correoUsuario : null,
+    correo_app: appSeleccionada ? correoUsuario : null
 
   };
 
@@ -190,6 +212,8 @@ async function enviarAlerta(datos) {
 }
 
 
+
+
 document.getElementById("select-sensor").addEventListener("change", function () {
   const valor = this.value.trim().toLowerCase();
   const esNutrientes = valor.includes("nutrientes");
@@ -206,14 +230,7 @@ document.getElementById("select-sensor").addEventListener("change", function () 
   }
 });
 
-// Mostrar/ocultar campos de correo y app
-document.getElementById("checkbox-correo").addEventListener("change", function () {
-  document.getElementById("campo-correo").style.display = this.checked ? "block" : "none";
-});
 
-document.getElementById("checkbox-app").addEventListener("change", function () {
-  document.getElementById("campo-app").style.display = this.checked ? "block" : "none";
-});
 
 function limpiarFormulario() {
   document.getElementById("nombre-alerta").value = "";
@@ -234,13 +251,9 @@ function limpiarFormulario() {
     document.getElementById(`${letra}-desc-bajo`).value = "";
   });
 
-  // Notificaciones
+  // Checkboxes
   document.getElementById("checkbox-correo").checked = false;
   document.getElementById("checkbox-app").checked = false;
-  document.getElementById("campo-correo").style.display = "none";
-  document.getElementById("campo-app").style.display = "none";
-  document.getElementById("correo-alerta").value = "";
-  document.getElementById("correo-app").value = "";
 
   // Campos visuales
   document.getElementById("campos-generales").style.display = "block";

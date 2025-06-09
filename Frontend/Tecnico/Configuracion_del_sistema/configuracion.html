@@ -65,7 +65,6 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
       <!-- Parcela número -->
       <input type="hidden" id="numero" />
 
-
       <!-- Ubicación -->
       <div style="flex: 1; min-width: 300px;">
         <label for="ubicacion" style="font-size: 20px;">Ubicación</label><br />
@@ -77,7 +76,18 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
         <label for="cultivo" style="font-size: 20px;">Tipo de Cultivo</label><br />
         <input id="cultivo" type="text" placeholder="Ej: Tomate Cherry" style="width: 100%; padding: 10px; font-size: 16px;" />
       </div>
+
+      <!-- Usuario asignado -->
+      <div style="flex: 1; min-width: 300px;">
+        <label for="usuario-parcela" style="font-size: 20px;">Asignar usuario</label><br />
+        <select id="usuario-parcela" required style="width: 100%; padding: 10px; font-size: 16px;">
+          <option value="">Seleccione un usuario</option>
+        </select>
+      </div>
     </div>
+
+
+
 
     <!-- Mapa -->
     <div style="margin-top: 30px;">
@@ -231,7 +241,7 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
   </div>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="sensor.js"></script>
   </div>
 
@@ -273,6 +283,11 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
       <input type="text" id="nueva-ubicacion" placeholder="Nueva ubicación" style="width: 100%; margin-bottom: 10px; padding: 6px; border-radius: 6px;">
       <label for="parcela-modificar">Nuevo Cultivo:</label><br>
       <input type="text" id="nuevo-cultivo" placeholder="Nuevo cultivo" style="width: 100%; margin-bottom: 15px; padding: 6px; border-radius: 6px;">
+      <label for="nuevo-usuario" style="margin-top: 10px;">Nuevo usuario:</label><br />
+      <select id="nuevo-usuario" required style="width: 100%; margin-bottom: 15px; padding: 6px; border-radius: 6px;">
+        <option value="">Seleccione un usuario</option>
+      </select>
+
 
       <div style="margin-top: 20px;">
         <label style="font-size: 20px;">Delimitación de la Parcela</label>
@@ -464,7 +479,7 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
     <strong>Notificaciones recientes</strong>
     <ul id="lista-notificaciones" style="list-style: none; padding: 0; margin-top: 10px;">
       <li>No hay notificaciones nuevas.</li>
-    </ul>
+    </ul>l
   </div>
 
   <script>

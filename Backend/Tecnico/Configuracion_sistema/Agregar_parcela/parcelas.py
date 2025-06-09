@@ -21,7 +21,8 @@ def guardar_parcela():
     data = request.json
 
     # Validar campos obligatorios
-    campos = ["nombre", "numero", "ubicacion", "cultivo", "puntos"]
+    campos = ["nombre", "numero", "ubicacion", "cultivo", "puntos", "usuario"]
+
     if not all(c in data for c in campos):
         return jsonify({"error": "Faltan campos obligatorios"}), 400
 
@@ -45,6 +46,11 @@ def guardar_parcela():
         "numero": data["numero"]
     })
 
+    usuario = data["usuario"].strip()
+    if not usuario or "@" not in usuario:
+        return jsonify({"error": "Debe seleccionar un usuario válido"}), 400
+
+
 
     # Formatear puntos
     puntos_transformados = [{"lat": p[0], "lng": p[1]} for p in data["puntos"]]
@@ -55,8 +61,10 @@ def guardar_parcela():
         "numero": data["numero"],
         "ubicacion": data["ubicacion"],
         "cultivo": data["cultivo"],
-        "puntos": puntos_transformados
+        "puntos": puntos_transformados,
+        "usuario": usuario
     })
+
 
     return jsonify({"mensaje": "Parcela guardada exitosamente"}), 201
 
@@ -69,4 +77,14 @@ def listar_parcelas():
         except (ValueError, TypeError):
             p["numero"] = None  
         lista.append(p)
+    return jsonify(lista)
+
+@agregar_parcelas_blueprint.route("/api/parcelas-configuracion/usuarios", methods=["GET"])
+def obtener_usuarios_para_parcelas():
+    usuarios = db["datos_usuarios"].find({},{"_id": 0, "nombre": 1, "apellidos": 1, "rol": 1, "email": 1}).sort([("rol", 1), ("nombre", 1), ("apellidos", 1)])
+    lista = []
+    for u in usuarios:
+        if all(k in u for k in ["nombre", "apellidos", "rol", "email"]):
+            etiqueta = f"{u['rol'].capitalize()} - {u['nombre']} {u['apellidos']}"
+            lista.append({"label": etiqueta, "value": u["email"]})
     return jsonify(lista)
