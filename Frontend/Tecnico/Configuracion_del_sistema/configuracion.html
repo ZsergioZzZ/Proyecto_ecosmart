@@ -246,168 +246,327 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
   </div>
 
 
-<!-- --------------------------------
-     Notificaciones emergentes
--------------------------------- -->
 
-<!-- Icono de campana -->
-<div id="notificacion-contenedor" style="position: absolute; top: 59px; left: 1150px; cursor: pointer;">
-  <svg id="campana-icono" xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 24 24" width="32" fill="#344E41" title="Notificaciones">
-    <path d="M0 0h24v24H0z" fill="none"/>
-    <path d="M12 22c1.1 0 1.99-.9 1.99-2h-4A1.99 1.99 0 0012 22zm6-6V9a6 6 0 00-12 0v7l-2 2v1h16v-1l-2-2z"/>
-  </svg>
-  <span id="burbuja-noti" style="
-    display: none;
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: red;
-    color: white;
-    font-size: 12px;
-    padding: 3px 7px;
-    border-radius: 50%;
-    font-family: Arial, sans-serif;
-    font-weight: bold;
-    z-index: 1000;">0</span>
-</div>
+  <!--
+  -------------------------------------
+  Modificar o Eliminar Sensor o Parcela
+  -------------------------------------
+  -->
+  <div style="margin-top: 22px; padding: 30px; background: #344E41; border-radius: 20px; color: white; font-family: IBM Plex Mono; min-height: 250px;">
 
-<!-- Panel emergente -->
-<div id="panel-notificaciones" style="
-  display: none; position: absolute; top: 115px; left: 1150px; width: 280px;
-  background-color: white; border: 1px solid #ccc; border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0,0,0,0.15); padding: 12px; z-index: 999;
-  font-family: 'IBM Plex Mono'; font-size: 14px; color: #344E41;">
-  <strong>Notificaciones recientes</strong>
-  <ul id="lista-notificaciones" style="list-style: none; padding: 0; margin-top: 10px;">
-    <li>No hay notificaciones nuevas.</li>
-  </ul>
-</div>
+    <hr style="border-color: white;">
+    <h2 style="margin-top: 20px;">Modificar o Eliminar</h2>
 
-<!-- Modal de recomendaciones -->
-<div id="modal-recomendacion" style="
-  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background-color: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;">
-  
-  <div style="
-    background-color: white; padding: 20px; border-radius: 10px; width: 400px; max-width: 90%;
-    font-family: 'IBM Plex Mono'; color: #344E41; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+    <!-- 
+    Selección de tipo 
+    -->
+    <div style="margin-bottom: 20px;">
+      <label for="tipo-modificacion">¿Qué desea modificar o eliminar?</label><br>
+      <select id="tipo-modificacion" style="padding: 8px; border-radius: 8px; border: none; width: 100%; margin-top: 5px;">
+        <option value="" disabled selected>Seleccione una opción</option>
+        <option value="parcela">Una Parcela</option>
+        <option value="sensor">Un Sensor</option>
+      </select>
+    </div>
+
+    <!-- 
+    Sección Parcela 
+    -->
+    <div id="modificar-parcela" style="display: none;">
+      <h3>Modificar Parcela</h3>
+
+      <label for="parcela-modificar">Seleccione Parcela:</label><br>
+      <select id="parcela-modificar" style="width: 100%; margin-bottom: 10px; padding: 6px; border-radius: 6px;"></select>
+      <label for="parcela-modificar">Nuevo nombre:</label><br>
+      <input type="text" id="nuevo-nombre" placeholder="Nuevo nombre" style="width: 100%; margin-bottom: 10px; padding: 6px; border-radius: 6px;">
+      <label for="parcela-modificar">Nueva Ubicación:</label><br>
+      <input type="text" id="nueva-ubicacion" placeholder="Nueva ubicación" style="width: 100%; margin-bottom: 10px; padding: 6px; border-radius: 6px;">
+      <label for="parcela-modificar">Nuevo Cultivo:</label><br>
+      <input type="text" id="nuevo-cultivo" placeholder="Nuevo cultivo" style="width: 100%; margin-bottom: 15px; padding: 6px; border-radius: 6px;">
+      <label for="nuevo-usuario" style="margin-top: 10px;">Nuevo usuario:</label><br />
+      <select id="nuevo-usuario" required style="width: 100%; margin-bottom: 15px; padding: 6px; border-radius: 6px;">
+        <option value="">Seleccione un usuario</option>
+      </select>
+
+
+      <div style="margin-top: 20px;">
+        <label style="font-size: 20px;">Delimitación de la Parcela</label>
+        <div id="mapModificarParcelaParcela" style="height: 400px; width: 100%; margin-top: 10px; border: 2px solid white; border-radius: 10px;"></div>
+      </div>
+      <div style="margin-top: 20px; background: #ffffff; color: black; padding: 15px; border-radius: 10px; width: fit-content; position: relative;">
+        <label style="margin-right: 10px;">Latitud:</label>
+        <input type="number" id="latModParcelaManual" step="0.000001" placeholder="-33.4489" />
+        <label style="margin: 0 10px;">Longitud:</label>
+        <input type="number" id="lngModParcelaManual" step="0.000001" placeholder="-70.6693" />
+        <button onclick="modificarPuntoParcelaManual()" style="margin-left: 10px;">📌 Agregar punto manual</button>
+
+        <!--Icono + texto -->
+        <div class="tooltip-wrapper" style="display: inline-block; position: relative; margin-left: 10px;">
+          <span class="info-icon" style="font-size: 18px; cursor: pointer; border: 1px solid gray; border-radius: 50%; padding: 1px 6px;">i</span>
+
+          <div class="tooltip-text" style="display: none; position: absolute; top: 25px; left: -100px; width: 250px; background-color: #444; color: white; padding: 10px; border-radius: 6px; font-size: 15px; z-index: 100;">
+            Puedes obtener las coordenadas de latitud y longitud desde Google Maps.
+            Haz clic en el lugar deseado del mapa y las coordenadas aparecerán en la parte inferior.
+          </div>
+        </div>
+
+        <script>
+          document.querySelectorAll(".tooltip-wrapper").forEach(wrapper => {
+            const icon = wrapper.querySelector(".info-icon");
+            const tooltip = wrapper.querySelector(".tooltip-text");
+
+            icon.addEventListener("mouseenter", () => {
+              tooltip.style.display = "block";
+            });
+
+            icon.addEventListener("mouseleave", () => {
+              tooltip.style.display = "none";
+            });
+          });
+        </script>
+      </div>
+      
+      <br>
+
+      <button style="background-color: #588157; color: white; padding: 10px 15px; border-radius: 10px;" onclick="guardarCambiosParcela()">Guardar Cambios</button>
+      <button style="background-color: red; color: white; padding: 10px 15px; border-radius: 10px; margin-left: 10px;" onclick="eliminarParcela()">Eliminar Parcela</button>
     
-    <h3 style="margin-top: 0; color: #344E41;" id="titulo-recomendacion">Recomendaciones</h3>
-    <p id="contenido-recomendacion">Aquí se mostrarán las recomendaciones para esta alerta.</p>
+
+
+      <script src="elim_mod_parcela.js"></script>
     
-    <div style="text-align: right; margin-top: 15px;">
-      <button onclick="cerrarModalRecomendacion()" style="
-        background-color: #a3b18a; border: none; padding: 8px 12px;
-        border-radius: 6px; cursor: pointer; color: white;">
-        Cerrar
+    </div>
+
+    
+    <!-- 
+    Sección Sensor 
+    -->
+    <div id="modificar-sensor" style="display: none; margin-top: 30px;">
+      <h3>Modificar Sensor</h3>
+
+      <label for="parcela-sensor">Seleccione Parcela:</label><br>
+      <select id="parcela-sensor" style="width: 100%; margin-bottom: 10px; padding: 6px; border-radius: 6px;"></select>
+
+      <label for="tipo-sensor-modificar">Tipo de Sensor:</label><br>
+      <select id="tipo-sensor-modificar" style="width: 100%; margin-bottom: 15px; padding: 6px; border-radius: 6px;">
+        <option value="" disabled selected>Seleccione un tipo de sensor</option>
+        <option value="Temperatura Ambiente">Temperatura Ambiente</option>
+        <option value="Humedad del suelo">Humedad del suelo</option>
+        <option value="Nivel de PH">Nivel de PH</option>
+        <option value="Nivel de Nutrientes">Nivel de Nutrientes</option>
+      </select>
+
+      <div style="margin-top: 20px;">
+        <label style="font-size: 20px;">Ubicación del Sensor</label>
+        <div id="mapModificarParcelaSensor" style="height: 400px; width: 100%; margin-top: 10px; border: 2px solid white; border-radius: 10px;"></div>
+      </div>
+
+      <div style="margin-top: 20px; background: #ffffff; color: black; padding: 15px; border-radius: 10px; width: fit-content; position: relative;">
+        <label style="margin-right: 10px;">Latitud:</label>
+        <input type="number" id="latModSensorManual" step="0.000001" placeholder="-33.4489" />
+        <label style="margin: 0 10px;">Longitud:</label>
+        <input type="number" id="lngModSensorManual" step="0.000001" placeholder="-70.6693" />
+        <button onclick="modificarrPuntoSensorManual()" style="margin-left: 10px;">📌 Agregar punto manual</button>
+
+        <!--Icono + texto -->
+        <div class="tooltip-wrapper" style="display: inline-block; position: relative; margin-left: 10px;">
+          <span class="info-icon" style="font-size: 18px; cursor: pointer; border: 1px solid gray; border-radius: 50%; padding: 1px 6px;">i</span>
+
+          <div class="tooltip-text" style="display: none; position: absolute; top: 25px; left: -100px; width: 250px; background-color: #444; color: white; padding: 10px; border-radius: 6px; font-size: 15px; z-index: 100;">
+            Puedes obtener las coordenadas de latitud y longitud desde Google Maps.
+            Haz clic en el lugar deseado del mapa y las coordenadas aparecerán en la parte inferior.
+          </div>
+        
+          <script>
+            document.querySelectorAll(".tooltip-wrapper").forEach(wrapper => {
+              const icon = wrapper.querySelector(".info-icon");
+              const tooltip = wrapper.querySelector(".tooltip-text");
+
+              icon.addEventListener("mouseenter", () => {
+                tooltip.style.display = "block";
+              });
+
+              icon.addEventListener("mouseleave", () => {
+                tooltip.style.display = "none";
+              });
+            });
+          </script>
+        
+        </div>
+      </div>
+
+
+      <br>
+
+
+      <button style="background-color: #588157; color: white; padding: 10px 15px; border-radius: 10px;" onclick="guardarCambiosSensor()">Guardar Cambios</button>
+      <button style="background-color: red; color: white; padding: 10px 15px; border-radius: 10px; margin-left: 10px;" onclick="eliminarSensor()">Eliminar Sensor</button>
+    
+      <script src="elim_mod_sensor.js"></script>
+    
+    </div>
+
+  </div>
+
+
+  <!-- 
+  --------------------------------
+  Historial de Parcelas y Sensores
+  -------------------------------- 
+  -->
+  <div style="margin-top: 22px; padding: 30px; background: #344E41; border-radius: 20px; color: white; font-family: IBM Plex Mono; min-height: 200px;">
+    <h2 style="font-size: 45px; text-align: center; margin-bottom: 20px;">Historial</h2>
+    <div style="text-align: center;">
+      <button id="btn-ver-parcelas" style="font-size: 18px; padding: 10px 20px; border-radius: 8px; border: none; background: #A3B18A; color: black; font-weight: bold; cursor: pointer;">
+        📋 Ver parcelas registradas
       </button>
     </div>
+    <div id="contenedor-historial" style="display: none; margin-top: 30px;"></div>
+    <script src="Historial.js"></script>
+
   </div>
-</div>
 
-<script>
-  const campana = document.getElementById("campana-icono");
-  const panel = document.getElementById("panel-notificaciones");
-  const burbuja = document.getElementById("burbuja-noti");
+  <!-- 
+  ---------------------------------
+  Botón de Configuración de Usuarios 
+  -----------------------------------
+  -->
+  <div style="margin-top: 22px; padding: 30px; background: #344E41; border-radius: 20px; color: white; font-family: IBM Plex Mono; min-height: 80px;">
 
-  campana.addEventListener("click", () => {
-    panel.style.display = panel.style.display === "none" ? "block" : "none";
-  });
+    <div style="margin-top: 15px; text-align: center;">
+      <a href="/Frontend/Tecnico/Configuracion_usuarios/usuarios.html"
+        style="font-size: 18px; padding: 12px 24px; border-radius: 10px; background-color: #A3B18A; color: black; font-weight: bold; text-decoration: none; display: inline-block;">
+        Configuraciones de usuarios
+      </a>
+    </div>
+  </div>
 
-  // Cargar notificaciones desde backend
-  async function cargarNotificaciones() {
-    const correo = localStorage.getItem("correoUsuario");
-    const ul = document.getElementById("lista-notificaciones");
 
-    if (!correo) {
-      ul.innerHTML = "<li>No se encontró correo de usuario</li>";
-      burbuja.style.display = "none";
-      return;
-    }
+  <!--
+  --------------------------------
+  notificaciones emergentes
+  --------------------------------
+  -->
 
-    ul.innerHTML = "<li>Cargando notificaciones...</li>";
+  <!-- Campana de notificaciones con SVG -->
+  <div id="notificacion-contenedor" style="position: absolute; top: 59px; left: 1150px; cursor: pointer;">
+    <svg id="campana-icono" xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 24 24" width="32" fill="#344E41" title="Notificaciones">
+      <path d="M0 0h24v24H0z" fill="none"/>
+      <path d="M12 22c1.1 0 1.99-.9 1.99-2h-4A1.99 1.99 0 0012 22zm6-6V9a6 6 0 00-12 0v7l-2 2v1h16v-1l-2-2z"/>
+    </svg>
+    <!-- Burbuja de conteo -->
+    <span id="burbuja-noti" style="
+      display: none;
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: red;
+      color: white;
+      font-size: 12px;
+      padding: 3px 7px;
+      border-radius: 50%;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      z-index: 1000;">0</span>
+  </div>
 
-    try {
-      const res = await fetch(`http://localhost:5000/notificaciones?correo=${correo}`);
-      const datos = await res.json();
 
-      ul.innerHTML = "";
 
-      if (datos.length > 0) {
-        burbuja.textContent = datos.length;
-        burbuja.style.display = "inline-block";
-      } else {
+  <!-- Panel de notificaciones emergentes -->
+  <div id="panel-notificaciones" style="
+    display: none; position: absolute; top: 115px; left: 1150px; width: 280px; background-color: white; border: 1px solid #ccc; border-radius: 10px; 
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.15); padding: 12px; z-index: 999; font-family: 'IBM Plex Mono'; font-size: 14px; color: #344E41;">
+    <strong>Notificaciones recientes</strong>
+    <ul id="lista-notificaciones" style="list-style: none; padding: 0; margin-top: 10px;">
+      <li>No hay notificaciones nuevas.</li>
+    </ul>l
+  </div>
+
+  <script>
+    const campana = document.getElementById("campana-icono");
+    const panel = document.getElementById("panel-notificaciones");
+    const burbuja = document.getElementById("burbuja-noti");
+
+    // Abrir/cerrar panel
+    campana.addEventListener("click", () => {
+      panel.style.display = panel.style.display === "none" ? "block" : "none";
+    });
+
+    // Cargar notificaciones desde backend
+    async function cargarNotificaciones() {
+      const correo = localStorage.getItem("correoUsuario");
+      const ul = document.getElementById("lista-notificaciones");
+      
+      if (!correo) {
+        ul.innerHTML = "<li>No se encontró correo de usuario</li>";
         burbuja.style.display = "none";
-        ul.innerHTML = "<li>No hay notificaciones activas.</li>";
         return;
       }
 
-      datos.forEach(noti => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <strong>${noti.nombre_alerta}</strong><br>
-          ${noti.descripcion}<br>
-          <em>${noti.parcela}</em><br>
-          <small>${new Date(noti.timestamp_alerta).toLocaleString()}</small><br>
-          <div style="margin-top: 5px;">
-            <button style="background-color:#a3b18a; border:none; padding:5px 10px; border-radius:6px; cursor:pointer; margin-right:5px"
+      ul.innerHTML = "<li>Cargando notificaciones...</li>";
+
+      try {
+        const res = await fetch(`http://localhost:5000/notificaciones?correo=${correo}`);
+        const datos = await res.json();
+
+        ul.innerHTML = "";
+
+        // Actualizar burbuja
+        if (datos.length > 0) {
+          burbuja.textContent = datos.length;
+          burbuja.style.display = "inline-block";
+        } else {
+          burbuja.style.display = "none";
+          ul.innerHTML = "<li>No hay notificaciones activas.</li>";
+          return;
+        }
+
+        datos.forEach(noti => {
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <strong>${noti.nombre_alerta}</strong><br>
+            ${noti.descripcion}<br>
+            <em>${noti.parcela}</em><br>
+            <small>${new Date(noti.timestamp_alerta).toLocaleString()}</small><br>
+            <button style="margin-top: 5px; background-color:#a3b18a; border:none; padding:5px 10px; border-radius:6px; cursor:pointer"
               onclick="marcarLeida('${noti._id}')">Descartar</button>
-            <button style="background-color:#344E41; color:white; border:none; padding:5px 10px; border-radius:6px; cursor:pointer"
-              onclick="mostrarRecomendacion('${noti._id}', '${noti.nombre_alerta}')">Recomendaciones</button>
-          </div>
-        `;
-        li.style.marginBottom = "10px";
-        ul.appendChild(li);
-      });
-    } catch (error) {
-      console.error("Error al cargar notificaciones:", error);
-      ul.innerHTML = "<li>Error al conectar con el servidor.</li>";
-      burbuja.style.display = "none";
-    }
-  }
-
-  async function marcarLeida(id) {
-    try {
-      const res = await fetch("http://localhost:5000/notificaciones/marcar-leida", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-      });
-
-      if (res.ok) {
-        cargarNotificaciones();
-      } else {
-        alert("Error al marcar como leída");
+          `;
+          li.style.marginBottom = "10px";
+          ul.appendChild(li);
+        });
+      } catch (error) {
+        console.error("Error al cargar notificaciones:", error);
+        ul.innerHTML = "<li>Error al conectar con el servidor.</li>";
+        burbuja.style.display = "none";
       }
-    } catch (err) {
-      console.error("Error:", err);
-      alert("No se pudo conectar al servidor.");
     }
-  }
 
-  async function mostrarRecomendacion(idAlerta, nombreAlerta) {
-    try {
-      const res = await fetch(`http://localhost:5000/recomendaciones/${idAlerta}`);
-      const data = await res.json();
+    // Marcar como leída una notificación
+    async function marcarLeida(id) {
+      try {
+        const res = await fetch("http://localhost:5000/notificaciones/marcar-leida", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id })
+        });
 
-      document.getElementById("titulo-recomendacion").textContent = `Recomendaciones: ${nombreAlerta}`;
-      document.getElementById("contenido-recomendacion").textContent = data.recomendacion || "No se pudo obtener una recomendación.";
-      document.getElementById("modal-recomendacion").style.display = "flex";
-    } catch (err) {
-      console.error("Error al obtener recomendación:", err);
-      document.getElementById("contenido-recomendacion").textContent = "Hubo un problema al generar la recomendación.";
-      document.getElementById("modal-recomendacion").style.display = "flex";
+        if (res.ok) {
+          cargarNotificaciones();
+        } else {
+          alert("Error al marcar como leída");
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        alert("No se pudo conectar al servidor.");
+      }
     }
-  }
 
-  function cerrarModalRecomendacion() {
-    document.getElementById("modal-recomendacion").style.display = "none";
-  }
+    // Cargar al abrir el panel
+    campana.addEventListener("click", cargarNotificaciones);
 
-  document.addEventListener("DOMContentLoaded", cargarNotificaciones);
-  campana.addEventListener("click", cargarNotificaciones);
-</script>
-
+    // Cargar automáticamente al entrar a la página
+    document.addEventListener("DOMContentLoaded", cargarNotificaciones);
+  </script>
 
 
 </div>
