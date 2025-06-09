@@ -190,6 +190,12 @@ function actualizarUI(data) {
     defaultOption.selected = true;
     select.appendChild(defaultOption);
 
+    parcelasGlobal.sort((a, b) => {
+      const nombreA = `${a.nombre} - Parcela ${a.numero}`.toLowerCase();
+      const nombreB = `${b.nombre} - Parcela ${b.numero}`.toLowerCase();
+      return nombreA.localeCompare(nombreB);
+    });
+
     parcelasGlobal.forEach(p => {
       const value = `${p.lat},${p.lon}`;
       const option = document.createElement("option");
@@ -198,11 +204,12 @@ function actualizarUI(data) {
 
       if (value === valorSeleccionado) {
         option.selected = true;
-        defaultOption.selected = false; 
+        defaultOption.selected = false;
       }
 
       select.appendChild(option);
     });
+
 
   }
   const temperaturas = data.list.slice(0, 12).map(p => p.main.temp.toFixed(1));
