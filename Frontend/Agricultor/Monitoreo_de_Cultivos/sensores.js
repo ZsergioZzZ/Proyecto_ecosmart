@@ -38,6 +38,12 @@ async function cargarParcelasSensores() {
 
     select.innerHTML = '<option value="">Seleccione una parcela</option>';
 
+    parcelas.sort((a, b) => {
+      const nombreA = `${a.nombre} - Parcela ${a.numero}`.toLowerCase();
+      const nombreB = `${b.nombre} - Parcela ${b.numero}`.toLowerCase();
+      return nombreA.localeCompare(nombreB);
+    });
+
     parcelas.forEach(parcela => {
       const nombreCompleto = `${parcela.nombre} - Parcela ${parcela.numero}`;
       const option = document.createElement("option");
@@ -45,6 +51,7 @@ async function cargarParcelasSensores() {
       option.textContent = nombreCompleto;
       select.appendChild(option);
     });
+
   } catch (error) {
     console.error("Error cargando parcelas:", error);
   }

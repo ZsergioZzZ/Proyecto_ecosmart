@@ -13,6 +13,9 @@ document.getElementById("btn-ver-alertas").addEventListener("click", async () =>
     const res = await fetch("http://localhost:5000/configuracion-alertas/historial");
     const data = await res.json();
 
+    data.sort((a, b) => a.nombre_alerta.localeCompare(b.nombre_alerta));
+
+
     contenedor.innerHTML = "";
 
     for (const alerta of data) {
