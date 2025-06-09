@@ -3,7 +3,7 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 
-alertas_agricultor_blueprint = Blueprint(´alertas_agricultor´, __name__)
+alertas_agricultor_blueprint = Blueprint('alertas_agricultor', __name__)
 
 client = MongoClient(os.getenv("MONGO_URI"))
 db = client[os.getenv("DB_NAME")]
@@ -11,12 +11,12 @@ db = client[os.getenv("DB_NAME")]
 alertas_collection = db["alertas"]
 datos_collection = db["datos_sensores"]
 
-@alertas_agricultor_blueprint.route("/parcelas", methods=["GET"])
+@alertas_agricultor_blueprint.route("/parcelas_alertas", methods=["GET"])
 def obtener_parcelas():
     parcelas = alertas_collection.distinct("parcela")
     return jsonify(parcelas)
 
-@alertas_agricultor_blueprint.route("/alertas_por_parcela", methods=["GET"])
+@alertas_agricultor_blueprint.route("/alertas_por_parcelass", methods=["GET"])
 def alertas_por_parcela():
     nombre_parcela = request.args.get("nombre")
     categorias = ["temperatura ambiente", "humedad del suelo", "nivel de ph", "nivel de nutrientes"]
