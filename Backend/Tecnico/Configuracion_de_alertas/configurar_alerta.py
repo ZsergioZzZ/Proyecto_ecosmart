@@ -16,6 +16,7 @@ db = client[os.getenv("DB_NAME")]
 
 # Colecciones
 alertas = db[os.getenv("COLLECTION_ALERTAS", "alertas")]
+alertas_activas = db["alertas_activas"]
 parcelas = db[os.getenv("COLLECTION_PARCELAS", "datos_parcelas")]
 sensores = db[os.getenv("COLLECTION_SENSORES", "sensores")]
 
@@ -42,6 +43,8 @@ def obtener_sensores_por_parcela():
 def crear_alerta():
     data = request.json
 
+
+
     campos_comunes = ["nombre_alerta", "parcela", "sensor", "notificaciones"]
     if not all(campo in data for campo in campos_comunes):
         return jsonify({"error": "Faltan campos requeridos"}), 400
@@ -60,7 +63,15 @@ def crear_alerta():
         correo_app = data.get("correo_app", "").strip()
     else:
         correo_app = None
-
+        
+    # Verificar duplicado por nombre + parcela + sensor
+    existe = alertas.find_one({
+        "nombre_alerta": data["nombre_alerta"],
+        "parcela": data["parcela"],
+        "sensor": data["sensor"].lower().strip()
+    })
+    if existe:
+        return jsonify({"error": "Ya existe una alerta con ese nombre en esta parcela y sensor"}), 409
 
     sensor = data["sensor"].strip().lower()
 
@@ -126,3 +137,203 @@ def crear_alerta():
         "mensaje": "Alerta guardada correctamente",
         "id": str(resultado.inserted_id)
     }), 201
+
+# Ruta para obtener correo del usuario asociado a una parcela
+@configurar_umbrales_alerta_blueprint.route("/configuracion-alertas/correo-usuario", methods=["GET"])
+def obtener_correo_usuario_por_parcela():
+    parcela_nombre = request.args.get("parcela")
+
+    if not parcela_nombre:
+        return jsonify({"error": "Parcela no especificada"}), 400
+
+    # Buscar la parcela
+    parcela = parcelas.find_one({"$expr": {
+        "$eq": [{"$concat": ["$nombre", " - Parcela ", {"$toString": "$numero"}]}, parcela_nombre]
+    }})
+
+    if not parcela or "usuario" not in parcela:
+        return jsonify({"error": "Usuario no encontrado"}), 404
+
+    return jsonify({"correo": parcela["usuario"]})
+
+## Editar alerta existente
+# Ruta para obtener alertas por parcela y sensor
+@configurar_umbrales_alerta_blueprint.route("/configuracion-alertas/alertas", methods=["GET"])
+def obtener_alertas_por_parcela_y_sensor():
+    parcela = request.args.get("parcela")
+    sensor = request.args.get("sensor")
+    if not parcela or not sensor:
+        return jsonify({"error": "Faltan datos"}), 400
+
+    alertas_filtradas = list(alertas.find(
+        {"parcela": parcela, "sensor": sensor.lower()},
+        {"_id": 1, "nombre_alerta": 1}
+    ))
+
+    for alerta in alertas_filtradas:
+        alerta["_id"] = str(alerta["_id"])
+    return jsonify(alertas_filtradas), 200
+
+
+
+# Ruta para obtener datos completos de una alerta específica
+@configurar_umbrales_alerta_blueprint.route("/configuracion-alertas/detalle")
+def obtener_detalle_alerta():
+    nombre = request.args.get("nombre_alerta")
+    parcela = request.args.get("parcela")
+    sensor = request.args.get("sensor")
+
+    if not nombre or not parcela or not sensor:
+        return jsonify({"error": "Faltan parámetros"}), 400
+
+    alerta = alertas.find_one({
+        "nombre_alerta": nombre,
+        "parcela": parcela,
+        "sensor": sensor.lower().strip()
+    })
+
+    if not alerta:
+        return jsonify({"error": "Alerta no encontrada"}), 404
+
+    resultado = {
+        "nombre_alerta": alerta["nombre_alerta"],
+        "sensor": alerta["sensor"],
+        "notificaciones": alerta.get("notificaciones", []),
+        "correo": alerta.get("correo", ""),
+        "correo_app": alerta.get("correo_app", "")
+    }
+
+    if alerta["sensor"].lower().strip() == "nivel de nutrientes":
+        resultado["nutrientes"] = alerta.get("nutrientes", {})
+    else:
+        resultado.update({
+            "umbral_alto": alerta.get("umbral_alto"),
+            "descripcion_alto": alerta.get("descripcion_alto", ""),
+            "umbral_bajo": alerta.get("umbral_bajo"),
+            "descripcion_bajo": alerta.get("descripcion_bajo", "")
+        })
+
+    return jsonify(resultado)
+
+
+
+# Ruta para actualizar alerta existente
+@configurar_umbrales_alerta_blueprint.route("/configuracion-alertas/modificar", methods=["POST"])
+def modificar_alerta():
+    data = request.json
+    nombre_original = request.args.get("original")
+
+    parcela = data.get("parcela")
+    sensor = data.get("sensor")
+
+    if not nombre_original or not parcela or not sensor:
+        return jsonify({"error": "Faltan datos para identificar la alerta"}), 400
+
+    data.pop("_id", None)
+
+    # Eliminar todas las instancias activas relacionadas con esta alerta antes de modificar
+    alertas_activas.delete_many({
+        "nombre_alerta": nombre_original,
+        "parcela": parcela
+    })
+
+    resultado = alertas.update_one({
+        "nombre_alerta": nombre_original,
+        "parcela": parcela,
+        "sensor": sensor.strip().lower()
+    }, {"$set": data})
+
+    if resultado.matched_count == 0:
+        return jsonify({"error": "Alerta no encontrada"}), 404
+
+    return jsonify({"mensaje": "Alerta actualizada correctamente"}), 200
+
+
+@configurar_umbrales_alerta_blueprint.route("/configuracion-alertas/eliminar", methods=["DELETE"])
+def eliminar_alerta():
+    nombre_alerta = request.args.get("nombre_alerta")
+    parcela = request.args.get("parcela")
+    sensor = request.args.get("sensor")
+
+    if not nombre_alerta or not parcela or not sensor:
+        return jsonify({"error": "Faltan datos para eliminar la alerta"}), 400
+
+    # Eliminar la alerta principal
+    resultado = alertas.delete_one({
+        "nombre_alerta": nombre_alerta,
+        "parcela": parcela,
+        "sensor": sensor.strip().lower()
+    })
+
+    # Eliminar todas las activaciones de esta alerta en la colección de alertas activas
+    alertas_activas.delete_many({
+        "nombre_alerta": nombre_alerta,
+        "parcela": parcela
+    })
+
+    if resultado.deleted_count == 0:
+        return jsonify({"error": "La alerta no fue encontrada"}), 404
+
+    return jsonify({"mensaje": "Alerta eliminada correctamente"}), 200
+
+
+
+@configurar_umbrales_alerta_blueprint.route("/configuracion-alertas/historial", methods=["GET"])
+def historial_alertas():
+    # Traer todas las alertas
+    todas = list(alertas.find({}, {"_id": 0}))
+
+    # Obtener alertas activas con estado "Activa" solamente
+    activas = list(alertas_activas.find({}, {
+        "_id": 0,
+        "nombre_alerta": 1,
+        "parcela": 1,
+        "estado": 1
+    }))
+    set_activas = {
+        (a["nombre_alerta"], a["parcela"])
+        for a in activas if a.get("estado") == "Activa"
+    }
+
+    resultado = []
+
+    for alerta in todas:
+        nombre_alerta = alerta.get("nombre_alerta")
+        parcela_nombre = alerta.get("parcela")
+
+        # Marcar solo si está activa y con estado correcto
+        if (nombre_alerta, parcela_nombre) in set_activas:
+            alerta["estado"] = "Alerta activa"
+
+        # Obtener usuario desde la colección de parcelas
+        parcela_doc = parcelas.find_one({
+            "$expr": {
+                "$eq": [
+                    {"$concat": ["$nombre", " - Parcela ", {"$toString": "$numero"}]},
+                    parcela_nombre
+                ]
+            }
+        })
+        alerta["usuario"] = parcela_doc.get("usuario", "No asignado") if parcela_doc else "No asignado"
+
+        # Formar estructura final
+        resultado.append({
+            "nombre_alerta": nombre_alerta,
+            "parcela": parcela_nombre,
+            "sensor": alerta.get("sensor"),
+            "usuario": alerta["usuario"],
+            "notificaciones": alerta.get("notificaciones", []),
+            "correo": alerta.get("correo", ""),
+            "correo_app": alerta.get("correo_app", ""),
+            "umbral_alto": alerta.get("umbral_alto"),
+            "descripcion_alto": alerta.get("descripcion_alto"),
+            "umbral_bajo": alerta.get("umbral_bajo"),
+            "descripcion_bajo": alerta.get("descripcion_bajo"),
+            "nutrientes": alerta.get("nutrientes", {}),
+            **({"estado": "Alerta activa"} if "estado" in alerta else {})
+        })
+
+    return jsonify(resultado), 200
+
+
+

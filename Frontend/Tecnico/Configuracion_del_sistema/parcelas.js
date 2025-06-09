@@ -90,6 +90,7 @@ function limpiarFormulario() {
   document.getElementById("nombre").value = "";
   document.getElementById("numero").value = "";
   document.getElementById("ubicacion").value = "";
+  document.getElementById("usuario-parcela").value = "";
   document.getElementById("cultivo").value = "";
   document.getElementById("latManual").value = "";
   document.getElementById("lngManual").value = "";
@@ -99,9 +100,12 @@ function guardarParcela() {
   const nombre = document.getElementById("nombre").value.trim();
   const ubicacion = document.getElementById("ubicacion").value.trim();
   const cultivo = document.getElementById("cultivo").value.trim();
+  const selectUsuarios = document.getElementById("usuario-parcela");
+  const usuario = selectUsuarios.selectedOptions.length > 0 ? selectUsuarios.selectedOptions[0].value.trim() : "";
 
-  if (!nombre || !ubicacion || !cultivo || drawnPoints.length < 3) {
-    alert("Completa todos los campos y asegúrate de marcar al menos 3 puntos en el mapa.");
+
+  if (!nombre || !ubicacion || !cultivo || !usuario || drawnPoints.length < 3) {
+    alert("Completa todos los campos, selecciona un usuario y marca al menos 3 puntos en el mapa.");
     return;
   }
 
@@ -118,6 +122,7 @@ function guardarParcela() {
         numero: siguienteNumero,
         ubicacion,
         cultivo,
+        usuario,
         puntos: drawnPoints
       };
 
@@ -142,6 +147,7 @@ function guardarParcela() {
       alert(err.message);
     });
 }
+
 
 function desactivarModos() {
   modo = null;
@@ -248,4 +254,25 @@ function agregarPuntoManual() {
   document.getElementById("lngManual").value = "";
 }
 
+
+async function cargarUsuariosParcelas() {
+  try {
+    const res = await fetch("http://localhost:5000/api/parcelas-configuracion/usuarios");
+    const usuarios = await res.json();
+    const select = document.getElementById("usuario-parcela");
+
+    usuarios.forEach(u => {
+      const option = document.createElement("option");
+      option.value = u.value;
+      option.textContent = u.label;
+      select.appendChild(option);
+    });
+  } catch (err) {
+    console.error("Error al cargar usuarios:", err);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  cargarUsuariosParcelas();
+});
 
