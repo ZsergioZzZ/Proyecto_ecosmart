@@ -26,16 +26,17 @@ document.getElementById("btn-ver-parcelas").addEventListener("click", async () =
       const idLista = `puntos-${parcela.nombre.replace(/\s+/g, '')}-${parcela.numero}`;
 
       const info = `
-      <strong>${parcela.nombre} - Parcela ${parcela.numero}</strong><br/>
-      <span>Ubicación: ${parcela.ubicacion}</span><br/>
-      <span>Cultivo: ${parcela.cultivo}</span><br/>
+        <strong>${parcela.nombre} - Parcela ${parcela.numero}</strong><br/>
+        <span><strong>Ubicación:</strong> ${parcela.ubicacion}</span><br/>
+        <span><strong>Cultivo:</strong> ${parcela.cultivo}</span><br/>
+        <span><strong>Usuario:</strong> ${parcela.usuario || "No asignado"}</span><br/>
 
-      <button onclick="mostrarSensores('${parcela.nombre} - Parcela ${parcela.numero}', this)" style="margin-top: 10px; padding: 6px 12px;">📡 Sensores</button>
-      <div class="sensor-lista" style="display:none; margin-top: 10px;"></div>
+        <button onclick="mostrarSensores('${parcela.nombre} - Parcela ${parcela.numero}', this)" style="margin-top: 10px; padding: 6px 12px;">📡 Sensores</button>
+        <div class="sensor-lista" style="display:none; margin-top: 10px;"></div>
 
-      <button onclick="mostrarPuntosParcela('${parcela.nombre}', ${parcela.numero}, '${idLista}', this)" style="margin-top: 10px; padding: 6px 12px;">📌 Ver Puntos Parcela</button>
-      <div id="${idLista}" class="puntos-lista" style="display: none; margin-top: 10px; background: #ffffff11; padding: 10px; border-radius: 6px;"></div>
-      `;
+        <button onclick="mostrarPuntosParcela('${parcela.nombre}', ${parcela.numero}, '${idLista}', this)" style="margin-top: 10px; padding: 6px 12px;">📌 Ver Puntos Parcela</button>
+        <div id="${idLista}" class="puntos-lista" style="display: none; margin-top: 10px; background: #ffffff11; padding: 10px; border-radius: 6px;"></div>
+        `;
 
 
       divParcela.innerHTML = info;

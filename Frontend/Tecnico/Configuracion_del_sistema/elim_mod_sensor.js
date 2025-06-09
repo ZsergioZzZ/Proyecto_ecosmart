@@ -62,12 +62,21 @@ async function cargarParcelasSensor() {
     opcionInicial.selected = true;
     selectParcela.appendChild(opcionInicial);
 
+    parcelas.sort((a, b) => {
+      const nombreA = a.nombre.toLowerCase();
+      const nombreB = b.nombre.toLowerCase();
+      if (nombreA < nombreB) return -1;
+      if (nombreA > nombreB) return 1;
+      return a.numero - b.numero;
+    });
+
     parcelas.forEach(p => {
       const option = document.createElement("option");
       option.value = `${p.nombre} - Parcela ${p.numero}`;
       option.textContent = option.value;
       selectParcela.appendChild(option);
     });
+
   } catch (err) {
     console.error("Error al cargar parcelas para sensores:", err);
   }
@@ -175,13 +184,24 @@ document.getElementById("parcela-sensor").addEventListener("change", async funct
     }
 
     const selectTipo = document.getElementById("tipo-sensor-modificar");
-    selectTipo.innerHTML = `
-      <option value="" disabled selected>Seleccione un tipo de sensor</option>
-      <option value="Temperatura Ambiente">Temperatura Ambiente</option>
-      <option value="Humedad del suelo">Humedad del suelo</option>
-      <option value="Nivel de PH">Nivel de PH</option>
-      <option value="Nivel de Nutrientes">Nivel de Nutrientes</option>
-    `;
+    selectTipo.innerHTML = `<option value="" disabled selected>Seleccione un tipo de sensor</option>`;
+
+    // Obtener los sensores de la parcela seleccionada
+    fetch(`http://localhost:5000/sensores-parcela?parcela=${encodeURIComponent(seleccion)}`)
+      .then(res => res.json())
+      .then(sensores => {
+        sensores.forEach(sensor => {
+          const option = document.createElement("option");
+          option.value = sensor.tipo;
+          option.textContent = sensor.tipo;
+          selectTipo.appendChild(option);
+        });
+      })
+      .catch(err => {
+        console.error("Error al cargar sensores de la parcela:", err);
+        alert("No se pudieron cargar los sensores de esta parcela.");
+      });
+
   const [nombre, numTexto] = seleccion.split(" - Parcela ");
   const numero = parseInt(numTexto);
 

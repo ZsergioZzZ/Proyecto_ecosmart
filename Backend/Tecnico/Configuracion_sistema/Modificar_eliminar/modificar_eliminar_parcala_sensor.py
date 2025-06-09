@@ -39,7 +39,7 @@ def obtener_parcela_por_nombre_y_numero():
 
     parcela = parcelas.find_one(
         {"nombre": nombre, "numero": numero},
-        {"_id": 0, "puntos": 1, "ubicacion": 1, "cultivo": 1}
+        {"_id": 0, "puntos": 1, "ubicacion": 1, "cultivo": 1, "usuario": 1}
     )
 
     if not parcela:
@@ -47,6 +47,17 @@ def obtener_parcela_por_nombre_y_numero():
 
     return jsonify(parcela), 200
 
+@modificar_eliminar_blueprint.route("/sensores-parcela", methods=["GET"])
+def sensores_de_parcela():
+    parcela = request.args.get("parcela")
+    if not parcela:
+        return jsonify({"error": "Falta el nombre de la parcela"}), 400
+
+    sensores_encontrados = list(sensores.find(
+        {"parcela": parcela},
+        {"_id": 0, "tipo": 1}
+    ))
+    return jsonify(sensores_encontrados), 200
 
 
 @modificar_eliminar_blueprint.route("/api/parcelas", methods=["GET"])
@@ -63,22 +74,52 @@ def obtener_parcelas():
 @modificar_eliminar_blueprint.route("/parcelas-modificar", methods=["PUT"])
 def modificar_parcela():
     datos = request.json
+
     resultado = parcelas.update_one(
         {
             "nombre": datos["nombre_original"],
-            "numero": int(datos.get("numero", 1))  # asegúrate de usar número también si es parte de la clave
+            "numero": int(datos.get("numero", 1))
         },
         {"$set": {
             "nombre": datos["nuevo_nombre"],
             "ubicacion": datos["ubicacion"],
             "cultivo": datos["cultivo"],
-            "puntos": datos["puntos"]
+            "puntos": datos["puntos"],
+            "usuario": datos["usuario"]
         }}
     )
 
     if resultado.modified_count == 0:
         return jsonify({"error": "No se modificó ninguna parcela"}), 404
-    return jsonify({"mensaje": "Parcela modificada"})
+
+    # Solo actualizar si el campo usuario no es nulo
+    if datos["usuario"]:
+        nombre_completo = f"{datos['nuevo_nombre']} - Parcela {datos['numero']}"
+        alertas = db["alertas"]
+        alertas_activas = db["alertas_activas"]
+
+        # Actualizar en alertas
+        alertas.update_many(
+            {"parcela": nombre_completo},
+            {"$set": {
+                "correo": datos["usuario"],
+                "correo_app": datos["usuario"]
+            }}
+        )
+
+        # Actualizar en alertas_activas
+        alertas_activas.update_many(
+            {"parcela": nombre_completo},
+            {"$set": {
+                "correo": datos["usuario"],
+                "correo_app": datos["usuario"]
+            }}
+        )
+
+    return jsonify({"mensaje": "Parcela modificada"}), 200
+
+
+
 
 @modificar_eliminar_blueprint.route("/parcelas", methods=["DELETE"])
 def eliminar_parcela():
@@ -94,12 +135,22 @@ def eliminar_parcela():
 
     identificador_parcela = f"{nombre} - Parcela {numero}"
 
+    # Eliminar sensores asociados
     resultado_sensores = sensores.delete_many({"parcela": identificador_parcela})
+
+    # Eliminar alertas asociadas
+    alertas = db["alertas"]
+    alertas_activas = db["alertas_activas"]
+    resultado_alertas = alertas.delete_many({"parcela": identificador_parcela})
+    resultado_alertas_activas = alertas_activas.delete_many({"parcela": identificador_parcela})
 
     return jsonify({
         "mensaje": "Parcela eliminada",
-        "sensores_eliminados": resultado_sensores.deleted_count
+        "sensores_eliminados": resultado_sensores.deleted_count,
+        "alertas_eliminadas": resultado_alertas.deleted_count,
+        "alertas_activas_eliminadas": resultado_alertas_activas.deleted_count
     }), 200
+
 
 # ------------------------
 # 🔧 SENSORES
@@ -138,7 +189,33 @@ def modificar_sensor():
 def eliminar_sensor():
     parcela = request.args.get("parcela")
     tipo = request.args.get("tipo")
+
+    if not parcela or not tipo:
+        return jsonify({"error": "Faltan parámetros"}), 400
+
+    alertas = db["alertas"]
+    alertas_activas = db["alertas_activas"]
+
+    # Eliminar el sensor
     resultado = sensores.delete_one({"parcela": parcela, "tipo": tipo})
     if resultado.deleted_count == 0:
         return jsonify({"error": "Sensor no encontrado"}), 404
-    return jsonify({"mensaje": "Sensor eliminado"})
+
+    # Eliminar alertas asociadas a este sensor y parcela
+    eliminadas_alertas = alertas.delete_many({
+        "parcela": parcela,
+        "sensor": tipo.strip().lower()
+    })
+
+    # Eliminar alertas activas asociadas
+    eliminadas_activas = alertas_activas.delete_many({
+        "parcela": parcela,
+        "sensor": tipo.strip().lower()
+    })
+
+    return jsonify({
+        "mensaje": "Sensor eliminado",
+        "alertas_eliminadas": eliminadas_alertas.deleted_count,
+        "alertas_activas_eliminadas": eliminadas_activas.deleted_count
+    }), 200
+

@@ -92,11 +92,20 @@ function limpiarSensorForm() {
 
 // Cargar parcelas desde backend
 function cargarParcelas() {
-  fetch("http://localhost:5000/api/parcelas")
+  fetch("http://localhost:5000/api/parcelas_ag_sensores")
+
     .then(res => res.json())
     .then(parcelas => {
       const select = document.getElementById("parcelaAsociada");
       select.innerHTML = '<option value="">Seleccione una parcela</option>';
+      parcelas.sort((a, b) => {
+        const nombreA = a.nombre.toLowerCase();
+        const nombreB = b.nombre.toLowerCase();
+        if (nombreA < nombreB) return -1;
+        if (nombreA > nombreB) return 1;
+        return a.numero - b.numero;
+      });
+
       parcelas.forEach(parcela => {
         const texto = `${parcela.nombre} - Parcela ${parcela.numero}`;
         const option = document.createElement("option");
@@ -104,6 +113,7 @@ function cargarParcelas() {
         option.textContent = texto;
         select.appendChild(option);
       });
+
     })
     .catch(err => {
       console.error("Error al cargar parcelas:", err);

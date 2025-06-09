@@ -89,7 +89,8 @@ def listar_sensores():
 # GET /api/parcelas
 @agregar_sensores_blueprint.route("/api/parcelas_ag_sensores", methods=["GET"])
 def obtener_parcelas():
-    resultado = parcelas.find({}, {"_id": 0, "nombre": 1, "numero": 1})
+    resultado = parcelas.find({}, {"_id": 0, "nombre": 1, "numero": 1}) \
+                        .sort([("nombre", 1), ("numero", 1)])
     lista = list(resultado)
     return jsonify(lista), 200
 
