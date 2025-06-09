@@ -394,3 +394,66 @@ def ultimo_sensor():
         valor = lectura.get(campo, None)
 
     return jsonify({"parcela": parcela, "tipo": tipo, "valor": valor}), 200
+
+@chat_ia_blueprint.route("/recomendaciones/<id_alerta>", methods=["GET"])
+def recomendacion_por_alerta(id_alerta):
+    """
+    Genera una recomendación con IA usando la información detallada de la alerta activa.
+    """
+    from bson import ObjectId
+
+    alertas_collection = db["alertas_activas"]
+
+    try:
+        alerta = alertas_collection.find_one({"_id": ObjectId(id_alerta)})
+        if not alerta:
+            return jsonify({"error": "No se encontró la alerta"}), 404
+
+        # Extraer campos relevantes
+        nombre = alerta.get("nombre_alerta", "")
+        descripcion = alerta.get("descripcion", "")
+        parcela = alerta.get("parcela", "")
+        sensor = alerta.get("sensor", "")
+        nutriente = alerta.get("sensor_nutriente", "")
+        valor = alerta.get("valor_detectado", "")
+        umbral_bajo = alerta.get("umbral_bajo", "")
+        umbral_alto = alerta.get("umbral_alto", "")
+        fecha_alerta = alerta.get("timestamp_alerta", "")
+
+        # Construir prompt para IA
+        prompt = (
+            f"Se ha detectado una alerta activa en un campo agrícola:\n\n"
+            f"- Parcela: {parcela}\n"
+            f"- Tipo de sensor: {sensor}\n"
+            f"- Nutriente afectado: {nutriente}\n"
+            f"- Valor detectado: {valor}\n"
+            f"- Umbral aceptable: entre {umbral_bajo} y {umbral_alto}\n"
+            f"- Descripción técnica: {descripcion}\n"
+            f"- Fecha de detección: {fecha_alerta}\n\n"
+            f"Eres un asesor agrícola experto. Explica brevemente la causa posible del problema, "
+            f"su impacto potencial en el cultivo y ofrece una recomendación técnica para resolverlo."
+        )
+
+        mensajes = [
+            {"role": "system", "content": "Eres un asistente agrónomo experto en nutrición vegetal y manejo de cultivos."},
+            {"role": "user", "content": prompt}
+        ]
+
+        headers = {
+            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        body = {
+            "model": OPENROUTER_MODEL,
+            "messages": mensajes
+        }
+
+        respuesta = requests.post(OPENROUTER_API_URL, json=body, headers=headers, timeout=30)
+        respuesta.raise_for_status()
+        texto_ia = respuesta.json()["choices"][0]["message"]["content"].strip()
+
+        return jsonify({"recomendacion": texto_ia}), 200
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"error": "Fallo al generar recomendación", "detalle": str(e)}), 500
