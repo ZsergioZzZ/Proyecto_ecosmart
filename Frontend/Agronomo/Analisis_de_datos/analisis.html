@@ -1,4 +1,4 @@
-<div data-layer="Agronomo Análisis detallado  de Datos" class="AgronomoAnLisisDetalladoDeDatos" style="width: 1540px; height: 2820px; position: relative; background: #FBF9F4; overflow: hidden">
+<div data-layer="Agronomo Análisis detallado  de Datos" class="AgronomoAnLisisDetalladoDeDatos" style="width: 1540px; height: 3150px; position: relative; background: #FBF9F4; overflow: hidden">
   <!--Principal-->
   <div data-layer="EcoSmart" class="Ecosmart" style="width: 344px; height: 106px; left: 23.41px; top: 77px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">EcoSmart</div>
   <img data-layer="plantacion (6)" class="Plantacion6" style="width: 76px; height: 76px; left: 157.41px; top: 39px; position: absolute" src="imagenes/plantacion (6).png" />
@@ -136,6 +136,49 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Análisis de exactitud basado en sensores reales -->
+    <div style="display: flex; justify-content: space-between; gap: 20px; margin-top: 40px;">
+      <div style="flex: 1;">
+        <div style="margin-top: 30px; padding: 20px; background-color: #F0EFEB; border-radius: 12px;">
+          <label for="select-tipo" style="font-size: 18px;">Tipo de sensor:</label><br>
+          <select id="select-tipo" style="width: 100%; padding: 8px; font-size: 16px; margin-bottom: 16px;">
+            <option value="">Seleccione tipo de sensor</option>
+          </select>
+
+          <label for="select-valor" style="font-size: 18px;">Valor ideal del sensor:</label><br>
+          <select id="select-valor" style="width: 100%; padding: 8px; font-size: 16px; margin-bottom: 16px;">
+            <option value="">Seleccione un valor</option>
+          </select>
+          <button id="btn-calcular-exactitud" style="background-color: #344E41; color: white; padding: 10px 20px; font-size: 16px; font-family: IBM Plex Mono; border: none; border-radius: 6px; cursor: pointer;">
+            Calcular exactitud
+          </button>
+        </div>
+
+
+      </div>
+      <div style="flex: 1;">
+
+        <!-- Resultado -->
+        <div id="resultado-exactitud" style="
+          margin-top: 20px;
+          padding: 20px;
+          background-color: #F0EFEB;
+          border-radius: 12px;
+          font-family: IBM Plex Mono;
+          font-size: 18px;
+          color: #344E41;">
+          <p><strong>Resultado:</strong></p>
+          <ul id="lista-exactitud" style="list-style-type: disc; margin-left: 20px;"></ul>
+        </div>
+        
+
+
+      </div>
+    </div>
+
+    
+
     
   </div>
 
@@ -143,7 +186,6 @@
     <button id="btnExportarCSV" style="margin-top: 30px; padding: 10px 20px; font-size: 16px; font-family: IBM Plex Mono; background-color: #344E41; color: white; border: none; border-radius: 5px; cursor: pointer;">
       Exportar datos
     </button>
-
   </div>
 
   <div id="mensaje-actualizacion" style="
