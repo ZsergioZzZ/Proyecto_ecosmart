@@ -67,14 +67,38 @@ document.getElementById("parcelaAsociada").addEventListener("change", function (
 
   fetch(`http://localhost:5000/api/parcela-analisis?nombre=${encodeURIComponent(nombre)}&numero=${encodeURIComponent(numero)}`)
     .then(res => res.json())
-    .then(data => {
+    .then(async data => {
+
         // Mostrar datos en el panel izquierdo
         document.getElementById("info-nombre").textContent = data.nombre || "—";
         document.getElementById("info-numero").textContent = data.numero || "—";
         document.getElementById("info-ubicacion").textContent = data.ubicacion || "—";
         document.getElementById("info-cultivo").textContent = data.cultivo || "—";
 
+        
         cargarDatosSensores(nombre, numero);
+
+        // Cargar tipos de sensores reales desde datos_sensores
+const selectTipo = document.getElementById("select-tipo");
+selectTipo.innerHTML = '<option value="">Seleccione tipo de sensor</option>';
+
+try {
+  const res = await fetch(`http://localhost:5000/api/datos_sensores?nombre=${encodeURIComponent(data.nombre)}&numero=${encodeURIComponent(data.numero)}`);
+  const datos = await res.json();
+
+  console.log("Tipos disponibles para exactitud:", Object.keys(datos)); // depuración
+
+  Object.keys(datos).forEach(tipo => {
+    const option = document.createElement("option");
+    option.value = tipo;
+    option.textContent = tipo;
+    selectTipo.appendChild(option);
+  });
+} catch (err) {
+  console.error("Error al cargar tipos de sensores:", err);
+}
+        
+        
 
 
       if (!data.puntos || data.puntos.length < 3) {
@@ -313,4 +337,90 @@ function mostrarMensajeActualizacion() {
     mensaje.style.display = "none";
   }, 1500); // se oculta después de 1.5 segundos
 }
+
+let valoresIdealesPorCultivo = {};
+
+async function cargarCultivos() {
+  try {
+    const res = await fetch("http://localhost:5000/api/cultivos");
+    const cultivos = await res.json();
+
+    console.log("Cultivos cargados:", cultivos);
+
+
+    cultivos.forEach(c => {
+      valoresIdealesPorCultivo[c.nombre.toLowerCase()] = c.valores_ideales;
+    });
+  } catch (err) {
+    console.error("Error al cargar cultivos:", err);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", cargarCultivos);
+
+
+document.getElementById("select-tipo").addEventListener("change", function () {
+  const tipoSeleccionado = this.value;
+  const valoresSensor = datosActuales[tipoSeleccionado];
+
+  const selectValores = document.getElementById("select-valor");
+  selectValores.innerHTML = '<option value="">Seleccione un valor</option>';
+
+  if (Array.isArray(valoresSensor)) {
+    const valoresUnicos = new Set();
+
+    valoresSensor.forEach(entry => {
+      let valor;
+      if (tipoSeleccionado === "Temperatura Ambiente") valor = entry.temperatura;
+      else if (tipoSeleccionado === "Humedad del suelo") valor = entry.humedad_suelo;
+      else if (tipoSeleccionado === "Nivel de PH") valor = entry.ph_suelo;
+      else if (tipoSeleccionado === "Nivel de Nutrientes") {
+        const n = entry.nutrientes?.["nitrógeno"];
+        const p = entry.nutrientes?.["fósforo"];
+        const k = entry.nutrientes?.["potasio"];
+        valor = Math.round((n + p + k) / 3);
+      }
+
+      if (valor !== undefined && !valoresUnicos.has(valor)) {
+        valoresUnicos.add(valor);
+        const opt = document.createElement("option");
+        opt.value = valor;
+        opt.textContent = valor;
+        selectValores.appendChild(opt);
+      }
+    });
+  }
+});
+
+
+//---------------BOTON
+
+document.getElementById("btn-calcular-exactitud").addEventListener("click", async () => {
+  const tipo = document.getElementById("select-tipo").value;
+  const valorIdeal = parseFloat(document.getElementById("select-valor").value);
+
+  const nombre = document.getElementById("info-nombre").textContent;
+  const numero = document.getElementById("info-numero").textContent;
+
+  if (!tipo || isNaN(valorIdeal)) {
+    alert("Debes seleccionar un tipo de sensor y definir el valor ideal.");
+    return;
+  }
+
+  const res = await fetch(`http://localhost:5000/api/exactitud_sensor?nombre=${encodeURIComponent(nombre)}&numero=${numero}&tipo=${encodeURIComponent(tipo)}&valor_ideal=${valorIdeal}`);
+  const data = await res.json();
+
+  const contenedor = document.getElementById("lista-exactitud");
+  contenedor.innerHTML = "";
+
+  if (!data.error) {
+    const li = document.createElement("li");
+    li.textContent = `La exactitud de ${tipo.toLowerCase()} (${valorIdeal}) ha estado presente en un ${data.exactitud}% de los datos.`;
+    contenedor.appendChild(li);
+  } else {
+    contenedor.innerHTML = "<li>Error al obtener datos</li>";
+  }
+});
+
+
 
