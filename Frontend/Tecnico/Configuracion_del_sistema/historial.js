@@ -10,10 +10,20 @@ document.getElementById("btn-ver-parcelas").addEventListener("click", async () =
   contenedor.style.display = "block";
 
   try {
-    const resParcelas = await fetch("http://localhost:5000/api/parcelas-detalle");
+    const correo = localStorage.getItem("correoUsuario");
+    const resParcelas = await fetch("http://localhost:5000/api/parcelas-detalle?correo=" + encodeURIComponent(correo));
+
     const parcelas = await resParcelas.json();
 
     contenedor.innerHTML = ""; 
+    
+    parcelas.sort((a, b) => {
+    const nombreA = a.nombre ? a.nombre.toLowerCase() : "";
+    const nombreB = b.nombre ? b.nombre.toLowerCase() : "";
+    if (nombreA < nombreB) return -1;
+    if (nombreA > nombreB) return 1;
+    return (a.numero || 0) - (b.numero || 0);
+  });
 
     for (const parcela of parcelas) {
       const divParcela = document.createElement("div");
@@ -23,13 +33,38 @@ document.getElementById("btn-ver-parcelas").addEventListener("click", async () =
       divParcela.style.borderRadius = "12px";
       divParcela.style.background = "#3e5c49";
 
+      // --- Cargar info de todos los usuarios asociados (pueden ser varios) ---
+      let usuariosHtml = "<em>No asignado</em>";
+      const usuariosParcela = (Array.isArray(parcela.usuario) ? parcela.usuario : [parcela.usuario]).filter(Boolean);
+
+      if (usuariosParcela.length > 0) {
+        // Espera la info de cada usuario, rol y nombre:
+        const detalles = await Promise.all(usuariosParcela.map(async correo => {
+          try {
+            const resU = await fetch(`http://localhost:5000/api/usuario-info?email=${encodeURIComponent(correo)}`);
+            if (!resU.ok) return `<div>${correo}</div>`;
+            const u = await resU.json();
+            return `
+            <div style="margin-bottom: 4px;">
+              ${u.rol ? u.rol.charAt(0).toUpperCase() + u.rol.slice(1) : ''}
+              ${u.nombre ? ' - ' + u.nombre : ''} <span style="font-size:14px;">(${u.email})</span>
+            </div>
+            `;
+          } catch {
+            return `<div>${correo}</div>`;
+          }
+        }));
+        usuariosHtml = detalles.join("");
+      }
+
       const idLista = `puntos-${parcela.nombre.replace(/\s+/g, '')}-${parcela.numero}`;
 
       const info = `
         <strong>${parcela.nombre} - Parcela ${parcela.numero}</strong><br/>
         <span><strong>Ubicación:</strong> ${parcela.ubicacion}</span><br/>
         <span><strong>Cultivo:</strong> ${parcela.cultivo}</span><br/>
-        <span><strong>Usuario:</strong> ${parcela.usuario || "No asignado"}</span><br/>
+        <span><strong>Usuarios asignados:</strong><br/>${usuariosHtml}</span>
+        <br/>
 
         <button onclick="mostrarSensores('${parcela.nombre} - Parcela ${parcela.numero}', this)" style="margin-top: 10px; padding: 6px 12px;">📡 Sensores</button>
         <div class="sensor-lista" style="display:none; margin-top: 10px;"></div>
@@ -38,10 +73,10 @@ document.getElementById("btn-ver-parcelas").addEventListener("click", async () =
         <div id="${idLista}" class="puntos-lista" style="display: none; margin-top: 10px; background: #ffffff11; padding: 10px; border-radius: 6px;"></div>
         `;
 
-
       divParcela.innerHTML = info;
       contenedor.appendChild(divParcela);
     }
+
 
     contenedor.dataset.cargado = "true";
   } catch (err) {

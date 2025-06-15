@@ -20,7 +20,13 @@ parcelas_collection = db[COLLECTION_PARCELAS]
 
 @datos_meteo_blueprint.route("/meteo/parcelas")
 def obtener_parcelas():
-    parcelas_db = list(parcelas_collection.find({}, {
+    correo = request.args.get("correo")
+    filtro = {}
+    if correo:
+        # Busca en el array usuario (o string legacy)
+        filtro["usuario"] = correo
+
+    parcelas_db = list(parcelas_collection.find(filtro, {
         "_id": 0, "nombre": 1, "numero": 1, "ubicacion": 1, "puntos": 1, "punto": 1
     }))
     parcelas = []
@@ -37,6 +43,7 @@ def obtener_parcelas():
                     "lon": primer_punto["lng"]
                 })
     return jsonify(parcelas)
+
 
 @datos_meteo_blueprint.route("/meteo/clima")
 def clima():

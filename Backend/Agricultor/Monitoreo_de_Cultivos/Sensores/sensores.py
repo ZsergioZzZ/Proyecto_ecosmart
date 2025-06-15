@@ -14,6 +14,8 @@ parcelas = db[os.getenv("COLLECTION_PARCELAS", "datos_parcelas")]
 
 @sensores_moni_cultivos_blueprint.route("/api/sensores/parcela", methods=["GET"])
 
+
+
 def obtener_parcela():
     nombre = request.args.get("nombre")
     numero = request.args.get("numero")
@@ -53,8 +55,17 @@ def obtener_valor(doc, tipo):
     return doc.get(campo_valor) if campo_valor in doc else None
 
 
-@sensores_moni_cultivos_blueprint.route("/api/sensores/datos", methods=["GET"])
+@sensores_moni_cultivos_blueprint.route('/api/sensores/parcelas-usuario', methods=['GET'])
+def obtener_parcelas_por_usuario():
+    correo = request.args.get("correo")
+    if not correo:
+        return jsonify([])
 
+    resultado = list(parcelas.find({"usuario": correo}, {"_id": 0, "nombre": 1, "numero": 1}))
+    return jsonify(resultado)
+
+
+@sensores_moni_cultivos_blueprint.route("/api/sensores/datos", methods=["GET"])
 def obtener_datos_sensores():
     try:
         nombre = request.args.get("nombre")

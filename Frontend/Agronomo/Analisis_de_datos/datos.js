@@ -27,8 +27,15 @@ async function cargarParcelas() {
   const select = document.getElementById("parcelaAsociada");
   if (!select) return;
 
+  const correo = localStorage.getItem("correoUsuario");
+  if (!correo) {
+    alert("No hay usuario logueado");
+    return;
+  }
+
   try {
-    const res = await fetch("http://localhost:5000/parcelas");
+    // Llama al nuevo endpoint pasando el correo
+    const res = await fetch(`http://localhost:5000/api/parcelas-usuario?correo=${encodeURIComponent(correo)}`);
     const parcelas = await res.json();
 
     select.innerHTML = '<option value="">Seleccione una parcela</option>';
@@ -51,6 +58,10 @@ async function cargarParcelas() {
     console.error("Error cargando parcelas:", error);
   }
 }
+
+// Ejecutar al cargar la página
+document.addEventListener("DOMContentLoaded", cargarParcelas);
+
 
 
 //---------------
@@ -138,10 +149,6 @@ async function cargarDatosSensores(nombre, numero) {
     graficoTemperatura.data.labels = labels;
     graficoTemperatura.data.datasets[0].data = temperaturas;
 
-
-    document.getElementById("ultimo-temp").textContent = `${temperaturas[temperaturas.length - 1]} °C`;
-
-
     } else {
     graficoTemperatura.data.labels = [];
     graficoTemperatura.data.datasets[0].data = [];
@@ -155,7 +162,6 @@ async function cargarDatosSensores(nombre, numero) {
     graficoHumedad.data.labels = labels;
     graficoHumedad.data.datasets[0].data = humedad;
 
-    document.getElementById("ultimo-humedad").textContent = `${humedad[humedad.length - 1]} %`;
 
     } else {
     graficoHumedad.data.labels = [];
@@ -169,8 +175,6 @@ async function cargarDatosSensores(nombre, numero) {
 
     graficoPh.data.labels = labels;
     graficoPh.data.datasets[0].data = ph;
-
-    document.getElementById("ultimo-ph").textContent = `${ph[ph.length - 1]}`;
 
     } else {
     graficoPh.data.labels = [];
@@ -188,9 +192,6 @@ async function cargarDatosSensores(nombre, numero) {
     graficoNutrientes.data.datasets[0].data = nitr;
     graficoNutrientes.data.datasets[1].data = fosf;
     graficoNutrientes.data.datasets[2].data = pota;
-    document.getElementById("ultimo-n").textContent = `${nitr[nitr.length - 1]} ppm`;
-    document.getElementById("ultimo-p").textContent = `${fosf[fosf.length - 1]} ppm`;
-    document.getElementById("ultimo-k").textContent = `${pota[pota.length - 1]} ppm`;
     } else {
     graficoNutrientes.data.labels = [];
     graficoNutrientes.data.datasets.forEach(ds => ds.data = []);
@@ -302,7 +303,7 @@ setInterval(() => {
     cargarDatosSensores(infoActualParcela.nombre, infoActualParcela.numero);
     mostrarMensajeActualizacion();
   }
-}, 60000); // 60 segundos = 1 minuto
+}, 30000); // 30 segundos 
 
 function mostrarMensajeActualizacion() {
   const mensaje = document.getElementById("mensaje-actualizacion");

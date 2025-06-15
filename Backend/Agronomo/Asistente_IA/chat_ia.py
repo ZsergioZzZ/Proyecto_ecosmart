@@ -457,3 +457,21 @@ def recomendacion_por_alerta(id_alerta):
     except Exception as e:
         traceback.print_exc()
         return jsonify({"error": "Fallo al generar recomendación", "detalle": str(e)}), 500
+
+@chat_ia_blueprint.route("/parcelas_usuario_ia", methods=["GET"])
+def parcelas_usuario_ia():
+    correo = request.args.get("correo")
+    if not correo:
+        return jsonify({"error": "Correo requerido"}), 400
+    # Busca parcelas donde el usuario esté en el array 'usuario'
+    cursor = db["datos_parcelas"].find({"usuario": correo})
+    lista = []
+    for p in cursor:
+        nombre = p.get("nombre", "")
+        numero = p.get("numero", "")
+        lista.append({
+            "displayName": f"{nombre} - Parcela {numero}",
+            "nombre": nombre,
+            "numero": numero
+        })
+    return jsonify(lista), 200

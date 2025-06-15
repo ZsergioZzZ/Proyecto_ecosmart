@@ -92,7 +92,12 @@ function limpiarSensorForm() {
 
 // Cargar parcelas desde backend
 function cargarParcelas() {
-  fetch("http://localhost:5000/api/parcelas_ag_sensores")
+    const correo = localStorage.getItem("correoUsuario");
+  if (!correo) {
+    alert("No hay usuario logueado");
+    return;
+  }
+  fetch("http://localhost:5000/api/parcelas_ag_sensores?correo=" + encodeURIComponent(correo))
 
     .then(res => res.json())
     .then(parcelas => {

@@ -20,12 +20,6 @@ alertas_activas = db["alertas_activas"]
 parcelas = db[os.getenv("COLLECTION_PARCELAS", "datos_parcelas")]
 sensores = db[os.getenv("COLLECTION_SENSORES", "sensores")]
 
-# Ruta para obtener lista de parcelas
-@configurar_umbrales_alerta_blueprint.route("/configuracion-alertas/parcelas", methods=["GET"])
-def obtener_parcelas_para_alerta():
-    resultado = list(parcelas.find({}, {"_id": 0, "nombre": 1, "numero": 1}))
-    return jsonify(resultado), 200
-
 # Ruta para obtener sensores asociados a una parcela
 @configurar_umbrales_alerta_blueprint.route("/configuracion-alertas/sensores", methods=["GET"])
 def obtener_sensores_por_parcela():
@@ -43,8 +37,6 @@ def obtener_sensores_por_parcela():
 def crear_alerta():
     data = request.json
 
-
-
     campos_comunes = ["nombre_alerta", "parcela", "sensor", "notificaciones"]
     if not all(campo in data for campo in campos_comunes):
         return jsonify({"error": "Faltan campos requeridos"}), 400
@@ -52,18 +44,12 @@ def crear_alerta():
     if not isinstance(data["notificaciones"], list):
         return jsonify({"error": "El campo 'notificaciones' debe ser una lista"}), 400
 
-    # Validar correo si viene
-    if "correo" in data["notificaciones"]:
-        correo = data.get("correo", "").strip()
-    else:
-        correo = None
+    correo_raw = data.get("correo", [])
+    correo = [correo_raw] if isinstance(correo_raw, str) and correo_raw else list(correo_raw) if isinstance(correo_raw, list) else []
 
+    correo_app_raw = data.get("correo_app", [])
+    correo_app = [correo_app_raw] if isinstance(correo_app_raw, str) and correo_app_raw else list(correo_app_raw) if isinstance(correo_app_raw, list) else []
 
-    if "app" in data["notificaciones"]:
-        correo_app = data.get("correo_app", "").strip()
-    else:
-        correo_app = None
-        
     # Verificar duplicado por nombre + parcela + sensor
     existe = alertas.find_one({
         "nombre_alerta": data["nombre_alerta"],
@@ -138,6 +124,7 @@ def crear_alerta():
         "id": str(resultado.inserted_id)
     }), 201
 
+
 # Ruta para obtener correo del usuario asociado a una parcela
 @configurar_umbrales_alerta_blueprint.route("/configuracion-alertas/correo-usuario", methods=["GET"])
 def obtener_correo_usuario_por_parcela():
@@ -146,7 +133,7 @@ def obtener_correo_usuario_por_parcela():
     if not parcela_nombre:
         return jsonify({"error": "Parcela no especificada"}), 400
 
-    # Buscar la parcela
+    # Buscar la parcela por nombre completo
     parcela = parcelas.find_one({"$expr": {
         "$eq": [{"$concat": ["$nombre", " - Parcela ", {"$toString": "$numero"}]}, parcela_nombre]
     }})
@@ -154,7 +141,13 @@ def obtener_correo_usuario_por_parcela():
     if not parcela or "usuario" not in parcela:
         return jsonify({"error": "Usuario no encontrado"}), 404
 
-    return jsonify({"correo": parcela["usuario"]})
+    # Normaliza para siempre retornar lista
+    usuario = parcela["usuario"]
+    if isinstance(usuario, str):
+        usuario = [usuario]
+
+    return jsonify({"correo": usuario})
+
 
 ## Editar alerta existente
 # Ruta para obtener alertas por parcela y sensor
@@ -199,8 +192,8 @@ def obtener_detalle_alerta():
         "nombre_alerta": alerta["nombre_alerta"],
         "sensor": alerta["sensor"],
         "notificaciones": alerta.get("notificaciones", []),
-        "correo": alerta.get("correo", ""),
-        "correo_app": alerta.get("correo_app", "")
+        "correo": alerta.get("correo", []) if isinstance(alerta.get("correo", []), list) else [alerta.get("correo", "")],
+        "correo_app": alerta.get("correo_app", []) if isinstance(alerta.get("correo_app", []), list) else [alerta.get("correo_app", "")]
     }
 
     if alerta["sensor"].lower().strip() == "nivel de nutrientes":
@@ -280,11 +273,23 @@ def eliminar_alerta():
 
 @configurar_umbrales_alerta_blueprint.route("/configuracion-alertas/historial", methods=["GET"])
 def historial_alertas():
-    # Traer todas las alertas
-    todas = list(alertas.find({}, {"_id": 0}))
+    correo = request.args.get("correo")
 
-    # Obtener alertas activas con estado "Activa" solamente
-    activas = list(alertas_activas.find({}, {
+    if correo:
+        # 1. Buscar parcelas asociadas al correo (ya sea en array o string por compatibilidad)
+        parcelas_usuario = list(parcelas.find(
+            {"usuario": correo},
+            {"_id": 0, "nombre": 1, "numero": 1}
+        ))
+        nombres_parcelas = [f"{p['nombre']} - Parcela {p['numero']}" for p in parcelas_usuario]
+        # 2. Filtrar solo esas alertas
+        filtro_alertas = {"parcela": {"$in": nombres_parcelas}}
+    else:
+        # Si no se pasa correo, trae todas las alertas (comportamiento antiguo)
+        filtro_alertas = {}
+
+    todas = list(alertas.find(filtro_alertas, {"_id": 0}))
+    activas = list(alertas_activas.find(filtro_alertas, {
         "_id": 0,
         "nombre_alerta": 1,
         "parcela": 1,
@@ -300,12 +305,9 @@ def historial_alertas():
     for alerta in todas:
         nombre_alerta = alerta.get("nombre_alerta")
         parcela_nombre = alerta.get("parcela")
-
-        # Marcar solo si está activa y con estado correcto
         if (nombre_alerta, parcela_nombre) in set_activas:
             alerta["estado"] = "Alerta activa"
 
-        # Obtener usuario desde la colección de parcelas
         parcela_doc = parcelas.find_one({
             "$expr": {
                 "$eq": [
@@ -314,17 +316,19 @@ def historial_alertas():
                 ]
             }
         })
-        alerta["usuario"] = parcela_doc.get("usuario", "No asignado") if parcela_doc else "No asignado"
+        usuario = parcela_doc.get("usuario", []) if parcela_doc else []
+        if isinstance(usuario, str):
+            usuario = [usuario]
+        alerta["usuario"] = usuario if usuario else ["No asignado"]
 
-        # Formar estructura final
         resultado.append({
             "nombre_alerta": nombre_alerta,
             "parcela": parcela_nombre,
             "sensor": alerta.get("sensor"),
             "usuario": alerta["usuario"],
             "notificaciones": alerta.get("notificaciones", []),
-            "correo": alerta.get("correo", ""),
-            "correo_app": alerta.get("correo_app", ""),
+            "correo": alerta.get("correo", []),
+            "correo_app": alerta.get("correo_app", []),
             "umbral_alto": alerta.get("umbral_alto"),
             "descripcion_alto": alerta.get("descripcion_alto"),
             "umbral_bajo": alerta.get("umbral_bajo"),
@@ -335,5 +339,17 @@ def historial_alertas():
 
     return jsonify(resultado), 200
 
+
+@configurar_umbrales_alerta_blueprint.route("/configuracion-alertas/parcelas-usuario", methods=["GET"])
+def obtener_parcelas_usuario():
+    correo = request.args.get("correo")
+    if not correo:
+        return jsonify({"error": "Falta correo"}), 400
+    # Busca parcelas donde el usuario esté en el array "usuario"
+    resultado = list(parcelas.find(
+        {"usuario": correo},   # <-- busca en array, o string legacy
+        {"_id": 0, "nombre": 1, "numero": 1}
+    ))
+    return jsonify(resultado), 200
 
 

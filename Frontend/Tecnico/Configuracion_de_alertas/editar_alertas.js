@@ -29,26 +29,33 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
 async function cargarParcelasEditar() {
-  const res = await fetch("http://localhost:5000/configuracion-alertas/parcelas");
+  const correo = localStorage.getItem("correoUsuario");
+  if (!correo) {
+    alert("No hay usuario logueado.");
+    return;
+  }
+  const res = await fetch(`http://localhost:5000/configuracion-alertas/parcelas-usuario?correo=${encodeURIComponent(correo)}`);
   const parcelas = await res.json();
   const select = document.getElementById("parcela-editar");
   select.innerHTML = `<option value="">Seleccione una parcela</option>`;
-    parcelas.sort((a, b) => {
-      const nombreA = a.nombre.toLowerCase();
-      const nombreB = b.nombre.toLowerCase();
-      if (nombreA < nombreB) return -1;
-      if (nombreA > nombreB) return 1;
-      return a.numero - b.numero;
-    });
 
-    parcelas.forEach(p => {
-      const nombreCompleto = `${p.nombre} - Parcela ${p.numero}`;
-      const option = document.createElement("option");
-      option.value = nombreCompleto;
-      option.textContent = nombreCompleto;
-      select.appendChild(option);
-    });
+  parcelas.sort((a, b) => {
+    const nombreA = a.nombre.toLowerCase();
+    const nombreB = b.nombre.toLowerCase();
+    if (nombreA < nombreB) return -1;
+    if (nombreA > nombreB) return 1;
+    return a.numero - b.numero;
+  });
+
+  parcelas.forEach(p => {
+    const nombreCompleto = `${p.nombre} - Parcela ${p.numero}`;
+    const option = document.createElement("option");
+    option.value = nombreCompleto;
+    option.textContent = nombreCompleto;
+    select.appendChild(option);
+  });
 }
+
 
 async function cargarSensoresEditar(parcela) {
   const res = await fetch(`http://localhost:5000/configuracion-alertas/sensores?parcela=${encodeURIComponent(parcela)}`);

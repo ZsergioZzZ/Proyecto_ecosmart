@@ -150,6 +150,56 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
   </div>
 
 
+  <!--
+  -------------------------------------
+  Agregar Usuarios a una Parcela
+  -------------------------------------
+  -->
+  <div id="agregar-usuario-parcela"
+      style="margin-top: 22px; padding: 30px; background: #344E41; border-radius: 20px; color: white; font-family: IBM Plex Mono;">
+    <h2 style="font-size: 48px; text-align: center; margin-bottom: 30px;">Asignar usuario a parcela</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between;">
+
+      <!-- Seleccionar Parcela -->
+      <div style="flex: 1; min-width: 270px;">
+        <label for="select-parcela-asignar" style="font-size: 20px;">Parcela</label><br />
+        <select id="select-parcela-asignar" style="width: 100%; padding: 10px; font-size: 16px;">
+          <option value="">Seleccione una parcela</option>
+        </select>
+      </div>
+
+      <!-- Datos de Parcela -->
+      <div id="info-parcela-asignar"
+          style="flex:2; min-width: 300px; background: #f7fff3; color:#344E41; border-radius: 10px; padding: 20px 18px; display:none;">
+        <strong>Nombre:</strong> <span id="p-nombre-asignar"></span><br>
+        <strong>Ubicación:</strong> <span id="p-ubicacion-asignar"></span><br>
+        <strong>Cultivo:</strong> <span id="p-cultivo-asignar"></span><br>
+        <strong>Usuarios actuales:</strong> <span id="p-usuario-asignar"></span>
+
+      </div>
+
+      <!-- Seleccionar Usuario -->
+      <div style="flex: 1; min-width: 270px;">
+        <label for="select-usuario-asignar" style="font-size: 20px;">Usuario</label><br />
+        <select id="select-usuario-asignar" style="width: 100%; padding: 10px; font-size: 16px;">
+          <option value="">Seleccione un usuario</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Botón -->
+    <div style="margin-top: 28px; text-align: center;">
+      <button id="btn-asignar-usuario" style="padding: 12px 32px; font-size: 19px; background: #A3B18A; border: none; border-radius: 8px; color: black; font-weight: bold; cursor: pointer;">
+        Asignar usuario
+      </button>
+    </div>
+  </div>
+  <!-- Fin Agregar Usuarios a una Parcela -->
+  <!-- Asegúrate de agregar el script después del HTML -->
+  <script src="asignar_usuario_parcela.js"></script>
+
+
+
 
 
   <!--
@@ -245,7 +295,22 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
   <script src="sensor.js"></script>
   </div>
 
+  <!-- 
+  --------------------------------
+  Historial de Parcelas y Sensores
+  -------------------------------- 
+  -->
+  <div style="margin-top: 22px; padding: 30px; background: #344E41; border-radius: 20px; color: white; font-family: IBM Plex Mono; min-height: 200px;">
+    <h2 style="font-size: 45px; text-align: center; margin-bottom: 20px;">Historial</h2>
+    <div style="text-align: center;">
+      <button id="btn-ver-parcelas" style="font-size: 18px; padding: 10px 20px; border-radius: 8px; border: none; background: #A3B18A; color: black; font-weight: bold; cursor: pointer;">
+        📋 Ver parcelas registradas
+      </button>
+    </div>
+    <div id="contenedor-historial" style="display: none; margin-top: 30px;"></div>
+    <script src="Historial.js"></script>
 
+  </div>
 
   <!--
   -------------------------------------
@@ -283,10 +348,9 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
       <input type="text" id="nueva-ubicacion" placeholder="Nueva ubicación" style="width: 100%; margin-bottom: 10px; padding: 6px; border-radius: 6px;">
       <label for="parcela-modificar">Nuevo Cultivo:</label><br>
       <input type="text" id="nuevo-cultivo" placeholder="Nuevo cultivo" style="width: 100%; margin-bottom: 15px; padding: 6px; border-radius: 6px;">
-      <label for="nuevo-usuario" style="margin-top: 10px;">Nuevo usuario:</label><br />
-      <select id="nuevo-usuario" required style="width: 100%; margin-bottom: 15px; padding: 6px; border-radius: 6px;">
-        <option value="">Seleccione un usuario</option>
-      </select>
+      <label style="margin-top:15px;">Usuarios asociados:</label>
+      <div id="usuarios-asociados-parcela" style="margin-bottom:15px;"></div>
+
 
 
       <div style="margin-top: 20px;">
@@ -408,40 +472,6 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
 
   </div>
 
-
-  <!-- 
-  --------------------------------
-  Historial de Parcelas y Sensores
-  -------------------------------- 
-  -->
-  <div style="margin-top: 22px; padding: 30px; background: #344E41; border-radius: 20px; color: white; font-family: IBM Plex Mono; min-height: 200px;">
-    <h2 style="font-size: 45px; text-align: center; margin-bottom: 20px;">Historial</h2>
-    <div style="text-align: center;">
-      <button id="btn-ver-parcelas" style="font-size: 18px; padding: 10px 20px; border-radius: 8px; border: none; background: #A3B18A; color: black; font-weight: bold; cursor: pointer;">
-        📋 Ver parcelas registradas
-      </button>
-    </div>
-    <div id="contenedor-historial" style="display: none; margin-top: 30px;"></div>
-    <script src="Historial.js"></script>
-
-  </div>
-
-  <!-- 
-  ---------------------------------
-  Botón de Configuración de Usuarios 
-  -----------------------------------
-  -->
-  <div style="margin-top: 22px; padding: 30px; background: #344E41; border-radius: 20px; color: white; font-family: IBM Plex Mono; min-height: 80px;">
-
-    <div style="margin-top: 15px; text-align: center;">
-      <a href="/Frontend/Tecnico/Configuracion_usuarios/usuarios.html"
-        style="font-size: 18px; padding: 12px 24px; border-radius: 10px; background-color: #A3B18A; color: black; font-weight: bold; text-decoration: none; display: inline-block;">
-        Configuraciones de usuarios
-      </a>
-    </div>
-  </div>
-
-
   <!--
   --------------------------------
   notificaciones emergentes
@@ -470,16 +500,21 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
       z-index: 1000;">0</span>
   </div>
 
-
-
-  <!-- Panel de notificaciones emergentes -->
+  <!-- Panel emergente -->
   <div id="panel-notificaciones" style="
-    display: none; position: absolute; top: 115px; left: 1150px; width: 280px; background-color: white; border: 1px solid #ccc; border-radius: 10px; 
-    box-shadow: 0px 4px 10px rgba(0,0,0,0.15); padding: 12px; z-index: 999; font-family: 'IBM Plex Mono'; font-size: 14px; color: #344E41;">
+    display: none;
+    position: absolute;
+    top: 115px; left: 1150px; width: 320px; max-width: 90vw;
+    background-color: white; border: 1px solid #ccc; border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.15); padding: 12px; z-index: 999;
+    font-family: 'IBM Plex Mono'; font-size: 14px; color: #344E41;
+  ">
     <strong>Notificaciones recientes</strong>
-    <ul id="lista-notificaciones" style="list-style: none; padding: 0; margin-top: 10px;">
-      <li>No hay notificaciones nuevas.</li>
-    </ul>l
+    <div style="max-height: 330px; overflow-y: auto; margin-top: 10px;">
+      <ul id="lista-notificaciones" style="list-style: none; padding: 0; margin: 0;">
+        <li>No hay notificaciones nuevas.</li>
+      </ul>
+    </div>
   </div>
 
   <script>

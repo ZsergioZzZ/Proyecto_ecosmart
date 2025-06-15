@@ -32,7 +32,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 async function alertaConfig_cargarParcelas() {
   try {
-    const res = await fetch("http://localhost:5000/configuracion-alertas/parcelas");
+    const correo = localStorage.getItem("correoUsuario");
+    console.log("Correo de usuario:", correo)
+    if (!correo) {
+      alert("No hay usuario logueado");
+      return;
+    }
+    const res = await fetch(`http://localhost:5000/configuracion-alertas/parcelas-usuario?correo=${encodeURIComponent(correo)}`);
     const parcelas = await res.json();
     const select = document.getElementById("select-parcela");
 
@@ -104,19 +110,37 @@ async function alertaConfig_guardar(event) {
   }
 
   if (sensor.includes("nutriente")) {
-    const campos = [
-      "n-alto", "n-desc-alto", "n-bajo", "n-desc-bajo",
-      "p-alto", "p-desc-alto", "p-bajo", "p-desc-bajo",
-      "k-alto", "k-desc-alto", "k-bajo", "k-desc-bajo"
-    ];
+  // Definir ids de los campos numéricos (umbrales) y descripciones
+  const camposNumero = [
+    "n-alto", "n-bajo",
+    "p-alto", "p-bajo",
+    "k-alto", "k-bajo"
+  ];
+  const camposDescripcion = [
+    "n-desc-alto", "n-desc-bajo",
+    "p-desc-alto", "p-desc-bajo",
+    "k-desc-alto", "k-desc-bajo"
+  ];
 
-    for (let id of campos) {
-      const campo = document.getElementById(id);
-      if (!campo || campo.value.trim() === "") {
-        alert("Por favor completa todos los campos de nutrientes.");
-        return;
-      }
+  // Validar que los umbrales sean SOLO números y no vacíos
+  for (let id of camposNumero) {
+    const input = document.getElementById(id);
+    const valor = input.value.trim();
+    if (valor === "" || isNaN(parseFloat(valor))) {
+      alert("Los campos de Umbral Alto y Bajo deben ser números y no estar vacíos.");
+      return;
     }
+  }
+
+  // Validar que las descripciones NO estén vacías
+  for (let id of camposDescripcion) {
+    const input = document.getElementById(id);
+    const valor = input.value.trim();
+    if (valor === "") {
+      alert("Todas las descripciones de nutrientes deben estar completas.");
+      return;
+    }
+  }
 
   const datos = {
   nombre_alerta: nombreAlerta,
@@ -165,10 +189,12 @@ async function alertaConfig_guardar(event) {
   const descripcionBajo = document.getElementById("descripcion-bajo").value.trim();
 
   if (
-    isNaN(umbralAlto) || descripcionAlto === "" ||
-    isNaN(umbralBajo) || descripcionBajo === ""
+    descripcionAlto === "" || descripcionBajo === "" ||
+    document.getElementById("umbral-alto").value.trim() === "" ||
+    document.getElementById("umbral-bajo").value.trim() === "" ||
+    isNaN(umbralAlto) || isNaN(umbralBajo)
   ) {
-    alert("Por favor completa todos los campos de umbrales generales.");
+    alert("Los campos de Umbral Alto y Bajo deben ser números. No se puede guardar la alerta.");
     return;
   }
 

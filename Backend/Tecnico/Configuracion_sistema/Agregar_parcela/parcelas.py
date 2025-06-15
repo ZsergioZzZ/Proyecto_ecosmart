@@ -62,7 +62,7 @@ def guardar_parcela():
         "ubicacion": data["ubicacion"],
         "cultivo": data["cultivo"],
         "puntos": puntos_transformados,
-        "usuario": usuario
+        "usuario": [usuario] 
     })
 
 
@@ -81,10 +81,80 @@ def listar_parcelas():
 
 @agregar_parcelas_blueprint.route("/api/parcelas-configuracion/usuarios", methods=["GET"])
 def obtener_usuarios_para_parcelas():
-    usuarios = db["datos_usuarios"].find({},{"_id": 0, "nombre": 1, "apellidos": 1, "rol": 1, "email": 1}).sort([("rol", 1), ("nombre", 1), ("apellidos", 1)])
+    usuarios = db["datos_usuarios"].find({"rol": "tecnico"}, {"_id": 0, "nombre": 1, "apellidos": 1, "rol": 1, "email": 1})
     lista = []
     for u in usuarios:
         if all(k in u for k in ["nombre", "apellidos", "rol", "email"]):
             etiqueta = f"{u['rol'].capitalize()} - {u['nombre']} {u['apellidos']}"
             lista.append({"label": etiqueta, "value": u["email"]})
     return jsonify(lista)
+
+
+#-------------------------------------
+# Agregar Usuarios a una Parcela
+#-------------------------------------
+
+@agregar_parcelas_blueprint.route("/api/parcelas-configuracion/usuarios-todos", methods=["GET"])
+def obtener_todos_usuarios():
+    usuarios = db["datos_usuarios"].find({}, {"_id": 0, "nombre": 1, "apellidos": 1, "rol": 1, "email": 1}).sort([("rol", 1), ("nombre", 1), ("apellidos", 1)])
+    lista = []
+    for u in usuarios:
+        if all(k in u for k in ["nombre", "apellidos", "rol", "email"]):
+            etiqueta = f"{u['rol'].capitalize()} - {u['nombre']} {u['apellidos']}"
+            lista.append({"label": etiqueta, "value": u["email"]})
+    return jsonify(lista)
+
+@agregar_parcelas_blueprint.route("/api/parcelas-lista-completa", methods=["GET"])
+def lista_parcelas_completa():
+    correo = request.args.get("correo")
+    if not correo:
+        return jsonify({"error": "Falta el correo"}), 400
+    lista = []
+    # Busca solo parcelas donde el correo esté en el array usuario
+    for p in parcelas.find({"usuario": correo}, {"_id": 0}):
+        lista.append(p)
+    return jsonify(lista)
+
+
+@agregar_parcelas_blueprint.route("/api/parcela/agregar-usuario", methods=["POST"])
+def agregar_usuario_parcela():
+    data = request.json
+    nombre = data.get('nombre')
+    numero = int(data.get('numero'))
+    usuario = data.get('usuario')
+
+    if not nombre or not numero or not usuario:
+        return jsonify({"error": "Faltan datos"}), 400
+
+    # 1. Actualiza el array de usuarios en la parcela
+    res = parcelas.update_one(
+        {"nombre": nombre, "numero": numero},
+        {"$addToSet": {"usuario": usuario}}
+    )
+    if res.matched_count == 0:
+        return jsonify({"error": "Parcela no encontrada"}), 404
+
+    # 2. Lee el nuevo array de usuarios actualizado
+    doc_parcela = parcelas.find_one({"nombre": nombre, "numero": numero})
+    usuarios_actuales = doc_parcela.get("usuario", [])
+    if isinstance(usuarios_actuales, str):
+        usuarios_actuales = [usuarios_actuales]
+
+    # 3. Busca el identificador de la parcela (para el campo "parcela" en alertas)
+    nombre_completo = f"{nombre} - Parcela {numero}"
+
+    # 4. Actualiza la colección de alertas con el nuevo array de usuarios
+    db["alertas"].update_many(
+        {"parcela": nombre_completo},
+        {
+            "$set": {
+                "correo": usuarios_actuales,
+                "correo_app": usuarios_actuales
+            }
+        }
+    )
+
+    # 5. Elimina todas las alertas activas de esa parcela
+    db["alertas_activas"].delete_many({"parcela": nombre_completo})
+
+    return jsonify({"mensaje": "Usuario agregado, alertas sincronizadas y alertas activas reiniciadas"}), 200

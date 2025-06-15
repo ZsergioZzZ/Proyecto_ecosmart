@@ -30,10 +30,16 @@ async function cargarParcelasSensores() {
   const select = document.getElementById("parcelaAsociada");
   if (!select) return;
 
+  // --- OBTENER EL CORREO DEL USUARIO LOGUEADO ---
+  const correo = localStorage.getItem("correoUsuario");
+  if (!correo) {
+    alert("No hay usuario logueado");
+    return;
+  }
+
   try {
-    const res = await fetch("http://localhost:5000/api/sensores/parcelas");
-
-
+    // --- CAMBIA EL ENDPOINT PARA FILTRAR POR CORREO ---
+    const res = await fetch(`http://localhost:5000/api/sensores/parcelas-usuario?correo=${encodeURIComponent(correo)}`);
     const parcelas = await res.json();
 
     select.innerHTML = '<option value="">Seleccione una parcela</option>';
@@ -56,6 +62,7 @@ async function cargarParcelasSensores() {
     console.error("Error cargando parcelas:", error);
   }
 }
+
 
 //---------------
 // Actualizar indicadores de sensores
