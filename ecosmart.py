@@ -42,6 +42,7 @@ from Backend.Tecnico.Configuracion_de_alertas.configurar_alerta import configura
 from Backend.Tecnico.Configuracion_de_alertas.notificaciones_app import notificaciones_blueprint
 from Backend.Agricultor.Alertas.activas import alertas_agricultor_blueprint
 from Backend.Agronomo.Prediccion_y_alertas.prediccion import prediccion_blueprint
+from Backend.Agricultor.Monitoreo_de_Cultivos.Visualizacion_datos.visualizacion_graficos import visualizacion_web
 
 # Registrar todos los blueprints
 app.register_blueprint(auth_blueprint)
@@ -61,6 +62,7 @@ app.register_blueprint(configurar_umbrales_alerta_blueprint)
 app.register_blueprint(notificaciones_blueprint)
 app.register_blueprint(alertas_agricultor_blueprint)
 app.register_blueprint(prediccion_blueprint)
+app.register_blueprint(visualizacion_web)
 
 # ----------------------------------------
 # Funciones para manejar el subproceso
