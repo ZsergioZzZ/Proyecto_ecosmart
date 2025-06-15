@@ -62,14 +62,19 @@ def sensores_de_parcela():
 
 @modificar_eliminar_blueprint.route("/api/parcelas", methods=["GET"])
 def obtener_parcelas():
+    correo = request.args.get("correo")
+    if not correo:
+        return jsonify([]), 200  # O error, según tu preferencia
+
     lista = []
-    for p in parcelas.find({}, {"_id": 0, "nombre": 1, "numero": 1}):
+    for p in parcelas.find({"usuario": correo}, {"_id": 0, "nombre": 1, "numero": 1}):
         try:
             p["numero"] = int(p["numero"])
         except (ValueError, TypeError):
             p["numero"] = None
         lista.append(p)
     return jsonify(lista)
+
 
 @modificar_eliminar_blueprint.route("/parcelas-modificar", methods=["PUT"])
 def modificar_parcela():
@@ -129,27 +134,82 @@ def eliminar_parcela():
     if not nombre or numero is None:
         return jsonify({"error": "Faltan datos para eliminar"}), 400
 
+    # 1. Elimina la parcela en sí
     resultado_parcela = parcelas.delete_one({"nombre": nombre, "numero": numero})
     if resultado_parcela.deleted_count == 0:
         return jsonify({"error": "Parcela no encontrada"}), 404
 
+    # 2. Nombre identificador (exactamente igual que como lo usas en las otras colecciones)
     identificador_parcela = f"{nombre} - Parcela {numero}"
 
-    # Eliminar sensores asociados
+    # 3. Elimina sensores asociados a esa parcela
     resultado_sensores = sensores.delete_many({"parcela": identificador_parcela})
 
-    # Eliminar alertas asociadas
+    # 4. Elimina alertas y alertas activas asociadas a esa parcela
     alertas = db["alertas"]
     alertas_activas = db["alertas_activas"]
     resultado_alertas = alertas.delete_many({"parcela": identificador_parcela})
     resultado_alertas_activas = alertas_activas.delete_many({"parcela": identificador_parcela})
 
+    # 5. Elimina datos_sensores de esa parcela
+    datos_sensores = db["datos_sensores"]
+    resultado_datos_sensores = datos_sensores.delete_many({"parcela": identificador_parcela})
+
     return jsonify({
         "mensaje": "Parcela eliminada",
         "sensores_eliminados": resultado_sensores.deleted_count,
         "alertas_eliminadas": resultado_alertas.deleted_count,
-        "alertas_activas_eliminadas": resultado_alertas_activas.deleted_count
+        "alertas_activas_eliminadas": resultado_alertas_activas.deleted_count,
+        "datos_sensores_eliminados": resultado_datos_sensores.deleted_count
     }), 200
+
+
+@modificar_eliminar_blueprint.route("/api/parcela/remover-usuario", methods=["POST"])
+def remover_usuario_parcela():
+    data = request.json
+    nombre = data.get("nombre")
+    numero = data.get("numero")
+    usuario = data.get("usuario")
+
+    if not nombre or not numero or not usuario:
+        return jsonify({"error": "Faltan datos"}), 400
+
+    # 1. Elimina el usuario del array en la parcela
+    result = parcelas.update_one(
+        {"nombre": nombre, "numero": int(numero)},
+        {"$pull": {"usuario": usuario}}
+    )
+    if result.modified_count == 0:
+        return jsonify({"error": "No se encontró la parcela o el usuario no estaba asociado"}), 404
+
+    # 2. Elimina el usuario del array de correos en alertas y alertas_activas
+    nombre_completo = f"{nombre} - Parcela {numero}"
+    alertas = db["alertas"]
+    alertas_activas = db["alertas_activas"]
+    for coleccion in [alertas, alertas_activas]:
+        coleccion.update_many(
+            {"parcela": nombre_completo},
+            {
+                "$pull": {
+                    "correo": usuario,
+                    "correo_app": usuario
+                }
+            }
+        )
+
+    return jsonify({"mensaje": "Usuario removido correctamente"}), 200
+
+
+@modificar_eliminar_blueprint.route("/api/usuario-info", methods=["GET"])
+def usuario_info():
+    email = request.args.get("email")
+    if not email:
+        return jsonify({"error": "Email requerido"}), 400
+    u = db["datos_usuarios"].find_one({"email": email}, {"_id": 0, "nombre": 1, "apellidos": 1, "rol": 1, "email": 1})
+    if not u:
+        return jsonify({"email": email, "nombre": "", "rol": ""})
+    nombre = u.get("nombre", "") + ((" " + u.get("apellidos", "")) if u.get("apellidos") else "")
+    return jsonify({"email": email, "nombre": nombre.strip(), "rol": u.get("rol", "")})
 
 
 # ------------------------
@@ -187,35 +247,50 @@ def modificar_sensor():
 
 @modificar_eliminar_blueprint.route("/sensores", methods=["DELETE"])
 def eliminar_sensor():
-    parcela = request.args.get("parcela")
+    nombre = request.args.get("parcela")
+    numero = request.args.get("numero", type=int)
     tipo = request.args.get("tipo")
 
-    if not parcela or not tipo:
+    if not nombre or numero is None or not tipo:
         return jsonify({"error": "Faltan parámetros"}), 400
+
+    # Formato identificador de parcela que usas en alertas/datos: "Nombre - Parcela numero"
+    nombre_completo = f"{nombre} - Parcela {numero}"
 
     alertas = db["alertas"]
     alertas_activas = db["alertas_activas"]
+    datos_sensores = db["datos_sensores"]
 
-    # Eliminar el sensor
-    resultado = sensores.delete_one({"parcela": parcela, "tipo": tipo})
+    # Eliminar el sensor de la colección 'sensores'
+    resultado = sensores.delete_one({
+        "parcela": nombre_completo,
+        "tipo": tipo
+    })
     if resultado.deleted_count == 0:
         return jsonify({"error": "Sensor no encontrado"}), 404
 
-    # Eliminar alertas asociadas a este sensor y parcela
+    # Eliminar alertas asociadas
     eliminadas_alertas = alertas.delete_many({
-        "parcela": parcela,
+        "parcela": nombre_completo,
         "sensor": tipo.strip().lower()
     })
 
     # Eliminar alertas activas asociadas
     eliminadas_activas = alertas_activas.delete_many({
-        "parcela": parcela,
+        "parcela": nombre_completo,
         "sensor": tipo.strip().lower()
+    })
+
+    # Eliminar datos de sensores (usa el identificador correcto)
+    eliminados_datos = datos_sensores.delete_many({
+        "parcela": nombre_completo,
+        "tipo": {"$regex": f"^{tipo}$", "$options": "i"}
     })
 
     return jsonify({
         "mensaje": "Sensor eliminado",
         "alertas_eliminadas": eliminadas_alertas.deleted_count,
-        "alertas_activas_eliminadas": eliminadas_activas.deleted_count
+        "alertas_activas_eliminadas": eliminadas_activas.deleted_count,
+        "datos_sensor_eliminados": eliminados_datos.deleted_count
     }), 200
 

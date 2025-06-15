@@ -3,7 +3,6 @@ from datetime import datetime
 from dotenv import load_dotenv
 import os
 import time
-import subprocess
 import smtplib
 from email.message import EmailMessage
 
@@ -117,7 +116,17 @@ def verificar_alertas():
                               alerta.get("descripcion_alto"),
                               timestamp_dato)
 
+def extraer_valor_unico(x):
+    if isinstance(x, list) and x:
+        return x[0]
+    return x
+
 def evaluar_y_guardar(alerta, sensor_general, sensor_nutriente, valor, umbral_bajo, umbral_alto, desc_bajo, desc_alto, timestamp_dato):
+    # Asegura que no sean listas
+    valor = extraer_valor_unico(valor)
+    umbral_bajo = extraer_valor_unico(umbral_bajo)
+    umbral_alto = extraer_valor_unico(umbral_alto)
+
     if valor is None or umbral_bajo is None or umbral_alto is None:
         print(f"⚠️ Valor o umbrales faltantes para {sensor_nutriente or sensor_general}")
         return
@@ -132,6 +141,18 @@ def evaluar_y_guardar(alerta, sensor_general, sensor_nutriente, valor, umbral_ba
 
     print(f"⚠️ ALERTA ACTIVADA: {sensor_nutriente or sensor_general} fuera de rango ({valor}) → {descripcion}")
 
+    correo = alerta.get("correo", [])
+    correo_app = alerta.get("correo_app", [])
+
+    if isinstance(correo, str):
+        correo = [correo]
+    elif correo is None:
+        correo = []
+    if isinstance(correo_app, str):
+        correo_app = [correo_app]
+    elif correo_app is None:
+        correo_app = []
+
     alerta_nueva = {
         "nombre_alerta": alerta["nombre_alerta"],
         "parcela": alerta["parcela"],
@@ -145,39 +166,36 @@ def evaluar_y_guardar(alerta, sensor_general, sensor_nutriente, valor, umbral_ba
         "timestamp_alerta": datetime.utcnow(),
         "estado": "Activa",
         "notificaciones": alerta.get("notificaciones", []),
-        "correo": alerta.get("correo"),
-        "correo_app": alerta.get("correo_app")
+        "correo": correo,             
+        "correo_app": correo_app      
     }
 
     alertas_activas.insert_one(alerta_nueva)
 
-    if "correo" in alerta.get("notificaciones", []) and alerta.get("correo"):
-        mensaje_correo = f"""\
-        Estimado(a),
+    if "correo" in alerta.get("notificaciones", []):
+        for destinatario in correo:
+            if not destinatario: continue
+            mensaje_correo = f"""\
+            Estimado(a),
 
-        Le informamos que se ha activado una alerta en el sistema de monitoreo para la siguiente parcela:
+            Le informamos que se ha activado una alerta en el sistema de monitoreo para la siguiente parcela:
 
-        🧭 Parcela: {alerta['parcela']}
-        📍 Sensor: {sensor_nutriente or sensor_general}
-        📊 Valor detectado: {valor}
+            🧭 Parcela: {alerta['parcela']}
+            📍 Sensor: {sensor_nutriente or sensor_general}
+            📊 Valor detectado: {valor}
 
-        ℹ️ Descripción: {descripcion}
+            ℹ️ Descripción: {descripcion}
 
-        Por favor, revise el estado de la parcela a la brevedad y tome las acciones correspondientes en caso de ser necesario.
+            Por favor, revise el estado de la parcela a la brevedad y tome las acciones correspondientes en caso de ser necesario.
 
-        —
-        Este es un mensaje automático del sistema EcoSmart.
-        No responda a este correo.
-        """
-
-    enviar_correo(
-        alerta["correo"],
-        f"⚠️ Alerta activa: {alerta['nombre_alerta']}",
-        mensaje_correo
-    )
+            —
+            Este es un mensaje automático del sistema EcoSmart.
+            No responda a este correo.
+            """
+            enviar_correo(destinatario, f"⚠️ Alerta activa: {alerta['nombre_alerta']}", mensaje_correo)
 
 if __name__ == "__main__":
     while True:
         verificar_alertas()
         print("[🕐] Esperando 60 segundos para la siguiente verificación...\n")
-        time.sleep(10)
+        time.sleep(60) 

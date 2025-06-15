@@ -108,13 +108,42 @@
   <div data-layer="Monitoreo de Cultivos" class="MonitoreoDeCultivos" style="width: 725px; height: 272px; left: 93px; top: 181px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 94px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Monitoreo de<br/><br/><br/>Cultivos</div>
   <div data-layer="Rectangle 1" class="Rectangle1" style="width: 223px; height: 72px; left: 1270px; top: 37px; position: absolute; background: #588157; border-radius: 28px"></div>
   <img data-layer="avatar" class="Avatar" style="width: 37px; height: 37px; left: 1287px; top: 54px; position: absolute" src="imagenes/avatar.png" />
-  <div data-layer="Agricultor" class="Agricultor" style="width: 127px; height: 45px; left: 1336px; top: 50px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Agricultor</div>
   <div data-layer="EcoSmart" class="Ecosmart" style="width: 344px; height: 106px; left: 23px; top: 75px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">EcoSmart</div>
   <img data-layer="plantacion (6)" class="Plantacion6" style="width: 76px; height: 76px; left: 157px; top: 37px; position: absolute" src="imagenes/plantacion (6).png" />
   <a href="/Frontend/Agricultor/Inicio/inicio_agricultor.html"
     style="width: 96.62px; height: 45px; left: 1173px; top: 50px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; text-decoration: underline; line-height: 28px; word-wrap: break-word;">
     Atrás
   </a>
+  <div id="nombre-usuario-agronomo" class="Agricultor" style="width: 127px; height: 45px; left: 1336px; top: 50px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Agricultor</div>
+  <script>
+    const nombre = localStorage.getItem("nombreUsuario");
+    if (nombre) {
+      document.getElementById("nombre-usuario-agronomo").textContent = nombre;
+    }
+  </script>
+    <!-- 
+  Menú desplegable oculto 
+  -->
+  <div id="menuOpciones" style="display: none; width: 203px; position: absolute; top: 120px; left: 1270px; background: #344E41; border-radius: 10px; padding: 10px;">
+    <a href="/Frontend/Inicio_de_sesion/Inicio/inicio.html"
+      style="display: flex; justify-content: center; color: white; text-decoration: none; font-family: IBM Plex Mono; font-weight: 550; font-size: 18px;">
+      Cerrar sesión
+    </a>
+  </div>
+
+  <script>
+    // Mostrar/ocultar menú al hacer clic en el avatar o nombre
+    const avatar = document.querySelector('img[src="imagenes/avatar.png"]');
+    const nombreUsuario = document.getElementById("nombre-usuario-agronomo");
+    const menu = document.getElementById("menuOpciones");
+
+    function toggleMenu() {
+      menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
+    }
+
+    avatar.addEventListener("click", toggleMenu);
+    nombreUsuario.addEventListener("click", toggleMenu);
+  </script>  
 
   <script src="sensores.js"></script>
 
@@ -146,14 +175,19 @@
 
 <!-- Panel emergente -->
 <div id="panel-notificaciones" style="
-  display: none; position: absolute; top: 115px; left: 1150px; width: 280px;
+  display: none;
+  position: absolute;
+  top: 115px; left: 1150px; width: 320px; max-width: 90vw;
   background-color: white; border: 1px solid #ccc; border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0,0,0,0.15); padding: 12px; z-index: 999;
-  font-family: 'IBM Plex Mono'; font-size: 14px; color: #344E41;">
+  font-family: 'IBM Plex Mono'; font-size: 14px; color: #344E41;
+">
   <strong>Notificaciones recientes</strong>
-  <ul id="lista-notificaciones" style="list-style: none; padding: 0; margin-top: 10px;">
-    <li>No hay notificaciones nuevas.</li>
-  </ul>
+  <div style="max-height: 330px; overflow-y: auto; margin-top: 10px;">
+    <ul id="lista-notificaciones" style="list-style: none; padding: 0; margin: 0;">
+      <li>No hay notificaciones nuevas.</li>
+    </ul>
+  </div>
 </div>
 
 <!-- Modal de recomendaciones -->

@@ -145,10 +145,29 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow: hidden"
   </div>
 
 
+<!-- 
+    ------------------------------
+    Historial de Alertas Activadas
+    ------------------------------ 
+  -->
+  <div style="margin-top: 22px; padding: 30px; background: #3E5C49; border-radius: 20px; color: white; font-family: IBM Plex Mono; min-height: 190px;">
+    <h2 style="font-size: 45px; text-align: center; margin-bottom: 20px;">Historial de Alertas</h2>
+    <div style="text-align: center;">
+      <button id="btn-ver-alertas" style="font-size: 18px; padding: 10px 20px; border-radius: 8px; border: none; background: #B5C99A; color: black; font-weight: bold; cursor: pointer;">
+        🔔 Ver alertas registradas
+      </button>
+    </div>
+    <div id="contenedor-historial-alertas" style="display: none; margin-top: 30px;"></div>
+
+    <script src="historialAlertas.js"></script>
+  </div>
+
+
+
   <!-- 
-    -------------------------------
-    Editar Alerta
-    -------------------------------
+  -------------------------------
+  Editar Alerta
+  -------------------------------
   -->
   <div style="margin-top: 20px; padding: 30px; background: #344E41; border-radius: 20px; color: white; font-family: IBM Plex Mono;">
     <div style="width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; color: #344E41; position: relative;">
@@ -229,185 +248,174 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow: hidden"
 
 
   <!-- 
-    ------------------------------
-    Historial de Alertas Activadas
-    ------------------------------ 
+  --------------------------------
+  Notificaciones emergentes
+  -------------------------------- 
   -->
-  <div style="margin-top: 22px; padding: 30px; background: #3E5C49; border-radius: 20px; color: white; font-family: IBM Plex Mono; min-height: 190px;">
-    <h2 style="font-size: 45px; text-align: center; margin-bottom: 20px;">Historial de Alertas</h2>
-    <div style="text-align: center;">
-      <button id="btn-ver-alertas" style="font-size: 18px; padding: 10px 20px; border-radius: 8px; border: none; background: #B5C99A; color: black; font-weight: bold; cursor: pointer;">
-        🔔 Ver alertas registradas
-      </button>
-    </div>
-    <div id="contenedor-historial-alertas" style="display: none; margin-top: 30px;"></div>
 
-    <script src="historialAlertas.js"></script>
+  <!-- Icono de campana -->
+  <div id="notificacion-contenedor" style="position: absolute; top: 59px; left: 1150px; cursor: pointer;">
+    <svg id="campana-icono" xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 24 24" width="32" fill="#344E41" title="Notificaciones">
+      <path d="M0 0h24v24H0z" fill="none"/>
+      <path d="M12 22c1.1 0 1.99-.9 1.99-2h-4A1.99 1.99 0 0012 22zm6-6V9a6 6 0 00-12 0v7l-2 2v1h16v-1l-2-2z"/>
+    </svg>
+    <span id="burbuja-noti" style="
+      display: none;
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: red;
+      color: white;
+      font-size: 12px;
+      padding: 3px 7px;
+      border-radius: 50%;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      z-index: 1000;">0</span>
   </div>
 
-
-
-  <!-- --------------------------------
-     Notificaciones emergentes
--------------------------------- -->
-
-<!-- Icono de campana -->
-<div id="notificacion-contenedor" style="position: absolute; top: 59px; left: 1150px; cursor: pointer;">
-  <svg id="campana-icono" xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 24 24" width="32" fill="#344E41" title="Notificaciones">
-    <path d="M0 0h24v24H0z" fill="none"/>
-    <path d="M12 22c1.1 0 1.99-.9 1.99-2h-4A1.99 1.99 0 0012 22zm6-6V9a6 6 0 00-12 0v7l-2 2v1h16v-1l-2-2z"/>
-  </svg>
-  <span id="burbuja-noti" style="
+  <!-- Panel emergente -->
+  <div id="panel-notificaciones" style="
     display: none;
     position: absolute;
-    top: -5px;
-    right: -5px;
-    background: red;
-    color: white;
-    font-size: 12px;
-    padding: 3px 7px;
-    border-radius: 50%;
-    font-family: Arial, sans-serif;
-    font-weight: bold;
-    z-index: 1000;">0</span>
-</div>
-
-<!-- Panel emergente -->
-<div id="panel-notificaciones" style="
-  display: none; position: absolute; top: 115px; left: 1150px; width: 280px;
-  background-color: white; border: 1px solid #ccc; border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0,0,0,0.15); padding: 12px; z-index: 999;
-  font-family: 'IBM Plex Mono'; font-size: 14px; color: #344E41;">
-  <strong>Notificaciones recientes</strong>
-  <ul id="lista-notificaciones" style="list-style: none; padding: 0; margin-top: 10px;">
-    <li>No hay notificaciones nuevas.</li>
-  </ul>
-</div>
-
-<!-- Modal de recomendaciones -->
-<div id="modal-recomendacion" style="
-  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background-color: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;">
-  
-  <div style="
-    background-color: white; padding: 20px; border-radius: 10px; width: 400px; max-width: 90%;
-    font-family: 'IBM Plex Mono'; color: #344E41; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
-    
-    <h3 style="margin-top: 0; color: #344E41;" id="titulo-recomendacion">Recomendaciones</h3>
-    <p id="contenido-recomendacion">Aquí se mostrarán las recomendaciones para esta alerta.</p>
-    
-    <div style="text-align: right; margin-top: 15px;">
-      <button onclick="cerrarModalRecomendacion()" style="
-        background-color: #a3b18a; border: none; padding: 8px 12px;
-        border-radius: 6px; cursor: pointer; color: white;">
-        Cerrar
-      </button>
+    top: 115px; left: 1150px; width: 320px; max-width: 90vw;
+    background-color: white; border: 1px solid #ccc; border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.15); padding: 12px; z-index: 999;
+    font-family: 'IBM Plex Mono'; font-size: 14px; color: #344E41;
+  ">
+    <strong>Notificaciones recientes</strong>
+    <div style="max-height: 330px; overflow-y: auto; margin-top: 10px;">
+      <ul id="lista-notificaciones" style="list-style: none; padding: 0; margin: 0;">
+        <li>No hay notificaciones nuevas.</li>
+      </ul>
     </div>
   </div>
-</div>
 
-<script>
-  const campana = document.getElementById("campana-icono");
-  const panel = document.getElementById("panel-notificaciones");
-  const burbuja = document.getElementById("burbuja-noti");
 
-  campana.addEventListener("click", () => {
-    panel.style.display = panel.style.display === "none" ? "block" : "none";
-  });
+  <!-- Modal de recomendaciones -->
+  <div id="modal-recomendacion" style="
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;">
+    
+    <div style="
+      background-color: white; padding: 20px; border-radius: 10px; width: 400px; max-width: 90%;
+      font-family: 'IBM Plex Mono'; color: #344E41; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+      
+      <h3 style="margin-top: 0; color: #344E41;" id="titulo-recomendacion">Recomendaciones</h3>
+      <p id="contenido-recomendacion">Aquí se mostrarán las recomendaciones para esta alerta.</p>
+      
+      <div style="text-align: right; margin-top: 15px;">
+        <button onclick="cerrarModalRecomendacion()" style="
+          background-color: #a3b18a; border: none; padding: 8px 12px;
+          border-radius: 6px; cursor: pointer; color: white;">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
 
-  // Cargar notificaciones desde backend
-  async function cargarNotificaciones() {
-    const correo = localStorage.getItem("correoUsuario");
-    const ul = document.getElementById("lista-notificaciones");
+  <script>
+    const campana = document.getElementById("campana-icono");
+    const panel = document.getElementById("panel-notificaciones");
+    const burbuja = document.getElementById("burbuja-noti");
 
-    if (!correo) {
-      ul.innerHTML = "<li>No se encontró correo de usuario</li>";
-      burbuja.style.display = "none";
-      return;
-    }
+    campana.addEventListener("click", () => {
+      panel.style.display = panel.style.display === "none" ? "block" : "none";
+    });
 
-    ul.innerHTML = "<li>Cargando notificaciones...</li>";
+    // Cargar notificaciones desde backend
+    async function cargarNotificaciones() {
+      const correo = localStorage.getItem("correoUsuario");
+      const ul = document.getElementById("lista-notificaciones");
 
-    try {
-      const res = await fetch(`http://localhost:5000/notificaciones?correo=${correo}`);
-      const datos = await res.json();
-
-      ul.innerHTML = "";
-
-      if (datos.length > 0) {
-        burbuja.textContent = datos.length;
-        burbuja.style.display = "inline-block";
-      } else {
+      if (!correo) {
+        ul.innerHTML = "<li>No se encontró correo de usuario</li>";
         burbuja.style.display = "none";
-        ul.innerHTML = "<li>No hay notificaciones activas.</li>";
         return;
       }
 
-      datos.forEach(noti => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <strong>${noti.nombre_alerta}</strong><br>
-          ${noti.descripcion}<br>
-          <em>${noti.parcela}</em><br>
-          <small>${new Date(noti.timestamp_alerta).toLocaleString()}</small><br>
-          <div style="margin-top: 5px;">
-            <button style="background-color:#a3b18a; border:none; padding:5px 10px; border-radius:6px; cursor:pointer; margin-right:5px"
-              onclick="marcarLeida('${noti._id}')">Descartar</button>
-            <button style="background-color:#344E41; color:white; border:none; padding:5px 10px; border-radius:6px; cursor:pointer"
-              onclick="mostrarRecomendacion('${noti._id}', '${noti.nombre_alerta}')">Recomendaciones</button>
-          </div>
-        `;
-        li.style.marginBottom = "10px";
-        ul.appendChild(li);
-      });
-    } catch (error) {
-      console.error("Error al cargar notificaciones:", error);
-      ul.innerHTML = "<li>Error al conectar con el servidor.</li>";
-      burbuja.style.display = "none";
-    }
-  }
+      ul.innerHTML = "<li>Cargando notificaciones...</li>";
 
-  async function marcarLeida(id) {
-    try {
-      const res = await fetch("http://localhost:5000/notificaciones/marcar-leida", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-      });
+      try {
+        const res = await fetch(`http://localhost:5000/notificaciones?correo=${correo}`);
+        const datos = await res.json();
 
-      if (res.ok) {
-        cargarNotificaciones();
-      } else {
-        alert("Error al marcar como leída");
+        ul.innerHTML = "";
+
+        if (datos.length > 0) {
+          burbuja.textContent = datos.length;
+          burbuja.style.display = "inline-block";
+        } else {
+          burbuja.style.display = "none";
+          ul.innerHTML = "<li>No hay notificaciones activas.</li>";
+          return;
+        }
+
+        datos.forEach(noti => {
+          const li = document.createElement("li");
+          li.innerHTML = `
+            <strong>${noti.nombre_alerta}</strong><br>
+            ${noti.descripcion}<br>
+            <em>${noti.parcela}</em><br>
+            <small>${new Date(noti.timestamp_alerta).toLocaleString()}</small><br>
+            <div style="margin-top: 5px;">
+              <button style="background-color:#a3b18a; border:none; padding:5px 10px; border-radius:6px; cursor:pointer; margin-right:5px"
+                onclick="marcarLeida('${noti._id}')">Descartar</button>
+              <button style="background-color:#344E41; color:white; border:none; padding:5px 10px; border-radius:6px; cursor:pointer"
+                onclick="mostrarRecomendacion('${noti._id}', '${noti.nombre_alerta}')">Recomendaciones</button>
+            </div>
+          `;
+          li.style.marginBottom = "10px";
+          ul.appendChild(li);
+        });
+      } catch (error) {
+        console.error("Error al cargar notificaciones:", error);
+        ul.innerHTML = "<li>Error al conectar con el servidor.</li>";
+        burbuja.style.display = "none";
       }
-    } catch (err) {
-      console.error("Error:", err);
-      alert("No se pudo conectar al servidor.");
     }
-  }
 
-  async function mostrarRecomendacion(idAlerta, nombreAlerta) {
-    try {
-      const res = await fetch(`http://localhost:5000/recomendaciones/${idAlerta}`);
-      const data = await res.json();
+    async function marcarLeida(id) {
+      try {
+        const res = await fetch("http://localhost:5000/notificaciones/marcar-leida", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id })
+        });
 
-      document.getElementById("titulo-recomendacion").textContent = `Recomendaciones: ${nombreAlerta}`;
-      document.getElementById("contenido-recomendacion").textContent = data.recomendacion || "No se pudo obtener una recomendación.";
-      document.getElementById("modal-recomendacion").style.display = "flex";
-    } catch (err) {
-      console.error("Error al obtener recomendación:", err);
-      document.getElementById("contenido-recomendacion").textContent = "Hubo un problema al generar la recomendación.";
-      document.getElementById("modal-recomendacion").style.display = "flex";
+        if (res.ok) {
+          cargarNotificaciones();
+        } else {
+          alert("Error al marcar como leída");
+        }
+      } catch (err) {
+        console.error("Error:", err);
+        alert("No se pudo conectar al servidor.");
+      }
     }
-  }
 
-  function cerrarModalRecomendacion() {
-    document.getElementById("modal-recomendacion").style.display = "none";
-  }
+    async function mostrarRecomendacion(idAlerta, nombreAlerta) {
+      try {
+        const res = await fetch(`http://localhost:5000/recomendaciones/${idAlerta}`);
+        const data = await res.json();
 
-  document.addEventListener("DOMContentLoaded", cargarNotificaciones);
-  campana.addEventListener("click", cargarNotificaciones);
-</script>
+        document.getElementById("titulo-recomendacion").textContent = `Recomendaciones: ${nombreAlerta}`;
+        document.getElementById("contenido-recomendacion").textContent = data.recomendacion || "No se pudo obtener una recomendación.";
+        document.getElementById("modal-recomendacion").style.display = "flex";
+      } catch (err) {
+        console.error("Error al obtener recomendación:", err);
+        document.getElementById("contenido-recomendacion").textContent = "Hubo un problema al generar la recomendación.";
+        document.getElementById("modal-recomendacion").style.display = "flex";
+      }
+    }
+
+    function cerrarModalRecomendacion() {
+      document.getElementById("modal-recomendacion").style.display = "none";
+    }
+
+    document.addEventListener("DOMContentLoaded", cargarNotificaciones);
+    campana.addEventListener("click", cargarNotificaciones);
+  </script>
 
 
 

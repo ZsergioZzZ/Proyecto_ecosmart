@@ -38,7 +38,7 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
   </script>  
 
   <!--Navegacion paginas-->
-  <a href="/Frontend/Tecnico/Configuracion_del_sistema/configuracion.html"
+  <a href="/Frontend/Tecnico/Inicio/inicio_tecnico.html"
     style="width: 127px; height: 45px; left: 1160px; top: 51px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; text-decoration: underline; line-height: 28px; word-wrap: break-word">
     Atrás
   </a>
@@ -198,17 +198,22 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
     z-index: 1000;">0</span>
 </div>
 
-<!-- Panel emergente -->
-<div id="panel-notificaciones" style="
-  display: none; position: absolute; top: 115px; left: 1150px; width: 280px;
-  background-color: white; border: 1px solid #ccc; border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0,0,0,0.15); padding: 12px; z-index: 999;
-  font-family: 'IBM Plex Mono'; font-size: 14px; color: #344E41;">
-  <strong>Notificaciones recientes</strong>
-  <ul id="lista-notificaciones" style="list-style: none; padding: 0; margin-top: 10px;">
-    <li>No hay notificaciones nuevas.</li>
-  </ul>
-</div>
+  <!-- Panel emergente -->
+  <div id="panel-notificaciones" style="
+    display: none;
+    position: absolute;
+    top: 115px; left: 1150px; width: 320px; max-width: 90vw;
+    background-color: white; border: 1px solid #ccc; border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.15); padding: 12px; z-index: 999;
+    font-family: 'IBM Plex Mono'; font-size: 14px; color: #344E41;
+  ">
+    <strong>Notificaciones recientes</strong>
+    <div style="max-height: 330px; overflow-y: auto; margin-top: 10px;">
+      <ul id="lista-notificaciones" style="list-style: none; padding: 0; margin: 0;">
+        <li>No hay notificaciones nuevas.</li>
+      </ul>
+    </div>
+  </div>
 
 <!-- Modal de recomendaciones -->
 <div id="modal-recomendacion" style="

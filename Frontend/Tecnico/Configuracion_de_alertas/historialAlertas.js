@@ -10,7 +10,9 @@ document.getElementById("btn-ver-alertas").addEventListener("click", async () =>
   contenedor.style.display = "block";
 
   try {
-    const res = await fetch("http://localhost:5000/configuracion-alertas/historial");
+    const correo = localStorage.getItem("correoUsuario");
+    const res = await fetch(`http://localhost:5000/configuracion-alertas/historial?correo=${encodeURIComponent(correo)}`);
+
     const data = await res.json();
 
     data.sort((a, b) => a.nombre_alerta.localeCompare(b.nombre_alerta));
@@ -28,11 +30,34 @@ document.getElementById("btn-ver-alertas").addEventListener("click", async () =>
 
     const idDetalle = `detalle-umbrales-${Math.random().toString(36).substring(2, 8)}`;
 
+    let usuariosHtml = "<em>No asignado</em>";
+    const usuariosAlerta = (Array.isArray(alerta.usuario) ? alerta.usuario : [alerta.usuario]).filter(Boolean);
+
+    if (usuariosAlerta.length > 0) {
+      // Obtener info de cada usuario:
+      const detalles = await Promise.all(usuariosAlerta.map(async correo => {
+        try {
+          const resU = await fetch(`http://localhost:5000/api/usuario-info?email=${encodeURIComponent(correo)}`);
+          if (!resU.ok) return `<div>${correo}</div>`;
+          const u = await resU.json();
+          return `
+            <div style="margin-bottom: 4px;">
+              ${u.rol ? u.rol.charAt(0).toUpperCase() + u.rol.slice(1) : ''}
+              ${u.nombre ? ' - ' + u.nombre : ''} <span style="font-size:14px;">(${u.email})</span>
+            </div>
+          `;
+        } catch {
+          return `<div>${correo}</div>`;
+        }
+      }));
+      usuariosHtml = detalles.join("");
+    }    
+
     let html = `
         <h2>${alerta.nombre_alerta}</h2>
         <strong>${alerta.parcela}</strong><br/>
         <strong>Sensor:</strong> ${alerta.sensor}<br/>
-        <strong>Usuario:</strong> ${alerta.usuario || "No asignado"}<br/>
+        <strong>Usuarios:</strong> <div style="margin-left: 8px; margin-top: 4px;">${usuariosHtml}</div>        
         <strong>Notificaciones:</strong> ${alerta.notificaciones.join(", ") || "Ninguna"}<br/><br/>
         ${alerta.estado ? `<button disabled style="background-color:rgba(230, 57, 71, 0.47); color: white; border: none;
         padding: 5px 10px; border-radius: 6px; font-weight: bold; margin-top: 8px; cursor: default;">

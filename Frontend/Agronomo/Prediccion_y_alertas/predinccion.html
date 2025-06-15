@@ -1,0 +1,299 @@
+<div data-layer="Prediccion y alertas" class="Prediccionyalertas" style="width: 1540px; position: relative; background: #FBF9F4; overflow: hidden">
+    <!--Principal-->
+    <div data-layer="EcoSmart" class="Ecosmart" style="width: 344px; height: 106px; left: 23.41px; top: 77px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">EcoSmart</div>
+    <img data-layer="plantacion (6)" class="Plantacion6" style="width: 76px; height: 76px; left: 157.41px; top: 39px; position: absolute" src="imagenes/plantacion (6).png" />
+    <img data-layer="Imagen Cultivo" class="ImagenCultivo" style="width: 1597.01px; height: 674px; left: 0.41px; top: 230px; position: absolute" src="imagenes/imagen-cultivo.JPG" />
+    <div data-layer="Rectangle 1" class="Rectangle1" style="width: 223px; height: 72px; left: 1270.41px; top: 39px; position: absolute; background: #588157; border-radius: 28px"></div>
+    <img data-layer="avatar" class="Avatar" style="width: 37px; height: 37px; left: 1287.41px; top: 56px; position: absolute" src="imagenes/avatar.png" />
+    <div id="nombre-usuario-agronomo" class="AgrNomo" style="width: 127px; height: 45px; left: 1336.41px; top: 52px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Agrónomo</div>
+    <script>
+        const nombre = localStorage.getItem("nombreUsuario");
+        if (nombre) {
+        document.getElementById("nombre-usuario-agronomo").textContent = nombre;
+        }
+    </script>
+
+
+    <a href="/Frontend/Agronomo/Inicio/inicio_agronomo.html"
+        style="width: 127px; height: 45px; left: 1160.41px; top: 52px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; text-decoration: underline; line-height: 28px; word-wrap: break-word">Atrás
+    </a>
+
+    <div data-layer="Predicción y alertas meteorológicas" class="Predicciónyalertasmeteorológicas" style="width: 1061.33px; height: 272px; left: 45.41px; top: 183px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 94px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Predicción y alertas<br><br><br>meteorológicas</div>
+
+
+    <!-- 
+    Menú desplegable oculto 
+    -->
+    <div id="menuOpciones" style="display: none; width: 203px; position: absolute; top: 120px; left: 1270px; background: #344E41; border-radius: 10px; padding: 10px;">
+        <a href="/Frontend/Inicio_de_sesion/Inicio/inicio.html"
+            style="display: flex; justify-content: center; color: white; text-decoration: none; font-family: IBM Plex Mono; font-weight: 550; font-size: 18px;">
+            Cerrar sesión
+        </a>
+    </div>
+
+    <script>
+        // Mostrar/ocultar menú al hacer clic en el avatar o nombre
+        const avatar = document.querySelector('img[src="imagenes/avatar.png"]');
+        const nombreUsuario = document.getElementById("nombre-usuario-agronomo");
+        const menu = document.getElementById("menuOpciones");
+
+        function toggleMenu() {
+            menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
+        }
+
+        avatar.addEventListener("click", toggleMenu);
+        nombreUsuario.addEventListener("click", toggleMenu);
+    </script>
+
+    <!-- 
+    --------------------------------
+    Notificaciones emergentes
+    -------------------------------- 
+    -->
+
+    <!-- Icono de campana -->
+    <div id="notificacion-contenedor" style="position: absolute; top: 59px; left: 1150px; cursor: pointer;">
+    <svg id="campana-icono" xmlns="http://www.w3.org/2000/svg" height="32" viewBox="0 0 24 24" width="32" fill="#344E41" title="Notificaciones">
+        <path d="M0 0h24v24H0z" fill="none"/>
+        <path d="M12 22c1.1 0 1.99-.9 1.99-2h-4A1.99 1.99 0 0012 22zm6-6V9a6 6 0 00-12 0v7l-2 2v1h16v-1l-2-2z"/>
+    </svg>
+    <span id="burbuja-noti" style="
+        display: none;
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: red;
+        color: white;
+        font-size: 12px;
+        padding: 3px 7px;
+        border-radius: 50%;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        z-index: 1000;">0</span>
+    </div>
+
+    <!-- Panel emergente -->
+    <div id="panel-notificaciones" style="
+        display: none;
+        position: absolute;
+        top: 115px; left: 1150px; width: 320px; max-width: 90vw;
+        background-color: white; border: 1px solid #ccc; border-radius: 10px;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.15); padding: 12px; z-index: 999;
+        font-family: 'IBM Plex Mono'; font-size: 14px; color: #344E41;
+    ">
+        <strong>Notificaciones recientes</strong>
+        <div style="max-height: 330px; overflow-y: auto; margin-top: 10px;">
+        <ul id="lista-notificaciones" style="list-style: none; padding: 0; margin: 0;">
+            <li>No hay notificaciones nuevas.</li>
+        </ul>
+        </div>
+    </div>
+
+    <!-- Modal de recomendaciones -->
+    <div id="modal-recomendacion" style="
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;">
+
+    <div style="
+        background-color: white; padding: 20px; border-radius: 10px; width: 400px; max-width: 90%;
+        font-family: 'IBM Plex Mono'; color: #344E41; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+        
+        <h3 style="margin-top: 0; color: #344E41;" id="titulo-recomendacion">Recomendaciones</h3>
+        <p id="contenido-recomendacion">Aquí se mostrarán las recomendaciones para esta alerta.</p>
+        
+        <div style="text-align: right; margin-top: 15px;">
+        <button onclick="cerrarModalRecomendacion()" style="
+            background-color: #a3b18a; border: none; padding: 8px 12px;
+            border-radius: 6px; cursor: pointer; color: white;">
+            Cerrar
+        </button>
+        </div>
+    </div>
+    </div>
+
+    <script>
+    const campana = document.getElementById("campana-icono");
+    const panel = document.getElementById("panel-notificaciones");
+    const burbuja = document.getElementById("burbuja-noti");
+
+    campana.addEventListener("click", () => {
+        panel.style.display = panel.style.display === "none" ? "block" : "none";
+    });
+
+    // Cargar notificaciones desde backend
+    async function cargarNotificaciones() {
+        const correo = localStorage.getItem("correoUsuario");
+        const ul = document.getElementById("lista-notificaciones");
+
+        if (!correo) {
+        ul.innerHTML = "<li>No se encontró correo de usuario</li>";
+        burbuja.style.display = "none";
+        return;
+        }
+
+        ul.innerHTML = "<li>Cargando notificaciones...</li>";
+
+        try {
+        const res = await fetch(`http://localhost:5000/notificaciones?correo=${correo}`);
+        const datos = await res.json();
+
+        ul.innerHTML = "";
+
+        if (datos.length > 0) {
+            burbuja.textContent = datos.length;
+            burbuja.style.display = "inline-block";
+        } else {
+            burbuja.style.display = "none";
+            ul.innerHTML = "<li>No hay notificaciones activas.</li>";
+            return;
+        }
+
+        datos.forEach(noti => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+            <strong>${noti.nombre_alerta}</strong><br>
+            ${noti.descripcion}<br>
+            <em>${noti.parcela}</em><br>
+            <small>${new Date(noti.timestamp_alerta).toLocaleString()}</small><br>
+            <div style="margin-top: 5px;">
+                <button style="background-color:#a3b18a; border:none; padding:5px 10px; border-radius:6px; cursor:pointer; margin-right:5px"
+                onclick="marcarLeida('${noti._id}')">Descartar</button>
+                <button style="background-color:#344E41; color:white; border:none; padding:5px 10px; border-radius:6px; cursor:pointer"
+                onclick="mostrarRecomendacion('${noti._id}', '${noti.nombre_alerta}')">Recomendaciones</button>
+            </div>
+            `;
+            li.style.marginBottom = "10px";
+            ul.appendChild(li);
+        });
+        } catch (error) {
+        console.error("Error al cargar notificaciones:", error);
+        ul.innerHTML = "<li>Error al conectar con el servidor.</li>";
+        burbuja.style.display = "none";
+        }
+    }
+
+    async function marcarLeida(id) {
+        try {
+        const res = await fetch("http://localhost:5000/notificaciones/marcar-leida", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id })
+        });
+
+        if (res.ok) {
+            cargarNotificaciones();
+        } else {
+            alert("Error al marcar como leída");
+        }
+        } catch (err) {
+        console.error("Error:", err);
+        alert("No se pudo conectar al servidor.");
+        }
+    }
+
+    async function mostrarRecomendacion(idAlerta, nombreAlerta) {
+        try {
+        const res = await fetch(`http://localhost:5000/recomendaciones/${idAlerta}`);
+        const data = await res.json();
+
+        document.getElementById("titulo-recomendacion").textContent = `Recomendaciones: ${nombreAlerta}`;
+        document.getElementById("contenido-recomendacion").textContent = data.recomendacion || "No se pudo obtener una recomendación.";
+        document.getElementById("modal-recomendacion").style.display = "flex";
+        } catch (err) {
+        console.error("Error al obtener recomendación:", err);
+        document.getElementById("contenido-recomendacion").textContent = "Hubo un problema al generar la recomendación.";
+        document.getElementById("modal-recomendacion").style.display = "flex";
+        }
+    }
+
+    function cerrarModalRecomendacion() {
+        document.getElementById("modal-recomendacion").style.display = "none";
+    }
+
+    document.addEventListener("DOMContentLoaded", cargarNotificaciones);
+    campana.addEventListener("click", cargarNotificaciones);
+    </script>
+
+
+    <!-- ===========================
+    PREDICCIÓN Y ALERTAS AGRÓNOMO (POR PARCELA)
+    =========================== -->
+    <div style="margin: 925px 0 0 0; padding: 40px; background: #3E5C49; border-radius: 28px; color: white; font-family: 'IBM Plex Mono'; box-shadow: 0 6px 24px rgba(52, 78, 65, 0.07);">
+        <!-- Título y descripción -->
+        <div style="margin-bottom: 25px;">
+        <h2 style="font-size: 45px; margin-bottom: 12px; color: #B5C99A;">Predicción y alertas meteorológicas</h2>
+        <p style="font-size: 20px; color: #fff; margin-bottom: 6px;">
+            Accede a predicciones precisas, alertas climáticas tempranas y recomendaciones técnicas para optimizar tus cultivos.<br>
+            <span style="color:#B5C99A; font-size:16px;">Selecciona una parcela para visualizar información específica.</span>
+        </p>
+        </div>
+
+        <!-- Selector de parcela -->
+        <div style="margin-bottom: 32px;">
+        <label for="parcela-prediccion" style="font-size: 18px; color:#B5C99A;">Seleccione parcela:</label><br>
+        <select id="parcela-prediccion" style="width: 100%; max-width: 440px; margin-top: 6px; padding: 12px; border-radius: 8px; border: 1px solid #ccc; color: #344E41; font-family: 'IBM Plex Mono'; font-size: 17px;">
+            <option value="">Seleccione una parcela...</option>
+            <!-- Las opciones se cargan dinámicamente por prediccion.js -->
+        </select>
+        </div>
+
+        <!-- Panel dinámico de información por parcela -->
+        <div id="panel-prediccion-parcela" style="display:none;">
+            <!-- Panel de pronóstico meteorológico -->
+            <div style="background: white; border-radius: 20px; padding: 32px; color: #344E41; margin-bottom: 24px; font-family: 'IBM Plex Mono'; box-shadow: 0 2px 12px rgba(52, 78, 65, 0.04);">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+                    <div>
+                    <h3 style="font-size: 28px; margin-bottom: 5px;">Pronóstico para la parcela <span id="nombre-parcela-seleccionada"></span></h3>
+                    <div id="datos-pronostico" style="font-size: 18px; margin-bottom: 8px;">
+                        <!-- Aquí van los datos meteorológicos -->
+                    </div>
+                    </div>
+                </div>
+                <hr style="border: none; border-top: 2px solid #3E5C49; margin: 22px 0;">
+                <div id="eventos-criticos" style="font-size: 18px; color: #588157;">
+                    <!-- Eventos críticos detectados -->
+                </div>
+            </div>
+
+            <!-- Recomendaciones técnicas -->
+            <div style="background: #588157; border-radius: 18px; padding: 28px; color: white; margin-bottom: 20px;">
+                <h3 style="margin-top: 0; font-size: 24px;">Recomendaciones técnicas</h3>
+                <ul id="lista-recomendaciones" style="font-size: 17px; margin: 0;">
+                    <!-- <li>Ejemplo de recomendación</li> -->
+                </ul>
+            </div>
+
+            <!-- Tendencia histórica (gráfico) -->
+            <div style="background: #fff; border-radius: 18px; padding: 28px; color: #344E41; margin-bottom: 0;
+            font-family: 'IBM Plex Mono'; display: flex; flex-direction: column; align-items: center;">
+            <h3 style="margin-top: 0; font-size: 24px; text-align: center;">
+                Tendencia de temperatura y lluvia
+            </h3>
+            <canvas id="grafico-tendencia-clima" width="800" height="200" style="margin-top:20px;"></canvas>
+            <div style="font-size: 15px; color:#588157; margin-top:10px; text-align: center;">
+                *Desliza el cursor sobre el gráfico para ver los valores de cada día. Haz clic sobre cualquier punto para ver el detalle horario en un gráfico personalizado.
+            </div>
+
+            </div>
+
+            <div id="modal-dia-pronostico" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); justify-content:center; align-items:center; z-index:9999;">
+                <div id="contenido-modal-dia" style="background:white; padding:32px; border-radius:18px; color:#344E41; font-family:'IBM Plex Mono'; min-width:280px; max-width:95vw;">
+                    <h3 id="modal-titulo-dia" style="margin-top:0"></h3>
+                    <div id="modal-detalle-dia"></div>
+                    <button onclick="document.getElementById('modal-dia-pronostico').style.display='none'" style="margin-top:20px; background:#588157; color:white; border:none; border-radius:7px; padding:8px 16px; font-weight:bold;">Cerrar</button>
+                </div>
+            </div>
+
+            <div id="modal-detalle-dia">
+                <!-- Aquí se insertará dinámicamente la tabla o el gráfico -->
+                <div style="margin:20px 0;">
+                    <canvas id="grafico-horario-dia" width="440" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Incluye Chart.js para el gráfico dinámico -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="prediccion.js"></script>
+</div>

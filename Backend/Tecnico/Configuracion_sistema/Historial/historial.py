@@ -16,11 +16,14 @@ db = client[os.getenv("DB_NAME")]
 parcelas = db["datos_parcelas"]
 sensores = db["sensores"]
 
-# Obtener todas las parcelas con detalles
 @historial_tecnico_blueprint.route("/api/parcelas-detalle", methods=["GET"])
 def obtener_parcelas_completas():
-    resultado = parcelas.find({}, {"_id": 0})
+    correo = request.args.get("correo")
+    if not correo:
+        return jsonify({"error": "Falta el correo"}), 400
+    resultado = parcelas.find({"usuario": correo}, {"_id": 0})
     return jsonify(list(resultado)), 200
+
 
 # Obtener sensores asociados a una parcela
 @historial_tecnico_blueprint.route("/api/sensores-por-parcela", methods=["GET"])

@@ -89,8 +89,15 @@ def listar_sensores():
 # GET /api/parcelas
 @agregar_sensores_blueprint.route("/api/parcelas_ag_sensores", methods=["GET"])
 def obtener_parcelas():
-    resultado = parcelas.find({}, {"_id": 0, "nombre": 1, "numero": 1}) \
-                        .sort([("nombre", 1), ("numero", 1)])
+    correo = request.args.get("correo")
+    if not correo:
+        return jsonify({"error": "Falta correo"}), 400
+
+    resultado = parcelas.find(
+        {"usuario": correo},   # filtra solo parcelas donde el usuario está en el array "usuario"
+        {"_id": 0, "nombre": 1, "numero": 1}
+    ).sort([("nombre", 1), ("numero", 1)])
     lista = list(resultado)
     return jsonify(lista), 200
+
 

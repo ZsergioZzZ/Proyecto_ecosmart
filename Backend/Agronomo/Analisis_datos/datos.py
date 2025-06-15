@@ -31,6 +31,7 @@ def insertar_nuevo_registro(parcela, tipo, otros_campos):
         "timestamp": timestamp_chileno,
     }
 
+    db_sensores = db["datos_sensores"]
     db_sensores.insert_one(documento)
 
 @analisis_datos_blueprint.route("/api/parcela-analisis", methods=["GET"])
@@ -102,6 +103,16 @@ def obtener_datos_sensores():
 @analisis_datos_blueprint.route("/parcelas", methods=["GET"])
 def listar_parcelas():
     resultados = parcelas.find({}, {"nombre": 1, "numero": 1, "_id": 0})
+    lista = [{"nombre": p["nombre"], "numero": p["numero"]} for p in resultados]
+    return jsonify(lista)
+
+
+@analisis_datos_blueprint.route("/api/parcelas-usuario", methods=["GET"])
+def listar_parcelas_usuario():
+    correo = request.args.get("correo")
+    if not correo:
+        return jsonify([]) 
+    resultados = parcelas.find({"usuario": correo}, {"nombre": 1, "numero": 1, "_id": 0})
     lista = [{"nombre": p["nombre"], "numero": p["numero"]} for p in resultados]
     return jsonify(lista)
 
@@ -178,7 +189,6 @@ def obtener_valores_ideales_por_cultivo():
     except Exception as e:
         print("ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
-
 
 
 

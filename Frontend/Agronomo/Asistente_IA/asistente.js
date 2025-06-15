@@ -311,24 +311,25 @@ function alClickEliminarChat(evt) {
 
 // 10) Obtener todas las parcelas al cargar la página
 function cargarParcelas() {
-  fetch(`http://localhost:5000/parcelas_recomendacion-ia`)
-    .then((res) => {
-      if (!res.ok) throw new Error("No se pudo obtener la lista de parcelas");
-      return res.json();
-    })
-    .then((parcArr) => {
-      // parcArr = [ { _id: "628f...", displayName: "Parcelas Aires de Colchagua - Parcela 1" }, ... ]
-      parcArr.forEach((parcela) => {
+  const correo = localStorage.getItem("correoUsuario");
+  if (!correo) return;
+
+  fetch(`http://localhost:5000/parcelas_usuario_ia?correo=${encodeURIComponent(correo)}`)
+    .then(res => res.json())
+    .then(parcArr => {
+      parcelaSelect.innerHTML = "<option value=''>-- Selecciona parcela --</option>";
+      parcArr.forEach(parcela => {
         const opt = document.createElement("option");
-        opt.value = parcela.displayName; // guardamos displayName como value
+        opt.value = parcela.displayName;
         opt.textContent = parcela.displayName;
         parcelaSelect.appendChild(opt);
       });
     })
-    .catch((err) => {
+    .catch(err => {
       console.error("Error cargando parcelas:", err);
     });
 }
+
 
 // 11) Cuando cambie la parcela, solicitamos sus tipos de sensores
 function onChangeParcela() {

@@ -48,7 +48,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function cargarParcelasSensor() {
   try {
-    const res = await fetch("http://localhost:5000/api/parcelas");
+    const correo = localStorage.getItem("correoUsuario");
+    if (!correo) {
+      alert("No hay usuario logueado");
+      return;
+    }
+    const res = await fetch("http://localhost:5000/api/parcelas?correo=" + encodeURIComponent(correo));
     if (!res.ok) throw new Error("Error en la respuesta del servidor");
     const parcelas = await res.json();
 
@@ -132,7 +137,12 @@ function eliminarSensor() {
 
   if (!confirm(`¿Eliminar sensor de tipo "${tipo}" para "${seleccion}"?`)) return;
 
-  const url = `http://localhost:5000/sensores?parcela=${encodeURIComponent(seleccion)}&tipo=${encodeURIComponent(tipo)}`;
+  // Extraer nombre y número de parcela del string
+  const [nombre, numTexto] = seleccion.split(" - Parcela ");
+  const numero = parseInt(numTexto);
+
+  // Armamos la URL incluyendo nombre, número y tipo
+  const url = `http://localhost:5000/sensores?parcela=${encodeURIComponent(nombre)}&numero=${numero}&tipo=${encodeURIComponent(tipo)}`;
 
   fetch(url, { method: "DELETE" })
     .then(res => res.json())
@@ -149,6 +159,7 @@ function eliminarSensor() {
       alert("Error al eliminar el sensor.");
     });
 }
+
 
 
 

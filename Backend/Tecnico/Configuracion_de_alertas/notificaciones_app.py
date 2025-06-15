@@ -19,9 +19,10 @@ def obtener_notificaciones_por_usuario():
         if not correo:
             return jsonify({"error": "Falta el correo del usuario"}), 400
 
+        # Buscar alertas activas donde el usuario está en el array 'correo_app'
         resultado = list(alertas_activas.find({
             "estado": "Activa",
-            "correo_app": correo
+            "correo_app": correo  # MongoDB permite buscar así aunque sea array o string
         }, {
             "_id": 1,
             "nombre_alerta": 1,
@@ -30,7 +31,6 @@ def obtener_notificaciones_por_usuario():
             "timestamp_alerta": 1
         }))
 
-        # Convertir _id a str para evitar errores al serializar
         for alerta in resultado:
             alerta["_id"] = str(alerta["_id"])
 

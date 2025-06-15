@@ -65,20 +65,26 @@ let ubicacionParcelaSeleccionada = "";
 
 async function cargarParcelas() {
   try {
-    const res = await fetch("http://127.0.0.1:5000/meteo/parcelas");
+    const correo = localStorage.getItem("correoUsuario");
+    if (!correo) {
+      alert("No hay usuario logueado");
+      return;
+    }
+
+    const res = await fetch(`http://127.0.0.1:5000/meteo/parcelas?correo=${encodeURIComponent(correo)}`);
 
     parcelasGlobal = await res.json();
     console.log("Parcelas recibidas:", parcelasGlobal);
-  if (parcelasGlobal.length > 0) {
-    nombreParcelaSeleccionada = `${parcelasGlobal[0].nombre} - Parcela ${parcelasGlobal[0].numero}`;
-    ubicacionParcelaSeleccionada = parcelasGlobal[0].ubicacion;
-    obtenerDatosPorCoords(parcelasGlobal[0].lat, parcelasGlobal[0].lon);
-  }
-
+    if (parcelasGlobal.length > 0) {
+      nombreParcelaSeleccionada = `${parcelasGlobal[0].nombre} - Parcela ${parcelasGlobal[0].numero}`;
+      ubicacionParcelaSeleccionada = parcelasGlobal[0].ubicacion;
+      obtenerDatosPorCoords(parcelasGlobal[0].lat, parcelasGlobal[0].lon);
+    }
   } catch (err) {
     console.error("Error al cargar parcelas:", err);
   }
 }
+
 
 
 function seleccionarParcela(value) {
