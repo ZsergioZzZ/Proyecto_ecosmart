@@ -16,7 +16,6 @@ sys.stdout.reconfigure(encoding='utf-8')
 load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME   = os.getenv("DB_NAME")
-# (cualquier otra variable que necesite tu aplicación)
 
 # ----------------------------------------
 # Inicializar Flask y blueprints
@@ -41,7 +40,6 @@ from Backend.Agronomo.Asistente_IA.recomendacion import sensores_bp
 from Backend.Tecnico.Configuracion_de_alertas.configurar_alerta import configurar_umbrales_alerta_blueprint
 from Backend.Tecnico.Configuracion_de_alertas.notificaciones_app import notificaciones_blueprint
 from Backend.Agronomo.Prediccion_y_alertas.prediccion import prediccion_blueprint
-#from Backend.Agricultor.Monitoreo_de_Cultivos.Visualizacion_datos.visualizacion_graficos import visualizacion_web
 from Backend.Agricultor.Analisis_de_riego.analisis_riego import analisis_riego_blueprint
 
 # Registrar todos los blueprints
@@ -61,124 +59,115 @@ app.register_blueprint(sensores_bp)
 app.register_blueprint(configurar_umbrales_alerta_blueprint)
 app.register_blueprint(notificaciones_blueprint)
 app.register_blueprint(prediccion_blueprint)
-#app.register_blueprint(visualizacion_web)
 app.register_blueprint(analisis_riego_blueprint)
 
 # ----------------------------------------
-# Funciones para manejar el subproceso
+# Variables para procesos hijos
 # ----------------------------------------
+
 generador_proc = None
-notificacion_proc  = None
+notificacion_proc = None
+pronostico_proc = None
 
+# ----------------------------------------
+# Función para iniciar generador de datos
+# ----------------------------------------
 def iniciar_generador():
-
-    ruta_generador = os.path.join(os.path.dirname(__file__), "datos_sensores.py")
-    python_interprete = sys.executable  # Usa el mismo intérprete de Python
-
+    ruta = os.path.join(os.path.dirname(__file__), "datos_sensores.py")
+    if not os.path.exists(ruta):
+        print(f"‼️ Generador: no se encontró '{ruta}'")
+        return None
     try:
-        proceso = subprocess.Popen(
-            [python_interprete, ruta_generador]
-            # Si prefieres ver logs en la misma terminal, no especifiques stdout/stderr
-            # stdout=subprocess.PIPE,
-            # stderr=subprocess.PIPE
-        )
-        print(f"▶ Proceso generador de datos iniciado (PID = {proceso.pid})")
-        return proceso
+        p = subprocess.Popen([sys.executable, ruta], cwd=os.path.dirname(__file__))
+        print(f"▶ Generador de datos iniciado (PID={p.pid})")
+        return p
     except Exception as e:
-        print(f"‼️ Error al iniciar generador de datos: {e}")
+        print(f"‼️ Error generador: {e}")
         return None
 
+# ----------------------------------------
+# Función para iniciar notificaciones de alertas
+# ----------------------------------------
 def iniciar_notificacion():
-    ruta_notificacion = os.path.join(
-        os.path.dirname(__file__),
-        "Backend",
-        "Tecnico",
-        "Configuracion_de_alertas",
-        "notificacion_alertas.py"
-    )
-
-    # Verifica que el archivo exista en esa ubicación
-    if not os.path.exists(ruta_notificacion):
-        print(f"‼️ Ruta inválida: no se encontró '{ruta_notificacion}'")
+    ruta = os.path.join(os.path.dirname(__file__),
+                        "notificacion_alertas.py")
+    if not os.path.exists(ruta):
+        print(f"‼️ Notificación: no se encontró '{ruta}'")
         return None
-
-    # Usa el mismo intérprete de Python que ejecuta este script
-    python_interprete = sys.executable
-
     try:
-        proceso = subprocess.Popen(
-            [python_interprete, ruta_notificacion],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        print(f"▶ Proceso notificación de alertas iniciado (PID = {proceso.pid})")
-        return proceso
+        p = subprocess.Popen([sys.executable, ruta], cwd=os.path.dirname(__file__))
+        print(f"▶ Notificación de alertas iniciado (PID={p.pid})")
+        return p
     except Exception as e:
-        print(f"‼️ Error al iniciar notificación de alertas: {e}")
+        print(f"‼️ Error notificación: {e}")
         return None
 
-def detener_proceso(proceso, nombre):
-    """
-    Si el proceso hijo está activo, envía terminate() y espera a que cierre.
-    En caso de no responder, fuerza kill().
-    """
-    if proceso and proceso.poll() is None:
-        print(f"▶ Deteniendo proceso {nombre}…")
+# ----------------------------------------
+# Función para iniciar correo pronóstico
+# ----------------------------------------
+def iniciar_pronostico():
+    ruta = os.path.join(os.path.dirname(__file__), "correo_pronostico.py")
+    if not os.path.exists(ruta):
+        print(f"‼️ Correo pronóstico: no se encontró '{ruta}'")
+        return None
+    try:
+        p = subprocess.Popen([sys.executable, ruta], cwd=os.path.dirname(__file__))
+        print(f"▶ Correo pronóstico iniciado (PID={p.pid})")
+        return p
+    except Exception as e:
+        print(f"‼️ Error pronóstico: {e}")
+        return None
+
+# ----------------------------------------
+# Función para detener procesos hijos
+# ----------------------------------------
+def detener_proceso(proc, name):
+    if proc and proc.poll() is None:
+        print(f"▶ Deteniendo {name}...")
         try:
-            proceso.terminate()
-            proceso.wait(timeout=10)
-            print(f"▶ Proceso {nombre} detenido.")
-        except subprocess.TimeoutExpired:
-            print(f"‼️ El proceso {nombre} no respondió a terminate(), forzando kill…")
-            proceso.kill()
-        except Exception as e:
-            print(f"‼️ Error al detener el proceso {nombre}: {e}")
+            proc.terminate()
+            proc.wait(5)
+            print(f"▶ {name} detenido.")
+        except Exception:
+            proc.kill()
+            print(f"‼️ {name} forzado kill.")
 
-def manejador_senal(signum, frame):
-    """
-    Captura SIGINT (Ctrl+C) o SIGTERM. Detiene ambos subprocesos
-    (generador_proc y notificacion_proc) y sale del programa.
-    """
-    global generador_proc, notificacion_proc
-    print("\n▶ Señal recibida, cerrando EcoSmart…")
-
-    if generador_proc:
-        detener_proceso(generador_proc, "generador de datos")
-    if notificacion_proc:
-        detener_proceso(notificacion_proc, "notificación de alertas")
-
+# ----------------------------------------
+# Manejador de señales para cierre limpio
+# ----------------------------------------
+def manejador_senal(sig, frame):
+    global generador_proc, notificacion_proc, pronostico_proc
+    print("\n▶ Señal recibida, cerrando...")
+    detener_proceso(generador_proc, "generador")
+    detener_proceso(notificacion_proc, "notificaciones")
+    detener_proceso(pronostico_proc, "pronóstico")
     sys.exit(0)
 
 # ----------------------------------------
 # Punto de entrada principal
 # ----------------------------------------
 if __name__ == "__main__":
-    # Registramos el mismo manejador de señal para SIGINT y SIGTERM
     signal.signal(signal.SIGINT, manejador_senal)
     signal.signal(signal.SIGTERM, manejador_senal)
 
-    # Iniciamos el proceso generador de datos
+    # Lanzar subprocesos
     #generador_proc = iniciar_generador()
-    if generador_proc is None:
-        print("‼️ No se inició el generador de datos. Verifica la ruta.")
-    else:
-        print("✅ Generador de datos corriendo en background.")
+    notificacion_proc = iniciar_notificacion()
+    #pronostico_proc = iniciar_pronostico()
 
-    # Iniciamos el proceso de notificación de alertas
-    #notificacion_proc = iniciar_notificacion()
-    if notificacion_proc is None:
-        print("‼️ No se inició la notificación de alertas. Verifica la ruta.")
-    else:
-        print("✅ Notificación de alertas corriendo en background.")
+    # Logs de estado
+    if not generador_proc:
+        print("‼️ Generador no arrancó.")
+    if not notificacion_proc:
+        print("‼️ Notificaciones no arrancaron.")
+    if not pronostico_proc:
+        print("‼️ Pronóstico no arrancó.")
 
-    # Arrancamos la aplicación Flask
-    print("▶ Iniciando la aplicación principal (Flask)…")
+    # Iniciar Flask
+    print("▶ Iniciando Flask...")
     try:
         app.run(host='0.0.0.0', port=5000, debug=True)
     finally:
-        # Cuando Flask termine, nos aseguramos de detener ambos procesos
-        if generador_proc:
-            detener_proceso(generador_proc, "generador de datos")
-        if notificacion_proc:
-            detener_proceso(notificacion_proc, "notificación de alertas")
-
+        detener_proceso(generador_proc, "generador")
+        detener_proceso(notificacion_proc, "notificaciones")
+        detener_proceso(pronostico_proc, "pronóstico")

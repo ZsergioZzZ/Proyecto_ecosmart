@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     parcelas.forEach(p => {
       const opt = document.createElement("option");
       opt.value = JSON.stringify(p); // Para poder extraer lat, lon, cultivo fácilmente
-      opt.textContent = `${p.nombre} ${p.numero ? `#${p.numero}` : ""}`.trim();
+      opt.textContent = `${p.nombre} ${p.numero ? `- Parcela ${p.numero}` : ""}`.trim();
       selector.appendChild(opt);
     });
   } catch (err) {
