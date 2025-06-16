@@ -1,3 +1,5 @@
+#datos_sensores.py
+
 import os
 import time
 import json
@@ -37,23 +39,26 @@ def obtener_clima(lat, lon):
 
     if registro and time.time() - registro["timestamp"] < 3600:
         print("✅ Usando clima guardado (menos de 1 hora)")
-        return registro["temp"]
+        return registro["temp"], registro["humedad"]
 
     print("🌐 Consultando OpenWeatherMap...")
     url = f"http://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={OWM_API_KEY}&units=metric"
     response = requests.get(url)
 
     if response.status_code == 200:
-        temp = response.json()["main"]["temp"]
+        data = response.json()
+        temp = data["main"]["temp"]
+        humedad = data["main"]["humidity"]
+
         cache.update_one(
             {"lat": lat, "lon": lon},
-            {"$set": {"temp": temp, "timestamp": time.time()}},
+            {"$set": {"temp": temp, "humedad": humedad, "timestamp": time.time()}},
             upsert=True
         )
-        return temp
+        return temp, humedad
     else:
         print("❌ Error al obtener clima:", response.text)
-        return None
+        return None, None
 
 def generar_datos_ia(prompt):
     headers = {
@@ -103,7 +108,7 @@ def generar_y_guardar_dato(sensor):
     datos_generados = {}
 
     if tipo == "Temperatura Ambiente":
-        temperatura = obtener_clima(lat, lon)
+        temperatura, _ = obtener_clima(lat, lon)
         if temperatura is None:
             print("No se pudo obtener temperatura.")
             return
@@ -112,17 +117,14 @@ def generar_y_guardar_dato(sensor):
         }
 
     elif tipo == "Humedad del suelo":
-        prompt = f"""
-        Simula un valor realista y aleatorio para la humedad del suelo (%)
-        en una parcela llamada {parcela}, ubicada en latitud {lat} y longitud {lon}.
-        Entrega solo el JSON:
-        {{
-          "humedad_suelo": número decimal entre 20 y 80
-        }}
-        Sin texto adicional.
-        """
-        respuesta = generar_datos_ia(prompt)
-        datos_generados = limpiar_json_de_respuesta(respuesta)
+        _, humedad = obtener_clima(lat, lon)
+        if humedad is None:
+            print("No se pudo obtener humedad.")
+            return
+        datos_generados = {
+            "humedad_suelo": humedad
+        }
+
 
     elif tipo == "Nivel de PH":
         prompt = f"""
