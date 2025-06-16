@@ -1,5 +1,6 @@
 # chat_ia.py
 
+import json
 import os
 import traceback
 import requests
@@ -18,6 +19,7 @@ load_dotenv()
 OPENROUTER_API_KEY   = os.getenv("OPENROUTER_API_KEY", "").strip()
 OPENROUTER_API_URL   = os.getenv("OPENROUTER_API_URL", "").strip()
 OPENROUTER_MODEL     = os.getenv("OPENROUTER_MODEL", "").strip()
+OWM_API_KEY = os.getenv("OWM_API_KEY", "").strip()
 MONGO_URI            = os.getenv("MONGO_URI", "").strip()
 
 # Verificación mínima de que las variables clave no estén vacías
@@ -79,6 +81,16 @@ def _construir_mensajes_desde_historial(chat_id, prompt_nuevo=None):
 # ==============================================================  
 @chat_ia_blueprint.route("/consulta-ia", methods=["POST"])
 def consulta_ia():
+
+    PROMPT_BASE = (
+        "Eres un asistente experto en el área de la agricultura. "
+        "Tu función es exclusivamente responder preguntas relacionadas con prácticas agrícolas, "
+        "cultivos, suelo, clima agrícola, enfermedades de plantas, nutrición vegetal, etc. "
+        "Si te hacen una pregunta fuera de ese ámbito, responde amablemente que solo puedes responder "
+        "consultas sobre agricultura y no estás autorizado a hablar de otros temas.\n\n"
+    )
+
+
     data = request.get_json(force=True)
     chat_id = data.get("chat_id", None)
     nombre_chat = data.get("nombre_chat", "")
@@ -99,10 +111,16 @@ def consulta_ia():
             chat_id = str(ObjectId())
 
         # Construir el prompt completo, incluyendo cultivo si se proporciona
-        if cultivo_usuario:
-            prompt_nuevo = f"(Cultivo: {cultivo_usuario}) {pregunta_usuario}"
-        else:
-            prompt_nuevo = pregunta_usuario
+    if cultivo_usuario:
+        prompt_nuevo = (
+            PROMPT_BASE +
+            f"Cultivo: {cultivo_usuario}. " +
+            f"Pregunta: {pregunta_usuario}"
+        )
+
+    else:
+        prompt_nuevo = PROMPT_BASE + f"Pregunta: {pregunta_usuario}"
+
 
         # Antes de insertar en BD, construimos los mensajes completos para enviar a OpenRouter
         mensajes_para_ia = _construir_mensajes_desde_historial(chat_id, prompt_nuevo=prompt_nuevo)
@@ -155,7 +173,7 @@ def consulta_ia():
     # ----------------------------------  
     # 2) Caso "sensor"  
     # ----------------------------------  
-    elif tipo_peticion == "sensor":
+    if tipo_peticion == "sensor":
         parcela_full = data.get("parcela", "").strip()  # Ej: "Parcelas Aires de Colchagua - Parcela 1"
         sensor = data.get("sensor", "").strip()
         if not parcela_full or not sensor:
@@ -211,12 +229,14 @@ def consulta_ia():
         # --- 2.4) Construir la pregunta automática, incluyendo cultivo_parcela si existe ---
         if cultivo_parcela:
             pregunta_automatica = (
-                f"(Cultivo: {cultivo_parcela}) Recomendaciones para la parcela '{parcela_full}' "
+                PROMPT_BASE +
+                f"Cultivo: {cultivo_parcela}. Recomendaciones para la parcela '{parcela_full}' "
                 f"basadas en el sensor '{sensor}'. Última lectura: {texto_lectura}. "
                 f"Dame consejos prácticos para optimizar el cultivo o corregir problemas."
             )
         else:
             pregunta_automatica = (
+                PROMPT_BASE +
                 f"Recomendaciones para la parcela '{parcela_full}' basadas en el sensor '{sensor}'. "
                 f"Última lectura: {texto_lectura}. "
                 f"Dame consejos prácticos para optimizar el cultivo o corregir problemas."
@@ -475,3 +495,90 @@ def parcelas_usuario_ia():
             "numero": numero
         })
     return jsonify(lista), 200
+
+@chat_ia_blueprint.route("/analisis-riego", methods=["GET"])
+def analisis_riego():
+    try:
+        lat = request.args.get("lat")
+        lon = request.args.get("lon")
+        cultivo = request.args.get("cultivo")
+
+        # Validación de parámetros
+        if not lat or not lon or not cultivo:
+            return jsonify({"error": "Faltan parámetros: 'lat', 'lon' y/o 'cultivo'"}), 400
+
+        print(f"📍 Recibido: lat={lat}, lon={lon}, cultivo={cultivo}")
+
+        # Llamada a OpenWeatherMap
+        url_owm = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={OWM_API_KEY}&units=metric&lang=es"
+        response_owm = requests.get(url_owm)
+
+
+        
+        if response_owm.status_code != 200:
+            return jsonify({"error": "Error al obtener datos de OpenWeatherMap"}), 502
+
+        datos_owm = response_owm.json()
+        forecast = datos_owm.get("list", [])[:8]  # solo las próximas 24 horas
+
+        if not forecast:
+            return jsonify({"error": "No se recibieron datos de pronóstico"}), 500
+
+        resumen = []
+        for bloque in forecast:
+            resumen.append({
+                "hora": bloque.get("dt_txt"),
+                "temperatura": bloque["main"]["temp"],
+                "humedad": bloque["main"]["humidity"],
+                "nubes": bloque["clouds"]["all"],
+                "viento": bloque["wind"]["speed"]
+            })
+
+        lluvia_detectada = False
+        for bloque in forecast:
+            if "rain" in bloque and bloque["rain"].get("3h", 0) > 0:
+                lluvia_detectada = True
+                break
+
+        if lluvia_detectada:
+            prompt = (
+                "⚠️ Se detectó lluvia en el pronóstico. "
+                "Toma eso en cuenta y recomienda si es mejor no regar o posponer el riego.\n\n"
+            )
+
+        # Prompt para IA
+        prompt += (
+            f"Soy un agricultor que cultiva {cultivo}. "
+            "A continuación te entrego datos climáticos por hora para hoy. "
+            "Dime breve y consciso cual es la mejor hora para regar y por qué, considerando temperatura, humedad, nubosidad y viento.\n"
+        )
+
+        prompt += f"{json.dumps(resumen, indent=2)}"
+
+        # Llamada a OpenRouterAI
+        response_ai = requests.post(
+            OPENROUTER_API_URL,
+            headers={
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": OPENROUTER_MODEL,
+                "messages": [
+                    {"role": "system", "content": "Eres un asesor agrícola experto en riego de cultivos."},
+                    {"role": "user", "content": prompt}
+                ]
+            }
+        )
+
+        result = response_ai.json()
+        recomendacion = result["choices"][0]["message"]["content"]
+
+        return jsonify({
+            "grafico": resumen,
+            "recomendacion": recomendacion
+        })
+
+    except Exception as e:
+        print("❌ Error interno en análisis de riego:", e)
+        return jsonify({"error": "Error interno del servidor"}), 500
