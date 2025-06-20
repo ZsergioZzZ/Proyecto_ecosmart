@@ -114,24 +114,38 @@
 
     <!-- Análisis de exactitud basado en sensores reales -->
     <div style="display: flex; justify-content: space-between; gap: 20px; margin-top: 40px;">
-      <div style="flex: 1;">
-        <div style="margin-top: 30px; padding: 20px; background-color: #F0EFEB; border-radius: 12px;">
-          <label for="select-tipo" style="font-size: 18px;">Tipo de sensor:</label><br>
-          <select id="select-tipo" style="width: 100%; padding: 8px; font-size: 16px; margin-bottom: 16px;">
-            <option value="">Seleccione tipo de sensor</option>
-          </select>
+     <div style="flex: 1;">
+  <div style="margin-top: 30px; padding: 20px; background-color: #F0EFEB; border-radius: 12px;">
+    
+    <!-- Selección de tipo de sensor -->
+    <label for="select-tipo" style="font-size: 18px;">Tipo de sensor:</label><br>
+    <select id="select-tipo" style="width: 100%; padding: 8px; font-size: 16px; margin-bottom: 16px;">
+      <option value="">Seleccione tipo de sensor</option>
+    </select>
 
-          <label for="select-valor" style="font-size: 18px;">Valor ideal del sensor:</label><br>
-          <select id="select-valor" style="width: 100%; padding: 8px; font-size: 16px; margin-bottom: 16px;">
-            <option value="">Seleccione un valor</option>
-          </select>
-          <button id="btn-calcular-exactitud" style="background-color: #344E41; color: white; padding: 10px 20px; font-size: 16px; font-family: IBM Plex Mono; border: none; border-radius: 6px; cursor: pointer;">
-            Calcular exactitud
-          </button>
-        </div>
+    <!-- Valor ideal generado automáticamente por IA -->
+   <!-- Valor ideal generado automáticamente por IA -->
+<label for="valor-ideal-ia" style="font-size: 18px;">Valor ideal del sensor (IA):</label><br>
+<input id="valor-ideal-ia" type="text" readonly placeholder="Esperando valor ideal..." 
+       style="width: 100%; padding: 8px; font-size: 16px; margin-bottom: 16px; background-color: #e9ecef; border: 1px solid #ccc; border-radius: 6px; font-weight: bold;" />
 
-
-      </div>
+<!-- Inputs separados para nutrientes -->
+<div id="nutrientes-ideales" style="display: none; gap: 10px; margin-bottom: 16px;">
+  Nitrogeno:
+  <input id="valor-n" type="number" readonly placeholder="Nitrógeno" style="width: 32%; padding: 8px;" />
+  Fósforo:
+  <input id="valor-p" type="number" readonly placeholder="Fósforo" style="width: 32%; padding: 8px;" />
+  Potasio:
+  <input id="valor-k" type="number" readonly placeholder="Potasio" style="width: 32%; padding: 8px;" />
+</div>
+    <!-- Botón para calcular exactitud -->
+    <button id="btn-calcular-exactitud" 
+            style="background-color: #344E41; color: white; padding: 10px 20px; font-size: 16px; font-family: IBM Plex Mono; border: none; border-radius: 6px; cursor: pointer;">
+      Calcular exactitud
+    </button>
+    
+  </div>
+</div>
       <div style="flex: 1;">
 
         <!-- Resultado -->
