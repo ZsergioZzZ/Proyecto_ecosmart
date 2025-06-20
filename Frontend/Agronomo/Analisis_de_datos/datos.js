@@ -308,13 +308,106 @@ function exportarDatosCSV(infoParcela, dataSensores) {
   document.body.removeChild(link);
 }
 
-
-document.getElementById("btnExportarCSV").addEventListener("click", () => {
-  if (Object.keys(datosActuales).length > 0) {
-    exportarDatosCSV(infoActualParcela, datosActuales);
-  } else {
+//BOTON PARA EXPORTAR CSV
+document.getElementById("btnExportarCSV").addEventListener("click", async () => {
+  if (Object.keys(datosActuales).length === 0) {
     alert("Primero selecciona una parcela para exportar sus datos.");
+    return;
   }
+
+  const nombre = document.getElementById("info-nombre").textContent;
+  const numero = document.getElementById("info-numero").textContent;
+
+  const infoParcela = infoActualParcela;
+  const sensores = [];
+
+  // Sensores básicos
+  const tipos = ["Temperatura Ambiente", "Humedad del suelo", "Nivel de PH"];
+  for (const tipo of tipos) {
+    const valor = parseFloat(document.getElementById("valor-ideal-ia")?.value);
+    if (!isNaN(valor)) {
+      sensores.push({ tipo, valor_ideal: valor });
+    }
+  }
+
+  // Nutrientes individuales
+  if (document.getElementById("nutrientes-ideales").style.display === "flex") {
+    const n = parseFloat(document.getElementById("valor-n").value);
+    const p = parseFloat(document.getElementById("valor-p").value);
+    const k = parseFloat(document.getElementById("valor-k").value);
+    if (!isNaN(n)) sensores.push({ tipo: "nitrógeno", valor_ideal: n });
+    if (!isNaN(p)) sensores.push({ tipo: "fósforo", valor_ideal: p });
+    if (!isNaN(k)) sensores.push({ tipo: "potasio", valor_ideal: k });
+  }
+
+  // 1. CSV con lecturas
+  let csv = `Información de la Parcela\nNombre:,${infoParcela.nombre}\nNúmero:,${infoParcela.numero}\nUbicación:,${infoParcela.ubicacion}\nCultivo:,${infoParcela.cultivo}\n\n`;
+  csv += "Tipo,Fecha,Valor,Unidad\n";
+
+  const agregarDatos = (tipo, registros, clave, unidad) => {
+    registros.forEach(r => {
+      const valor = r[clave];
+      const fecha = new Date(r.timestamp).toLocaleString();
+      if (valor !== undefined) {
+        csv += `${tipo},${fecha},${valor},${unidad}\n`;
+      }
+    });
+  };
+
+  agregarDatos("Temperatura", datosActuales["Temperatura Ambiente"] || [], "temperatura", "°C");
+  agregarDatos("Humedad del suelo", datosActuales["Humedad del suelo"] || [], "humedad_suelo", "%");
+  agregarDatos("pH", datosActuales["Nivel de PH"] || [], "ph_suelo", "pH");
+
+  (datosActuales["Nivel de Nutrientes"] || []).forEach(r => {
+    const fecha = new Date(r.timestamp).toLocaleString();
+    const n = r.nutrientes || {};
+    if (n["nitrógeno"] !== undefined) csv += `Nitrógeno,${fecha},${n["nitrógeno"]},ppm\n`;
+    if (n["fósforo"] !== undefined) csv += `Fósforo,${fecha},${n["fósforo"]},ppm\n`;
+    if (n["potasio"] !== undefined) csv += `Potasio,${fecha},${n["potasio"]},ppm\n`;
+  });
+
+  // 2. Obtener exactitud del backend
+  try {
+    const res = await fetch("http://localhost:5000/api/exportar_exactitud_csv", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nombre, numero, sensores })
+    });
+
+    if (!res.ok) throw new Error("Fallo al obtener exactitud");
+
+    const exactitudTexto = await res.text();
+
+    csv += `\n\nSECCIÓN 2 - Exactitud de sensores (calculado por IA)\n`;
+    csv += `Parcela,Sensor,Valor ideal,Exactitud (%),Fecha\n`;
+
+    const lineas = exactitudTexto.trim().split("\n").slice(1); // Saltar encabezado original
+    lineas.forEach(line => {
+      const partes = line.split(",");
+      if (partes.length >= 5) {
+      const [parcela, sensor, ideal, exactitud, fecha] = partes;
+      const exactitudFmt = parseFloat(exactitud).toFixed(2);
+      const idealFmt = parseFloat(ideal).toFixed(2);
+      csv += `${parcela},${sensor},${idealFmt},${exactitudFmt},${fecha}\n`;
+    }
+  });
+
+
+  } catch (e) {
+    console.error("❌ Error al obtener exactitud:", e);
+    csv += "\n\nExactitud: Error al obtener los datos.\n";
+  }
+
+  // 3. Descargar
+  const BOM = "\uFEFF";
+  const blob = new Blob([BOM + csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `datos_y_exactitud_parcela_${numero}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 });
 
 
@@ -360,68 +453,134 @@ async function cargarCultivos() {
 document.addEventListener("DOMContentLoaded", cargarCultivos);
 
 
-document.getElementById("select-tipo").addEventListener("change", function () {
-  const tipoSeleccionado = this.value;
-  const valoresSensor = datosActuales[tipoSeleccionado];
+//------ Calcular porcentaje de exactitud ------//
+document.addEventListener("DOMContentLoaded", () => {
 
-  const selectValores = document.getElementById("select-valor");
-  selectValores.innerHTML = '<option value="">Seleccione un valor</option>';
+  document.getElementById("select-tipo").addEventListener("change", async function () {
+    const tipoSeleccionado = this.value;
+    const valoresSensor = datosActuales[tipoSeleccionado];
 
-  if (Array.isArray(valoresSensor)) {
-    const valoresUnicos = new Set();
+    const campoGeneral = document.getElementById("valor-ideal-ia");
+    const boxNutrientes = document.getElementById("nutrientes-ideales");
 
-    valoresSensor.forEach(entry => {
-      let valor;
-      if (tipoSeleccionado === "Temperatura Ambiente") valor = entry.temperatura;
-      else if (tipoSeleccionado === "Humedad del suelo") valor = entry.humedad_suelo;
-      else if (tipoSeleccionado === "Nivel de PH") valor = entry.ph_suelo;
-      else if (tipoSeleccionado === "Nivel de Nutrientes") {
-        const n = entry.nutrientes?.["nitrógeno"];
-        const p = entry.nutrientes?.["fósforo"];
-        const k = entry.nutrientes?.["potasio"];
-        valor = Math.round((n + p + k) / 3);
+    // Mostrar campo correspondiente
+    if (tipoSeleccionado === "Nivel de Nutrientes") {
+      campoGeneral.style.display = "none";
+      boxNutrientes.style.display = "flex";
+    } else {
+      campoGeneral.style.display = "block";
+      boxNutrientes.style.display = "none";
+    }
+
+    // Nombre y número de parcela
+    const nombre = document.getElementById("info-nombre").textContent;
+    const numero = document.getElementById("info-numero").textContent;
+    const nombreCompletoParcela = `${nombre} - Parcela ${numero}`;
+
+    //  Llamada al backend para IA
+    try {
+      const res = await fetch("http://localhost:5000/valor-ideal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ parcela: nombreCompletoParcela, sensor: tipoSeleccionado })
+      });
+
+      const data = await res.json();
+      console.log("📦 Respuesta IA:", data);
+
+      if (tipoSeleccionado === "Nivel de Nutrientes") {
+        const [n, p, k] = data.valor_ideal_npk || [];
+        document.getElementById("valor-n").value = isNaN(data.n) ? "" : data.n;
+        document.getElementById("valor-p").value = isNaN(data.p) ? "" : data.p;
+        document.getElementById("valor-k").value = isNaN(data.k) ? "" : data.k;
+      } else {
+        campoGeneral.value = data.valor_ideal ?? "⚠️ Sin valor";
       }
 
-      if (valor !== undefined && !valoresUnicos.has(valor)) {
-        valoresUnicos.add(valor);
-        const opt = document.createElement("option");
-        opt.value = valor;
-        opt.textContent = valor;
-        selectValores.appendChild(opt);
+    } catch (e) {
+      console.error("❌ Error al obtener valor ideal IA:", e);
+    }
+
+    // Cargar valores históricos únicos (no necesario para nutrientes)
+    if (Array.isArray(valoresSensor)) {
+      const valoresUnicos = new Set();
+
+      valoresSensor.forEach(entry => {
+        let valor;
+        if (tipoSeleccionado === "Temperatura Ambiente") valor = entry.temperatura;
+        else if (tipoSeleccionado === "Humedad del suelo") valor = entry.humedad_suelo;
+        else if (tipoSeleccionado === "Nivel de PH") valor = entry.ph_suelo;
+        else if (tipoSeleccionado === "Nivel de Nutrientes") {
+          const n = entry.nutrientes?.["nitrógeno"];
+          const p = entry.nutrientes?.["fósforo"];
+          const k = entry.nutrientes?.["potasio"];
+          valor = Math.round((n + p + k) / 3);
+        }
+
+        if (valor !== undefined && !valoresUnicos.has(valor)) {
+          valoresUnicos.add(valor);
+        }
+      });
+    }
+  });
+
+  //  Botón calcular exactitud
+  document.getElementById("btn-calcular-exactitud").addEventListener("click", async () => {
+    const tipo = document.getElementById("select-tipo").value;
+    const nombre = document.getElementById("info-nombre").textContent;
+    const numero = document.getElementById("info-numero").textContent;
+    const contenedor = document.getElementById("lista-exactitud");
+    contenedor.innerHTML = "";
+
+    if (tipo === "Nivel de Nutrientes") {
+      // Calcular exactitud por N, P y K
+      const nutrientes = [
+        { clave: "nitrógeno", valor: parseFloat(document.getElementById("valor-n").value) },
+        { clave: "fósforo", valor: parseFloat(document.getElementById("valor-p").value) },
+        { clave: "potasio", valor: parseFloat(document.getElementById("valor-k").value) }
+      ];
+
+     for (const nut of nutrientes) {
+      if (isNaN(nut.valor)) continue;
+
+      const res = await fetch(`http://localhost:5000/api/exactitud_sensor?nombre=${encodeURIComponent(nombre)}&numero=${numero}&tipo=${encodeURIComponent(nut.clave)}&valor_ideal=${nut.valor}`);
+
+        const data = await res.json();
+
+        if (!data.error) {
+          const li = document.createElement("li");
+          li.textContent = `Exactitud de ${nut.clave} (${nut.valor}): ${data.exactitud}%`;
+          contenedor.appendChild(li);
+        } else {
+          contenedor.innerHTML += `<li>Error al obtener exactitud de ${nut.clave}</li>`;
+        }
       }
-    });
-  }
+
+    } else {
+      const valorIdeal = parseFloat(document.getElementById("valor-ideal-ia").value);
+      if (!tipo || isNaN(valorIdeal)) {
+        alert("Debes seleccionar un tipo de sensor y definir el valor ideal.");
+        return;
+      }
+
+      const res = await fetch(`http://localhost:5000/api/exactitud_sensor?nombre=${encodeURIComponent(nombre)}&numero=${numero}&tipo=${encodeURIComponent(tipo)}&valor_ideal=${valorIdeal}`);
+      const data = await res.json();
+
+      if (!data.error) {
+        const li = document.createElement("li");
+        li.textContent = `La exactitud de ${tipo.toLowerCase()} (${valorIdeal}) ha estado presente en un ${data.exactitud}% de los datos.`;
+        contenedor.appendChild(li);
+      } else {
+        contenedor.innerHTML = "<li>Error al obtener datos</li>";
+      }
+    }
+  });
 });
 
 
-//---------------BOTON
 
-document.getElementById("btn-calcular-exactitud").addEventListener("click", async () => {
-  const tipo = document.getElementById("select-tipo").value;
-  const valorIdeal = parseFloat(document.getElementById("select-valor").value);
 
-  const nombre = document.getElementById("info-nombre").textContent;
-  const numero = document.getElementById("info-numero").textContent;
 
-  if (!tipo || isNaN(valorIdeal)) {
-    alert("Debes seleccionar un tipo de sensor y definir el valor ideal.");
-    return;
-  }
-
-  const res = await fetch(`http://localhost:5000/api/exactitud_sensor?nombre=${encodeURIComponent(nombre)}&numero=${numero}&tipo=${encodeURIComponent(tipo)}&valor_ideal=${valorIdeal}`);
-  const data = await res.json();
-
-  const contenedor = document.getElementById("lista-exactitud");
-  contenedor.innerHTML = "";
-
-  if (!data.error) {
-    const li = document.createElement("li");
-    li.textContent = `La exactitud de ${tipo.toLowerCase()} (${valorIdeal}) ha estado presente en un ${data.exactitud}% de los datos.`;
-    contenedor.appendChild(li);
-  } else {
-    contenedor.innerHTML = "<li>Error al obtener datos</li>";
-  }
-});
 
 
 

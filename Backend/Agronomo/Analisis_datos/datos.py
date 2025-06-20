@@ -128,25 +128,21 @@ def calcular_exactitud_sensor():
     if not nombre or numero is None or not tipo or valor_ideal is None:
         return jsonify({"error": "Faltan parámetros"}), 400
 
-    db_sensores = db["datos_sensores"]
     parcela_id = f"{nombre} - Parcela {numero}"
-
-    registros = list(db_sensores.find({"parcela": parcela_id, "tipo": tipo}))
+    registros = list(db["datos_sensores"].find({"parcela": parcela_id, "tipo": "Nivel de Nutrientes" if tipo in ["nitrógeno", "fósforo", "potasio"] else tipo}))
 
     if not registros:
         return jsonify({"error": "No hay datos para este sensor"}), 404
 
-    # Determinar el campo del valor según tipo
-    campo_valor = ""
+    # Detectar campo correcto
     if tipo == "Temperatura Ambiente":
         campo_valor = "temperatura"
     elif tipo == "Humedad del suelo":
         campo_valor = "humedad_suelo"
     elif tipo == "Nivel de PH":
         campo_valor = "ph_suelo"
-    elif tipo == "Nivel de Nutrientes":
-        # Usaremos el promedio de N, P, K
-        campo_valor = "nutrientes"
+    elif tipo in ["nitrógeno", "fósforo", "potasio"]:
+        campo_valor = f"nutrientes.{tipo}"
     else:
         return jsonify({"error": "Tipo de sensor no reconocido"}), 400
 
@@ -157,12 +153,10 @@ def calcular_exactitud_sensor():
     for r in registros:
         total += 1
 
-        if campo_valor == "nutrientes":
-            n = r.get("nutrientes", {}).get("nitrógeno", 0)
-            p = r.get("nutrientes", {}).get("fósforo", 0)
-            k = r.get("nutrientes", {}).get("potasio", 0)
-            promedio = (n + p + k) / 3
-            valor = promedio
+        # Extraer el valor dependiendo del campo
+        if campo_valor.startswith("nutrientes."):
+            clave = campo_valor.split(".")[1]
+            valor = r.get("nutrientes", {}).get(clave)
         else:
             valor = r.get(campo_valor)
 
@@ -180,6 +174,7 @@ def calcular_exactitud_sensor():
         "exactitud": exactitud
     })
 
+
 @analisis_datos_blueprint.route("/api/cultivos", methods=["GET"])
 def obtener_valores_ideales_por_cultivo():
     try:
@@ -189,6 +184,73 @@ def obtener_valores_ideales_por_cultivo():
     except Exception as e:
         print("ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
+    
+
+@analisis_datos_blueprint.route("/api/exportar_exactitud_csv", methods=["POST"])
+def exportar_exactitud_csv():
+    from flask import Response
+    from io import StringIO
+    import csv
+    try:
+        data = request.get_json(force=True)
+        nombre = data.get("nombre")
+        numero = data.get("numero")
+        sensores = data.get("sensores")
+
+        if not nombre or numero is None or not sensores:
+            return jsonify({"error": "Faltan datos"}), 400
+
+        parcela_id = f"{nombre} - Parcela {numero}"
+        registros = db["datos_sensores"]
+        salida = StringIO()
+        writer = csv.writer(salida)
+        writer.writerow(["Parcela", "Tipo Sensor", "Valor Ideal", "Exactitud (%)", "Fecha"])
+
+        for sensor in sensores:
+            tipo = sensor.get("tipo")
+            valor_ideal = sensor.get("valor_ideal")
+            if tipo is None or valor_ideal is None:
+                continue
+
+            docs = list(registros.find({"parcela": parcela_id, "tipo": "Nivel de Nutrientes" if tipo in ["nitrógeno", "fósforo", "potasio"] else tipo}))
+            if not docs:
+                continue
+
+            campo = {
+                "Temperatura Ambiente": "temperatura",
+                "Humedad del suelo": "humedad_suelo",
+                "Nivel de PH": "ph_suelo"
+            }.get(tipo, f"nutrientes.{tipo}" if tipo in ["nitrógeno", "fósforo", "potasio"] else None)
+
+            if not campo:
+                continue
+
+            total = 0
+            dentro = 0
+            tolerancia = float(valor_ideal) * 0.02
+
+            for doc in docs:
+                total += 1
+                valor = None
+                if campo.startswith("nutrientes."):
+                    clave = campo.split(".")[1]
+                    valor = doc.get("nutrientes", {}).get(clave)
+                else:
+                    valor = doc.get(campo)
+
+                if valor is not None and (float(valor_ideal) - tolerancia) <= valor <= (float(valor_ideal) + tolerancia):
+                    dentro += 1
+
+            exactitud = round((dentro / total) * 100, 2) if total else 0
+            writer.writerow([parcela_id, tipo, valor_ideal, exactitud, datetime.now().strftime("%Y-%m-%d %H:%M:%S")])
+
+        return Response(salida.getvalue(), mimetype="text/csv")
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
 
 
 

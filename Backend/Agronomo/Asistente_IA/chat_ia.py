@@ -582,3 +582,100 @@ def analisis_riego():
     except Exception as e:
         print("❌ Error interno en análisis de riego:", e)
         return jsonify({"error": "Error interno del servidor"}), 500
+    
+# ---------------------------------------------------
+@chat_ia_blueprint.route("/valor-ideal", methods=["POST"])
+def obtener_valor_ideal():
+    try:
+        data = request.get_json(force=True)
+        parcela = data.get("parcela", "").strip()
+        sensor = data.get("sensor", "").strip()
+
+        if not parcela or not sensor:
+            return jsonify({"error": "Debes proporcionar 'parcela' y 'sensor'"}), 400
+
+        if " - Parcela " not in parcela:
+            return jsonify({"error": "Formato de parcela inválido"}), 400
+
+        nombre, num = parcela.split(" - Parcela ")
+        try:
+            numero = int(num)
+        except ValueError:
+            return jsonify({"error": "Número de parcela inválido"}), 400
+
+        doc = db["datos_parcelas"].find_one({"nombre": nombre, "numero": numero})
+        if not doc or "cultivo" not in doc:
+            return jsonify({"error": "No se encontró cultivo asociado a la parcela"}), 404
+
+        cultivo = doc["cultivo"]
+
+        # Prompt especial para nutrientes
+        if sensor.lower() == "nivel de nutrientes":
+            prompt = (
+                f"Eres un asesor agrícola experto. Para un cultivo de '{cultivo}', "
+                f"indica los valores ideales de nitrógeno, fósforo y potasio como números separados. "
+                f"Responde solo en este formato exacto: N: [número], P: [número], K: [número]. "
+                f"No agregues explicaciones."
+            )
+        else:
+            prompt = (
+                f"Eres un asesor agrícola experto. Para un cultivo de '{cultivo}', "
+                f"indica el valor ideal del sensor '{sensor}' como un número exacto (sin texto). "
+                f"Por ejemplo: 23.5 o 6.8. No expliques nada, solo devuelve el número ideal."
+            )
+
+        mensajes = [
+            {"role": "system", "content": "Eres un asesor agrícola que responde con precisión en formato numérico."},
+            {"role": "user", "content": prompt}
+        ]
+
+        headers = {
+            "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
+            "Content-Type": "application/json"
+        }
+
+        body = {
+            "model": os.getenv("OPENROUTER_MODEL"),
+            "messages": mensajes
+        }
+
+        response = requests.post(os.getenv("OPENROUTER_API_URL"), json=body, headers=headers, timeout=30)
+        response.raise_for_status()
+        texto_ia = response.json()["choices"][0]["message"]["content"].strip()
+
+        # Si es nutrientes, parsear tres valores
+        if sensor.lower() == "nivel de nutrientes":
+            import re
+            match = re.search(r"N:\s*(\d+(?:\.\d+)?),\s*P:\s*(\d+(?:\.\d+)?),\s*K:\s*(\d+(?:\.\d+)?)", texto_ia)
+            if match:
+                return jsonify({
+                    "sensor": sensor,
+                    "cultivo": cultivo,
+                    "n": float(match.group(1)),
+                    "p": float(match.group(2)),
+                    "k": float(match.group(3))
+                }), 200
+            else:
+                print("❌ La IA no devolvió NPK válido:", texto_ia)
+                return jsonify({"error": "Formato incorrecto", "respuesta_cruda": texto_ia}), 500
+
+        # Caso normal (valor único)
+        try:
+            valor_ideal = float(texto_ia)
+        except ValueError:
+            print("❌ La IA no devolvió un número válido:", texto_ia)
+            return jsonify({"error": "La IA no devolvió un número válido", "respuesta_cruda": texto_ia}), 500
+
+        return jsonify({
+            "cultivo": cultivo,
+            "sensor": sensor,
+            "valor_ideal": valor_ideal
+        }), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(" Prompt enviado a IA:", prompt if 'prompt' in locals() else "N/A")
+        print(" Respuesta cruda IA:", texto_ia if 'texto_ia' in locals() else "N/A")
+        return jsonify({"error": "Fallo al obtener valor ideal", "detalle": str(e)}), 500
+

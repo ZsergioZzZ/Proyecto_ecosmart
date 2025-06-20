@@ -152,7 +152,7 @@ if __name__ == "__main__":
 
     # Lanzar subprocesos
     #generador_proc = iniciar_generador()
-    notificacion_proc = iniciar_notificacion()
+    #notificacion_proc = iniciar_notificacion()
     #pronostico_proc = iniciar_pronostico()
 
     # Logs de estado
