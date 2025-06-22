@@ -13,29 +13,38 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
       document.getElementById("nombre-usuario-tecnico").textContent = nombre;
     }
   </script>
-  <!-- 
-  Menú desplegable oculto 
-  -->
-  <div id="menuOpciones" style="display: none; width: 203px; position: absolute; top: 120px; left: 1270px; background: #344E41; border-radius: 10px; padding: 10px;">
-    <a href="/Frontend/Inicio_de_sesion/Inicio/inicio.html"
-      style="display: flex; justify-content: center; color: white; text-decoration: none; font-family: IBM Plex Mono; font-weight: 550; font-size: 18px;">
+
+  <!-- Menú desplegable oculto -->
+  <div id="menuOpciones"
+      style="display: none; width: 203px; position: absolute;
+              top: 120px; left: 1270px; background: #344E41;
+              border-radius: 10px; padding: 10px;">
+    <a id="logoutLink"
+      href="/Frontend/Inicio_de_sesion/Inicio/inicio.html"
+      style="display: flex; justify-content: center; color: white;
+              text-decoration: none; font-family: IBM Plex Mono;
+              font-weight: 550; font-size: 18px;">
       Cerrar sesión
     </a>
   </div>
 
   <script>
-    // Mostrar/ocultar menú al hacer clic en el avatar o nombre
     const avatar = document.querySelector('img[src="imagenes/avatar.png"]');
     const nombreUsuario = document.getElementById("nombre-usuario-tecnico");
     const menu = document.getElementById("menuOpciones");
+    const logoutLink = document.getElementById("logoutLink");
 
     function toggleMenu() {
       menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
     }
-
     avatar.addEventListener("click", toggleMenu);
     nombreUsuario.addEventListener("click", toggleMenu);
-  </script>  
+
+    // Al cerrar sesión, limpiar storage y permitir navegación
+    logoutLink.addEventListener("click", () => {
+      localStorage.clear();
+    });
+  </script>
 
   <!--Navegacion paginas-->
   <a href="/Frontend/Tecnico/Inicio/inicio_tecnico.html"
@@ -63,8 +72,16 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
       <input type="text" id="apellidos" placeholder="Apellidos..." style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
       <label>Email</label><br>
-      <input type="email" id="email" placeholder="usuario@gmail.com" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
-
+      <div id="email-wrapper-register" style="border:1px solid #ccc; border-radius:8px; padding:2px; margin-bottom:10px;">
+        <input
+          type="email"
+          id="email"
+          placeholder="usuario@gmail.com"
+          style="width:100%; padding:10px; border:none; outline:none;"
+          onblur="verificarEmailRegistro()"
+        >
+      </div><br>
+      
       <label>Contraseña</label><br>
       <div style="position: relative; width: 100%; margin-bottom: 10px;">
         <input type="password" id="password" placeholder="Mínimo 8 caracteres"

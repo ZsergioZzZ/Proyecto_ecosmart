@@ -132,7 +132,7 @@ def generar_y_guardar_dato(sensor):
         en una parcela llamada {parcela}, ubicada en latitud {lat} y longitud {lon}.
         Entrega solo el JSON:
         {{
-          "ph_suelo": número decimal entre 5.5 y 7.5
+          "ph_suelo": número decimal entre 3.5 y 9.5
         }}
         Sin texto adicional.
         """

@@ -14,28 +14,36 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow: hidden"
   }
   </script>
 
-  <!-- 
-  Menú desplegable oculto 
-  -->
-  <div id="menuOpciones" style="display: none; width: 203px; position: absolute; top: 120px; left: 1270px; background: #344E41; border-radius: 10px; padding: 10px;">
-    <a href="/Frontend/Inicio_de_sesion/Inicio/inicio.html"
-      style="display: flex; justify-content: center; color: white; text-decoration: none; font-family: IBM Plex Mono; font-weight: 550; font-size: 18px;">
+  <!-- Menú desplegable oculto -->
+  <div id="menuOpciones"
+      style="display: none; width: 203px; position: absolute;
+              top: 120px; left: 1270px; background: #344E41;
+              border-radius: 10px; padding: 10px;">
+    <a id="logoutLink"
+      href="/Frontend/Inicio_de_sesion/Inicio/inicio.html"
+      style="display: flex; justify-content: center; color: white;
+              text-decoration: none; font-family: IBM Plex Mono;
+              font-weight: 550; font-size: 18px;">
       Cerrar sesión
     </a>
   </div>
 
   <script>
-    // Mostrar/ocultar menú al hacer clic en el avatar o nombre
     const avatar = document.querySelector('img[src="imagenes/avatar.png"]');
     const nombreUsuario = document.getElementById("nombre-usuario-tecnico");
     const menu = document.getElementById("menuOpciones");
+    const logoutLink = document.getElementById("logoutLink");
 
     function toggleMenu() {
       menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
     }
-
     avatar.addEventListener("click", toggleMenu);
     nombreUsuario.addEventListener("click", toggleMenu);
+
+    // Al cerrar sesión, limpiar storage y permitir navegación
+    logoutLink.addEventListener("click", () => {
+      localStorage.clear();
+    });
   </script>
 
   <!--Navegacion paginas-->

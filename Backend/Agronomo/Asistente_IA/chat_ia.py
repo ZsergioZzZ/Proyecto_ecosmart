@@ -503,59 +503,61 @@ def analisis_riego():
         lon = request.args.get("lon")
         cultivo = request.args.get("cultivo")
 
-        # Validación de parámetros
         if not lat or not lon or not cultivo:
             return jsonify({"error": "Faltan parámetros: 'lat', 'lon' y/o 'cultivo'"}), 400
 
         print(f"📍 Recibido: lat={lat}, lon={lon}, cultivo={cultivo}")
 
-        # Llamada a OpenWeatherMap
-        url_owm = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={OWM_API_KEY}&units=metric&lang=es"
-        response_owm = requests.get(url_owm)
-
-
-        
-        if response_owm.status_code != 200:
+        # 1) Obtener pronóstico
+        url_owm = (
+            f"https://api.openweathermap.org/data/2.5/forecast"
+            f"?lat={lat}&lon={lon}&appid={OWM_API_KEY}&units=metric&lang=es"
+        )
+        resp_owm = requests.get(url_owm)
+        if resp_owm.status_code != 200:
             return jsonify({"error": "Error al obtener datos de OpenWeatherMap"}), 502
 
-        datos_owm = response_owm.json()
-        forecast = datos_owm.get("list", [])[:8]  # solo las próximas 24 horas
-
+        datos_owm = resp_owm.json()
+        forecast = datos_owm.get("list", [])[:8]
         if not forecast:
             return jsonify({"error": "No se recibieron datos de pronóstico"}), 500
 
-        resumen = []
-        for bloque in forecast:
-            resumen.append({
-                "hora": bloque.get("dt_txt"),
-                "temperatura": bloque["main"]["temp"],
-                "humedad": bloque["main"]["humidity"],
-                "nubes": bloque["clouds"]["all"],
-                "viento": bloque["wind"]["speed"]
-            })
+        # Construir resumen para el gráfico
+        resumen = [
+            {
+                "hora": b.get("dt_txt"),
+                "temperatura": b["main"]["temp"],
+                "humedad": b["main"]["humidity"],
+                "nubes": b["clouds"]["all"],
+                "viento": b["wind"]["speed"]
+            }
+            for b in forecast
+        ]
 
-        lluvia_detectada = False
-        for bloque in forecast:
-            if "rain" in bloque and bloque["rain"].get("3h", 0) > 0:
-                lluvia_detectada = True
-                break
+        # 2) Detectar lluvia
+        lluvia_detectada = any(
+            "rain" in b and b["rain"].get("3h", 0) > 0
+            for b in forecast
+        )
 
+        # 3) Preparar prompt base
+        prompt = ""
         if lluvia_detectada:
-            prompt = (
+            prompt += (
                 "⚠️ Se detectó lluvia en el pronóstico. "
                 "Toma eso en cuenta y recomienda si es mejor no regar o posponer el riego.\n\n"
             )
 
-        # Prompt para IA
+        # 4) Añadir contexto de cultivo y datos
         prompt += (
             f"Soy un agricultor que cultiva {cultivo}. "
             "A continuación te entrego datos climáticos por hora para hoy. "
-            "Dime breve y consciso cual es la mejor hora para regar y por qué, considerando temperatura, humedad, nubosidad y viento.\n"
+            "Dime breve y conciso cuál es la mejor hora para regar y por qué, "
+            "considerando temperatura, humedad, nubosidad y viento.\n"
         )
+        prompt += json.dumps(resumen, indent=2)
 
-        prompt += f"{json.dumps(resumen, indent=2)}"
-
-        # Llamada a OpenRouterAI
+        # 5) Llamada a la IA
         response_ai = requests.post(
             OPENROUTER_API_URL,
             headers={
@@ -570,9 +572,8 @@ def analisis_riego():
                 ]
             }
         )
-
-        result = response_ai.json()
-        recomendacion = result["choices"][0]["message"]["content"]
+        result_ai = response_ai.json()
+        recomendacion = result_ai["choices"][0]["message"]["content"]
 
         return jsonify({
             "grafico": resumen,
@@ -582,7 +583,7 @@ def analisis_riego():
     except Exception as e:
         print("❌ Error interno en análisis de riego:", e)
         return jsonify({"error": "Error interno del servidor"}), 500
-    
+
 # ---------------------------------------------------
 @chat_ia_blueprint.route("/valor-ideal", methods=["POST"])
 def obtener_valor_ideal():

@@ -577,10 +577,64 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+// ————————————————
+// Función para limpiar la vista antes de cargar nueva parcela
+// ————————————————
+function clearParcelaInfo() {
+  // Limpiar datos de texto
+  document.getElementById("info-nombre").textContent   = "—";
+  document.getElementById("info-numero").textContent   = "—";
+  document.getElementById("info-ubicacion").textContent= "—";
+  document.getElementById("info-cultivo").textContent  = "—";
 
+  // Limpiar select de tipos
+  const selectTipo = document.getElementById("select-tipo");
+  selectTipo.innerHTML = '<option value="">Seleccione tipo de sensor</option>';
 
+  // Ocultar inputs de nutrientes y campo general
+  document.getElementById("valor-ideal-ia").value = "";
+  document.getElementById("valor-ideal-ia").style.display      = "block";
+  const boxNutrientes = document.getElementById("nutrientes-ideales");
+  boxNutrientes.style.display = "none";
+  document.getElementById("valor-n").value = "";
+  document.getElementById("valor-p").value = "";
+  document.getElementById("valor-k").value = "";
 
+  // Limpiar lista de exactitud
+  document.getElementById("lista-exactitud").innerHTML = "";
 
+  // Limpiar gráficos
+  [graficoTemperatura, graficoHumedad, graficoPh, graficoNutrientes].forEach(g => {
+    g.data.labels = [];
+    g.data.datasets.forEach(ds => ds.data = []);
+    g.update();
+  });
 
+  // Eliminar polígono anterior si existe
+  if (poligono) {
+    map.removeLayer(poligono);
+    poligono = null;
+  }
 
+  // Limpiar datos guardados
+  infoActualParcela = {};
+  datosActuales      = {};
+}
 
+// ————————————————
+// Listener de cambio de parcela
+// ————————————————
+document.getElementById("parcelaAsociada").addEventListener("change", function () {
+  // 1) Limpiar todo
+  clearParcelaInfo();
+
+  // 2) Si no es una opción válida, salimos
+  const valor = this.value;
+  if (!valor.includes(" - Parcela ")) return;
+
+  // 3) El resto de tu lógica para fetch…
+  const [nombre, numeroTexto] = valor.split(" - Parcela ");
+  const numero = numeroTexto.trim();
+
+  // …
+});

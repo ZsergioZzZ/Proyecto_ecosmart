@@ -34,7 +34,7 @@ function cambiarContrasena() {
     return;
     }
 
-    fetch("http://localhost:5001/cambiar-contrasena", {
+    fetch("http://localhost:5000/cambiar-contrasena", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, nuevaContrasena: nueva, clave })
@@ -65,7 +65,7 @@ function enviarClave() {
     boton.disabled = true;
     boton.innerText = "Enviando...";
 
-    fetch("http://localhost:5001/enviar-clave-verificacion", {
+    fetch("http://localhost:5000/enviar-clave-verificacion", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email })
