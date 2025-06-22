@@ -49,6 +49,42 @@ async function registrarUsuario() {
   }
 }
 
+
+// ------------------ Validar entregabilidad de email al registrar ------------------
+async function verificarEmailRegistro() {
+  const input = document.getElementById("email");
+  const wrapper = document.getElementById("email-wrapper-register");
+  const email = input.value.trim();
+
+  // si está vacío, volvemos al estilo por defecto
+  if (!email) {
+    wrapper.style.border = "1px solid #ccc";
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:5000/verificar-email-real", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+
+    if (res.ok && data.deliverability === "DELIVERABLE") {
+      // ✔️ entregable
+      wrapper.style.border = "2px solid green";
+    } else {
+      // 🚫 no entregable
+      wrapper.style.border = "2px solid red";
+    }
+  } catch (err) {
+    console.error("Error validando email:", err);
+    // ❓ fallo de red o servidor
+    wrapper.style.border = "2px solid gray";
+  }
+}
+
+
 function togglePassword() {
   const input = document.getElementById("password");
   const icono = document.getElementById("icono-ojo");

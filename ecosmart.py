@@ -34,8 +34,7 @@ from Backend.Agronomo.Asistente_IA.chat_ia import chat_ia_blueprint
 from Backend.Agricultor.Monitoreo_de_Cultivos.Datos_meteorologicos.datos_meteorologicos import datos_meteo_blueprint
 from Backend.Agricultor.Monitoreo_de_Cultivos.Sensores.sensores import sensores_moni_cultivos_blueprint
 from Backend.Usuario.cambiar_contrasena import cambiar_contrasena_blueprint
-from Backend.Tecnico.Configuracion_sistema.Usuarios.usuarios import cambiar_usuario_tecnico_blueprint
-from Backend.Agricultor.Monitoreo_de_Cultivos.Visualizacion_datos.visualizacion_graficos import visualizacion_g_blueprint
+from Backend.Tecnico.Usuarios.usuarios import cambiar_usuario_tecnico_blueprint
 from Backend.Agronomo.Asistente_IA.recomendacion import sensores_bp
 from Backend.Tecnico.Configuracion_de_alertas.configurar_alerta import configurar_umbrales_alerta_blueprint
 from Backend.Tecnico.Configuracion_de_alertas.notificaciones_app import notificaciones_blueprint
@@ -54,7 +53,6 @@ app.register_blueprint(datos_meteo_blueprint)
 app.register_blueprint(sensores_moni_cultivos_blueprint)
 app.register_blueprint(cambiar_contrasena_blueprint)
 app.register_blueprint(cambiar_usuario_tecnico_blueprint)
-app.register_blueprint(visualizacion_g_blueprint)
 app.register_blueprint(sensores_bp)
 app.register_blueprint(configurar_umbrales_alerta_blueprint)
 app.register_blueprint(notificaciones_blueprint)
@@ -153,7 +151,7 @@ if __name__ == "__main__":
     # Lanzar subprocesos
     #generador_proc = iniciar_generador()
     #notificacion_proc = iniciar_notificacion()
-    #pronostico_proc = iniciar_pronostico()
+    pronostico_proc = iniciar_pronostico()
 
     # Logs de estado
     if not generador_proc:

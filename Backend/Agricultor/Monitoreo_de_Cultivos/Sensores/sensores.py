@@ -70,38 +70,34 @@ def obtener_datos_sensores():
     try:
         nombre = request.args.get("nombre")
         numero = request.args.get("numero")
-
         if not nombre or not numero:
             return jsonify({"error": "Faltan parámetros"}), 400
 
         db_sensores = db["datos_sensores"]
+
+        # Ahora definimos cada nutriente como un tipo separado
         tipos = {
             "Temperatura Ambiente": lambda d: d.get("temperatura"),
             "Humedad del suelo": lambda d: d.get("humedad") or d.get("humedad_suelo"),
             "Nivel de PH": lambda d: d.get("ph") or d.get("ph_suelo"),
-            "Nivel de Nutrientes": lambda d: calcular_promedio_nutrientes(d.get("nutrientes"))
+            "Nitrógeno": lambda d: (d.get("nutrientes") or {}).get("nitrógeno"),
+            "Fósforo":   lambda d: (d.get("nutrientes") or {}).get("fósforo"),
+            "Potasio":   lambda d: (d.get("nutrientes") or {}).get("potasio")
         }
 
-        def calcular_promedio_nutrientes(nutrientes):
-            if not nutrientes:
-                return None
-            valores = [nutrientes.get(k) for k in ["nitrógeno", "fósforo", "potasio"] if nutrientes.get(k) is not None]
-            return round(sum(valores) / len(valores), 1) if valores else None
-
         datos = {}
-
         for tipo, extraer_valor in tipos.items():
             cursor = db_sensores.find(
-                {"parcela": f"{nombre} - Parcela {numero}", "tipo": tipo},
+                {"parcela": f"{nombre} - Parcela {numero}", "tipo": tipo if tipo in ["Temperatura Ambiente","Humedad del suelo","Nivel de PH"] else "Nivel de Nutrientes"},
                 sort=[("timestamp", -1)],
-                limit=2
+                limit=5  # buscamos hasta 5 por si hay nulos
             )
-
             registros = list(cursor)
+            # eliminamos el _id
             for doc in registros:
                 doc.pop("_id", None)
 
-            # Buscar el primer registro con valor válido
+            # buscamos el primer registro donde exista valor propio
             for doc in registros:
                 valor = extraer_valor(doc)
                 if valor is not None:

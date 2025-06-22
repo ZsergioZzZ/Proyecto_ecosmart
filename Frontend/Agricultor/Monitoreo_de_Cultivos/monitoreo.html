@@ -1,85 +1,5 @@
-<!-- Contenedor general aumentado para permitir más scroll -->
 <div data-layer="Agricultor Monitoreo de Cultivos" class="AgricultorMonitoreoDeCultivos"
-  style="width: 1540px; height: 4000px; position: relative; background: #FBF9F4; overflow: visible;">
-
-  <!-- Fondo rectangular oscuro (mantener) -->
-  <div data-layer="Rectangle 29"
-    style="width: 1540px; height: 733px; left: 0px; top: 3080px; position: absolute; background: #344E41; z-index: 1;">
-  </div>
-
-  <!-- Contenido principal desplazado más abajo -->
-  <div style="position: relative; top: 3000px; width: 100%; display: flex; flex-direction: column; align-items: center; font-family: 'IBM Plex Mono'; z-index: 10;">
-
-    <div style="color: #344E41; font-size: 64px; font-weight: 700; margin-bottom: 60px;">
-      Visualización de Datos
-    </div>
-
-    <div style="text-align: center;">
-      <label for="parcelaSelect" style="font-size: 20px; color: #ffffff;margin-right: 10px;">Seleccione una parcela:</label>
-      <select id="parcelaSelect" style="width: 300px; padding: 10px; font-size: 16px; margin-bottom: 30px;"></select>
-
-      <br />
-
-      <label for="tipoDato" style="font-size: 20px;color: #ffffff; margin-right: 10px;">Seleccione tipo de dato:</label>
-      <select id="tipoDato" style="width: 300px; padding: 10px; font-size: 16px; margin-bottom: 40px;">
-        <option value="Temperatura Ambiente">Temperatura Ambiente</option>
-        <option value="Humedad del suelo">Humedad del suelo</option>
-        <option value="Nivel de PH">Nivel de PH</option>
-        <option value="Nivel de Nutrientes">Nivel de Nutrientes</option>
-      </select>
-
-      <br />
-      <canvas id="graficoSensor" width="800" height="400"
-        style="margin-top: 50px; background: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
-      </canvas>
-    </div>
-
-    <!-- Sección de análisis de tendencias -->
-    <div id="analisis-tendencia"
-      style="margin-top: 100px; width: 80%; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: left; font-family: 'IBM Plex Mono'; color: #344E41;">
-      <h2 style="font-size: 32px; margin-bottom: 20px;">Análisis de Tendencias</h2>
-
-      <p id="contexto"><em>Esperando selección...</em></p>
-
-      <div id="analisisVariables">
-        <h3>🌡️ Temperatura</h3>
-        <p><em>Esperando datos...</em></p>
-
-        <h3>💧 Humedad</h3>
-        <p><em>Esperando datos...</em></p>
-
-        <h3>⚗️ pH del Suelo</h3>
-        <p><em>Esperando datos...</em></p>
-
-        <h3>🌱 Nutrientes</h3>
-        <p><em>Esperando datos...</em></p>
-      </div>
-
-      <div id="alertasCriticas">
-        <h3>📌 Eventos Críticos</h3>
-        <p><em>Esperando análisis...</em></p>
-      </div>
-
-      <div id="recomendacionesFinales">
-        <h3>📌 Recomendaciones</h3>
-        <p><em>Se mostrarán recomendaciones aquí.</em></p>
-      </div>
-
-      <button onclick="descargarPDF()"
-        style="margin-top: 20px; padding: 10px 20px; background: #588157; color: white; border: none; border-radius: 8px; cursor: pointer;">
-        Descargar PDF
-      </button>
-    </div>
-
-  </div>
-</div>
-
-<script src="visualizacion_graficos.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-
-
-
+  style="width: 1540px; height: 2900px; position: relative; background: #FBF9F4; overflow: visible;">
 
   <!-- Datos Meteorologicos -->
   <div data-layer="Rectangle Verde Fondo" class="RectangleVerdeFondo" style="width: 1540px; height: 945.88px; left: 0px; top: 2004.12px; position: absolute; background: #344E41; color: white; font-family: 'IBM Plex Mono'; padding: 30px; box-sizing: border-box; overflow-y: auto;">
@@ -96,54 +16,102 @@
 
 
   <!-- -------Sensores------- -->
-  <div style="width: 776px; height: 182px; left: 348px; top: 902px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Sensores</div>    <div data-layer="Rectangle Verde Fondo" class="RectangleVerdeFondo" style="width: 1540px; height: 733px; left: 0px; top: 1084px; position: absolute; background: #344E41"></div>
-  
-  <!--Mapa-->
-  <div id="mapaParcela" style="width: 800px; height: 533px; left: 62px; top: 1184px; position: absolute; border-radius: 16px; z-index: 10;"></div>
+  <div style="width: 776px; height: 182px; left: 348px; top: 902px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 64px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">
+    Sensores
+  </div>
+
+  <div data-layer="Rectangle Verde Fondo" class="RectangleVerdeFondo"
+       style="width: 1540px; height: 733px; left: 0px; top: 1084px; position: absolute; background: #344E41">
+  </div>
+
+  <!-- Mapa -->
+  <div id="mapaParcela"
+       style="width: 800px; height: 533px; left: 62px; top: 1184px; position: absolute; border-radius: 16px; z-index: 10;">
+  </div>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  
   <!-- Cuadro verde claro -->
-  <div data-layer="Rectangle VerdeO Grande" class="RectangleVerdeoGrande" style="width: 550px; height: 533px; left: 908px; top: 1184px; position: absolute; background: #588157; border-radius: 16px"></div>
-  <div data-layer="Rectangle Verde Chico" class="RectangleVerdeChico" style="width: 520px; height: 503px; left: 923px; top: 1199px; position: absolute; background: rgba(163, 177, 138, 0.55); border-radius: 16px"></div>
+  <div data-layer="Rectangle VerdeO Grande" class="RectangleVerdeoGrande"
+       style="width: 550px; height: 533px; left: 908px; top: 1184px; position: absolute; background: #588157; border-radius: 16px">
+  </div>
+  <div data-layer="Rectangle Verde Chico" class="RectangleVerdeChico"
+       style="width: 520px; height: 503px; left: 923px; top: 1199px; position: absolute; background: rgba(163, 177, 138, 0.55); border-radius: 16px">
+  </div>
 
   <!-- Selector de parcela dentro del cuadro verde -->
-  <div style="position: absolute; left: 983px; top: 1215px;">
-    <label for="parcelaAsociada" style="font-size: 20px; color: white;"></label><br />
-    <select id="parcelaAsociada" class="choices-select" style="width: 350px; padding: 8px; font-size: 16px; border-radius: 8px; border: 1px solid #344E41;">
+  <div style="position: absolute; left: 983px; top: 1225px;">
+    <label for="parcelaAsociada" style="font-size: 20px; color: white;">Parcela</label><br />
+    <select id="parcelaAsociada" class="choices-select"
+            style="width: 350px; padding: 8px; font-size: 16px; border-radius: 8px; border: 1px solid #344E41;">
       <option value="">Seleccione una parcela</option>
     </select>
   </div>
 
-  <!-- Indicadores -->
-  <div style="position: absolute; left: 983px; top: 1328px; color: white; font-size: 24px;">Temperatura Ambiente</div>
-  <div class="RectangleTem" style="position: absolute; left: 1261px; top: 1329px; width: 62px; height: 36.72px;
-    background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
-    display: flex; align-items: center; justify-content: center;">
-    <span id="tempValor">--</span><span style="margin-left: 3px;">°C</span>
+  <!-- Tipo de cultivo -->
+  <div style="position: absolute; left: 983px; top: 1315px; color: white; font-size: 20px;">
+    Cultivo
+  </div>
+  <div class="RectangleCultivo"
+       style="position: absolute; left: 1080px; top: 1311px; width: 253px; height: 34.72px;
+              background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
+              display: flex; align-items: center; justify-content: center; padding: 0 8px;">
+    <span id="cultivoValor">--</span>
   </div>
 
-  <div style="position: absolute; left: 983px; top: 1421px; color: white; font-size: 24px;">Humedad del Suelo</div>
-  <div class="RectangleHumd" style="position: absolute; left: 1261px; top: 1422px; width: 62px; height: 36.72px;
-    background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
-    display: flex; align-items: center; justify-content: center;">
+  <!-- Humedad del Suelo -->
+  <div style="position: absolute; left: 983px; top: 1385px; color: white; font-size: 20px;">
+    Humedad del Suelo
+  </div>
+  <div class="RectangleHumd"
+       style="position: absolute; left: 1201px; top: 1381px; width: 62px; height: 34.72px;
+              background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
+              display: flex; align-items: center; justify-content: center;">
     <span id="humedadValor">--</span><span style="margin-left: 3px;">%</span>
   </div>
 
-  <div style="position: absolute; left: 983px; top: 1513px; color: white; font-size: 24px;">Nivel de PH</div>
-  <div class="RectanglePh" style="position: absolute; left: 1261px; top: 1514px; width: 62px; height: 36.72px;
-    background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
-    display: flex; align-items: center; justify-content: center;">
+  <!-- Nivel de PH -->
+  <div style="position: absolute; left: 983px; top: 1451px; color: white; font-size: 20px;">
+    Nivel de PH
+  </div>
+  <div class="RectanglePh"
+       style="position: absolute; left: 1201px; top: 1447px; width: 62px; height: 34.72px;
+              background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
+              display: flex; align-items: center; justify-content: center;">
     <span id="phValor">--</span>
   </div>
 
-  <div style="position: absolute; left: 983px; top: 1606px; color: white; font-size: 24px;">Nivel de Nutrientes</div>
-  <div class="RectangleNutri" style="position: absolute; left: 1259px; top: 1606px; width: 62px; height: 36.72px;
-    background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
-    display: flex; align-items: center; justify-content: center;">
-    <span id="nutrientesValor">--</span>
+  <!-- Nutrientes por separado -->
+  <div style="position: absolute; left: 983px; top: 1521px; color: white; font-size: 20px;">
+    Nitrógeno
   </div>
+  <div class="RectangleNutri"
+       style="position: absolute; left: 1100px; top: 1517px; width: 62px; height: 34.72px;
+              background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
+              display: flex; align-items: center; justify-content: center;">
+    <span id="nitrogenoValor">--</span>
+  </div>
+
+  <div style="position: absolute; left: 983px; top: 1591px; color: white; font-size: 20px;">
+    Fósforo
+  </div>
+  <div class="RectangleNutri"
+       style="position: absolute; left: 1100px; top: 1587px; width: 62px; height: 34.72px;
+              background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
+              display: flex; align-items: center; justify-content: center;">
+    <span id="fosforoValor">--</span>
+  </div>
+
+  <div style="position: absolute; left: 983px; top: 1661px; color: white; font-size: 20px;">
+    Potasio
+  </div>
+  <div class="RectangleNutri"
+       style="position: absolute; left: 1100px; top: 1657px; width: 62px; height: 34.72px;
+              background: #D9D9D9; border-radius: 5px; border: 2px #344E41 solid;
+              display: flex; align-items: center; justify-content: center;">
+    <span id="potasioValor">--</span>
+  </div>
+
 
 
     
@@ -158,36 +126,46 @@
     style="width: 96.62px; height: 45px; left: 1173px; top: 50px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; text-decoration: underline; line-height: 28px; word-wrap: break-word;">
     Atrás
   </a>
-  <div id="nombre-usuario-agronomo" class="Agricultor" style="width: 127px; height: 45px; left: 1336px; top: 50px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Agricultor</div>
+  <div id="nombre-usuario-agricultor" style="width: 127px; height: 45px; left: 1336px; top: 52px; position: absolute; text-align: center; justify-content: center; display: flex; flex-direction: column; color: white; font-size: 20px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Agricultor</div>
   <script>
     const nombre = localStorage.getItem("nombreUsuario");
     if (nombre) {
-      document.getElementById("nombre-usuario-agronomo").textContent = nombre;
+      document.getElementById("nombre-usuario-agricultor").textContent = nombre;
     }
   </script>
-    <!-- 
-  Menú desplegable oculto 
-  -->
-  <div id="menuOpciones" style="display: none; width: 203px; position: absolute; top: 120px; left: 1270px; background: #344E41; border-radius: 10px; padding: 10px;">
-    <a href="/Frontend/Inicio_de_sesion/Inicio/inicio.html"
-      style="display: flex; justify-content: center; color: white; text-decoration: none; font-family: IBM Plex Mono; font-weight: 550; font-size: 18px;">
+
+  <!-- Menú desplegable oculto -->
+  <div id="menuOpciones"
+      style="display: none; width: 203px; position: absolute;
+              top: 120px; left: 1270px; background: #344E41;
+              border-radius: 10px; padding: 10px;">
+    <a id="logoutLink"
+      href="/Frontend/Inicio_de_sesion/Inicio/inicio.html"
+      style="display: flex; justify-content: center; color: white;
+              text-decoration: none; font-family: IBM Plex Mono;
+              font-weight: 550; font-size: 18px;">
       Cerrar sesión
     </a>
   </div>
 
   <script>
-    // Mostrar/ocultar menú al hacer clic en el avatar o nombre
     const avatar = document.querySelector('img[src="imagenes/avatar.png"]');
-    const nombreUsuario = document.getElementById("nombre-usuario-agronomo");
+    const nombreUsuario = document.getElementById("nombre-usuario-agricultor");
     const menu = document.getElementById("menuOpciones");
+    const logoutLink = document.getElementById("logoutLink");
 
+    // Alternar visibilidad del menú
     function toggleMenu() {
       menu.style.display = (menu.style.display === "none" || menu.style.display === "") ? "block" : "none";
     }
-
     avatar.addEventListener("click", toggleMenu);
     nombreUsuario.addEventListener("click", toggleMenu);
-  </script>  
+
+    // Al cerrar sesión, limpiar storage y permitir navegación
+    logoutLink.addEventListener("click", () => {
+      localStorage.clear();
+    });
+  </script>
 
   <script src="sensores.js"></script>
 

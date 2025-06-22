@@ -553,59 +553,61 @@ def analisis_riego():
         lon = request.args.get("lon")
         cultivo = request.args.get("cultivo")
 
-        # Validación de parámetros
         if not lat or not lon or not cultivo:
             return jsonify({"error": "Faltan parámetros: 'lat', 'lon' y/o 'cultivo'"}), 400
 
         print(f"📍 Recibido: lat={lat}, lon={lon}, cultivo={cultivo}")
 
-        # Llamada a OpenWeatherMap
-        url_owm = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={OWM_API_KEY}&units=metric&lang=es"
-        response_owm = requests.get(url_owm)
-
-
-        
-        if response_owm.status_code != 200:
+        # 1) Obtener pronóstico
+        url_owm = (
+            f"https://api.openweathermap.org/data/2.5/forecast"
+            f"?lat={lat}&lon={lon}&appid={OWM_API_KEY}&units=metric&lang=es"
+        )
+        resp_owm = requests.get(url_owm)
+        if resp_owm.status_code != 200:
             return jsonify({"error": "Error al obtener datos de OpenWeatherMap"}), 502
 
-        datos_owm = response_owm.json()
-        forecast = datos_owm.get("list", [])[:8]  # solo las próximas 24 horas
-
+        datos_owm = resp_owm.json()
+        forecast = datos_owm.get("list", [])[:8]
         if not forecast:
             return jsonify({"error": "No se recibieron datos de pronóstico"}), 500
 
-        resumen = []
-        for bloque in forecast:
-            resumen.append({
-                "hora": bloque.get("dt_txt"),
-                "temperatura": bloque["main"]["temp"],
-                "humedad": bloque["main"]["humidity"],
-                "nubes": bloque["clouds"]["all"],
-                "viento": bloque["wind"]["speed"]
-            })
+        # Construir resumen para el gráfico
+        resumen = [
+            {
+                "hora": b.get("dt_txt"),
+                "temperatura": b["main"]["temp"],
+                "humedad": b["main"]["humidity"],
+                "nubes": b["clouds"]["all"],
+                "viento": b["wind"]["speed"]
+            }
+            for b in forecast
+        ]
 
-        lluvia_detectada = False
-        for bloque in forecast:
-            if "rain" in bloque and bloque["rain"].get("3h", 0) > 0:
-                lluvia_detectada = True
-                break
+        # 2) Detectar lluvia
+        lluvia_detectada = any(
+            "rain" in b and b["rain"].get("3h", 0) > 0
+            for b in forecast
+        )
 
+        # 3) Preparar prompt base
+        prompt = ""
         if lluvia_detectada:
-            prompt = (
+            prompt += (
                 "⚠️ Se detectó lluvia en el pronóstico. "
                 "Toma eso en cuenta y recomienda si es mejor no regar o posponer el riego.\n\n"
             )
 
-        # Prompt para IA
+        # 4) Añadir contexto de cultivo y datos
         prompt += (
             f"Soy un agricultor que cultiva {cultivo}. "
             "A continuación te entrego datos climáticos por hora para hoy. "
-            "Dime breve y consciso cual es la mejor hora para regar y por qué, considerando temperatura, humedad, nubosidad y viento.\n"
+            "Dime breve y conciso cuál es la mejor hora para regar y por qué, "
+            "considerando temperatura, humedad, nubosidad y viento.\n"
         )
+        prompt += json.dumps(resumen, indent=2)
 
-        prompt += f"{json.dumps(resumen, indent=2)}"
-
-        # Llamada a OpenRouterAI
+        # 5) Llamada a la IA
         response_ai = requests.post(
             OPENROUTER_API_URL,
             headers={
@@ -620,9 +622,8 @@ def analisis_riego():
                 ]
             }
         )
-
-        result = response_ai.json()
-        recomendacion = result["choices"][0]["message"]["content"]
+        result_ai = response_ai.json()
+        recomendacion = result_ai["choices"][0]["message"]["content"]
 
         return jsonify({
             "grafico": resumen,
@@ -632,3 +633,101 @@ def analisis_riego():
     except Exception as e:
         print("❌ Error interno en análisis de riego:", e)
         return jsonify({"error": "Error interno del servidor"}), 500
+
+# ---------------------------------------------------
+@chat_ia_blueprint.route("/valor-ideal", methods=["POST"])
+def obtener_valor_ideal():
+    try:
+        data = request.get_json(force=True)
+        parcela = data.get("parcela", "").strip()
+        sensor = data.get("sensor", "").strip()
+
+        if not parcela or not sensor:
+            return jsonify({"error": "Debes proporcionar 'parcela' y 'sensor'"}), 400
+
+        if " - Parcela " not in parcela:
+            return jsonify({"error": "Formato de parcela inválido"}), 400
+
+        nombre, num = parcela.split(" - Parcela ")
+        try:
+            numero = int(num)
+        except ValueError:
+            return jsonify({"error": "Número de parcela inválido"}), 400
+
+        doc = db["datos_parcelas"].find_one({"nombre": nombre, "numero": numero})
+        if not doc or "cultivo" not in doc:
+            return jsonify({"error": "No se encontró cultivo asociado a la parcela"}), 404
+
+        cultivo = doc["cultivo"]
+
+        # Prompt especial para nutrientes
+        if sensor.lower() == "nivel de nutrientes":
+            prompt = (
+                f"Eres un asesor agrícola experto. Para un cultivo de '{cultivo}', "
+                f"indica los valores ideales de nitrógeno, fósforo y potasio como números separados. "
+                f"Responde solo en este formato exacto: N: [número], P: [número], K: [número]. "
+                f"No agregues explicaciones."
+            )
+        else:
+            prompt = (
+                f"Eres un asesor agrícola experto. Para un cultivo de '{cultivo}', "
+                f"indica el valor ideal del sensor '{sensor}' como un número exacto (sin texto). "
+                f"Por ejemplo: 23.5 o 6.8. No expliques nada, solo devuelve el número ideal."
+            )
+
+        mensajes = [
+            {"role": "system", "content": "Eres un asesor agrícola que responde con precisión en formato numérico."},
+            {"role": "user", "content": prompt}
+        ]
+
+        headers = {
+            "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
+            "Content-Type": "application/json"
+        }
+
+        body = {
+            "model": os.getenv("OPENROUTER_MODEL"),
+            "messages": mensajes
+        }
+
+        response = requests.post(os.getenv("OPENROUTER_API_URL"), json=body, headers=headers, timeout=30)
+        response.raise_for_status()
+        texto_ia = response.json()["choices"][0]["message"]["content"].strip()
+
+        # Si es nutrientes, parsear tres valores
+        if sensor.lower() == "nivel de nutrientes":
+            import re
+            match = re.search(r"N:\s*(\d+(?:\.\d+)?),\s*P:\s*(\d+(?:\.\d+)?),\s*K:\s*(\d+(?:\.\d+)?)", texto_ia)
+            if match:
+                return jsonify({
+                    "sensor": sensor,
+                    "cultivo": cultivo,
+                    "n": float(match.group(1)),
+                    "p": float(match.group(2)),
+                    "k": float(match.group(3))
+                }), 200
+            else:
+                print("❌ La IA no devolvió NPK válido:", texto_ia)
+                return jsonify({"error": "Formato incorrecto", "respuesta_cruda": texto_ia}), 500
+
+        # Caso normal (valor único)
+        try:
+            valor_ideal = float(texto_ia)
+        except ValueError:
+            print("❌ La IA no devolvió un número válido:", texto_ia)
+            return jsonify({"error": "La IA no devolvió un número válido", "respuesta_cruda": texto_ia}), 500
+
+        return jsonify({
+            "cultivo": cultivo,
+            "sensor": sensor,
+            "valor_ideal": valor_ideal
+        }), 200
+
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(" Prompt enviado a IA:", prompt if 'prompt' in locals() else "N/A")
+        print(" Respuesta cruda IA:", texto_ia if 'texto_ia' in locals() else "N/A")
+        return jsonify({"error": "Fallo al obtener valor ideal", "detalle": str(e)}), 500
+
+
