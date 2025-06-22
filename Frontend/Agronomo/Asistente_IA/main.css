@@ -26,6 +26,7 @@
 
 html, body {
   height: 100%;
+  margin: 0%;
   background-color: var(--gris-fondo);
   font-family: var(--font-principal);
   color: var(--texto-oscuro);
@@ -41,7 +42,7 @@ ul, li {
 -------------------------------------------- */
 .app-container {
   display: flex;
-  height: 100vh; /* Toda la altura de la ventana */
+  height: 100%; /* Toda la altura de la ventana */
 }
 
 /* --------------------------------------------
@@ -169,9 +170,17 @@ ul, li {
 .main-contenido {
   display: flex;
   flex-direction: column;
-  height: 100vh;            /* Ocupa toda la ventana vertical */
+
+  /* <<< esto es lo nuevo: crece para llenar el ancho restante >>> */
+  flex: 1;
+
+  /* opcionalmente puedes quitar el height:100vh, 
+     pero si lo dejas, asegúrate de que html, body y .app-container 
+     tengan 100% de altura (ya lo tienes) */
+  height: 100vh;
+
   background-color: var(--gris-fondo);
-  padding: 0;               /* Sin padding extra */
+  padding: 0;
   position: relative;
   overflow: hidden;
 }
@@ -199,8 +208,8 @@ ul, li {
 -------------------------------------------- */
 .enlace-atras {
   position: absolute;
-  top: 16px;
-  right: 24px;
+  top: 55px;
+  right: 70px;
   z-index: 10;
 }
 
@@ -462,4 +471,31 @@ ul, li {
     padding: 6px 12px;
     font-size: 12px;
   }
+}
+
+/* Contenedor de los puntitos */
+.mensaje-escribiendo {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+}
+
+/* Cada puntito */
+.mensaje-escribiendo .dot {
+  width: 8px;
+  height: 8px;
+  margin: 0 4px;
+  background-color: #2f6d2f; /* verde IA */
+  border-radius: 50%;
+  animation: blink 1s infinite ease-in-out;
+}
+
+/* Diferir las animaciones para cada dot */
+.mensaje-escribiendo .dot:nth-child(2) { animation-delay: 0.2s; }
+.mensaje-escribiendo .dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* keyframes para el parpadeo */
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0.2; }
+  40%          { opacity: 1;   }
 }

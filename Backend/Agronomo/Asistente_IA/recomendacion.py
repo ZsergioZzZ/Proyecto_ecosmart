@@ -24,17 +24,23 @@ sensores_col = db["datos_sensores"]
 
 @sensores_bp.route("/parcelas_recomendacion-ia", methods=["GET"])
 def listar_parcelas():
-    """
-    Devuelve [ { "_id": "<hex_id>", "displayName": "NombreParcela - Parcela <numero>" }, ... ]
-    """
+    # 1) Leer el email que viene por query-string
+    user_email = request.args.get("email", "").strip()
+    if not user_email:
+        return jsonify({"error": "Falta parámetro email"}), 400
+
+    # 2) Filtrar documentos donde el array 'usuario' contenga ese email
+    filtro = {"usuario": user_email}
+
+    # 3) Ejecutar la consulta proyectando solo nombre y número
     resultados = []
-    cursor = parcelas_col.find({}, {"nombre": 1, "numero": 1})
+    cursor = parcelas_col.find(filtro, {"nombre": 1, "numero": 1})
     for doc in cursor:
-        _id = str(doc["_id"])
-        nombre = doc.get("nombre", "").strip()
-        numero = doc.get("numero", "")
-        display_name = f"{nombre} - Parcela {numero}"
-        resultados.append({"_id": _id, "displayName": display_name})
+        resultados.append({
+            "_id": str(doc["_id"]),
+            "displayName": f"{doc.get('nombre','').strip()} - Parcela {doc.get('numero','')}"
+        })
+
     return jsonify(resultados), 200
 
 

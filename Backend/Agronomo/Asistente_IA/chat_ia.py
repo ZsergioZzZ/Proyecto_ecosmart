@@ -42,38 +42,36 @@ conversaciones_collection = db["conversaciones_ia"]
 sensores_collection       = db["datos_sensores"]
 parcelas_collection       = db["datos_parcelas"]  # para recuperar el cultivo
 
+PROMPT_BASE = (
+    "Eres un asistente experto en el área de la agricultura. "
+    "Tu función es exclusivamente responder preguntas relacionadas con prácticas agrícolas, "
+    "cultivos, suelo, clima agrícola, enfermedades de plantas, nutrición vegetal, etc. "
+    "Si te hacen una pregunta fuera de ese ámbito, responde amablemente que solo puedes hablar de agricultura.\n\n"
+)
+
 # ==============================================================  
 # FUNCIÓN AUXILIAR: Recuperar historial completo de un chat_id  
 # ==============================================================  
-def _construir_mensajes_desde_historial(chat_id, prompt_nuevo=None):
-    """
-    Recupera del histórico en MongoDB todos los mensajes (pregunta y respuesta)
-    para el chat_id dado, los ordena cronológicamente y construye
-    la lista de 'messages' que necesita OpenRouter.
-    Si prompt_nuevo no es None, lo añade (con role 'user') al final.
-    """
-    mensajes = []
-    # 1) Mensaje 'system' fijo al inicio
-    mensajes.append({"role": "system", "content": "Eres un asistente agronómico experto que brinda recomendaciones según el tipo de cultivo."})
+def _construir_mensajes_desde_historial(user_email, chat_id, prompt_nuevo=None):
+    mensajes = [
+        {"role": "system", "content": PROMPT_BASE}
+    ]
+    filtro = {"user_email": user_email, "chat_id": chat_id}
+    cursor = conversaciones_collection.find(filtro).sort("timestamp", 1)
 
-    # 2) Recuperar todo el historial (pregunta + respuesta) ordenado por timestamp asc
-    cursor = conversaciones_collection.find({"chat_id": chat_id}).sort("timestamp", 1)
     for doc in cursor:
-        pregunta = doc.get("pregunta", "").strip()
-        respuesta = doc.get("respuesta", None)
-        # a) pregunta siempre existe
+        pregunta  = (doc.get("pregunta")  or "").strip()
+        respuesta = (doc.get("respuesta") or "").strip()
+
         if pregunta:
-            mensajes.append({"role": "user", "content": pregunta})
-        # b) si ya hay respuesta (no es None), agregar como mensaje de assistant
+            mensajes.append({"role": "user",      "content": pregunta})
         if respuesta:
             mensajes.append({"role": "assistant", "content": respuesta})
 
-    # 3) Si llega prompt_nuevo (caso texto_libre o sensor), ponerlo al final como user
     if prompt_nuevo:
         mensajes.append({"role": "user", "content": prompt_nuevo})
 
     return mensajes
-
 
 # ==============================================================  
 # RUTA UNIFICADA: /consulta-ia  
@@ -81,224 +79,245 @@ def _construir_mensajes_desde_historial(chat_id, prompt_nuevo=None):
 # ==============================================================  
 @chat_ia_blueprint.route("/consulta-ia", methods=["POST"])
 def consulta_ia():
-
     PROMPT_BASE = (
         "Eres un asistente experto en el área de la agricultura. "
         "Tu función es exclusivamente responder preguntas relacionadas con prácticas agrícolas, "
         "cultivos, suelo, clima agrícola, enfermedades de plantas, nutrición vegetal, etc. "
-        "Si te hacen una pregunta fuera de ese ámbito, responde amablemente que solo puedes responder "
-        "consultas sobre agricultura y no estás autorizado a hablar de otros temas.\n\n"
+        "Si te hacen una pregunta fuera de ese ámbito, responde amablemente que solo puedes hablar de agricultura.\n\n"
     )
 
-
-    data = request.get_json(force=True)
-    chat_id = data.get("chat_id", None)
+    data        = request.get_json(force=True)
+    user_email  = data.get("email",    "").strip()
+    chat_id     = data.get("chat_id", None)
     nombre_chat = data.get("nombre_chat", "")
-    tipo_peticion = data.get("tipo_peticion", "texto_libre").strip()
-    ahora = datetime.utcnow()
+    tipo        = data.get("tipo_peticion", "texto_libre").strip()
+    ahora       = datetime.utcnow()
 
-    # ----------------------------------  
-    # 1) Caso "texto_libre"  
-    # ----------------------------------  
-    if tipo_peticion == "texto_libre":
+    # ----------------------------------------------------
+    # 1) TEXTO LIBRE
+    # ----------------------------------------------------
+        # ----------------------------------------------------
+    # 1) TEXTO LIBRE
+    # ----------------------------------------------------
+    if tipo == "texto_libre":
+        # 1.1) Leer y validar pregunta y cultivo opcional
         pregunta_usuario = data.get("pregunta", "").strip()
-        cultivo_usuario = data.get("cultivo", "").strip()  # Opcional: si el front-end envía cultivo
+        cultivo_usuario  = data.get("cultivo",  "").strip()
         if not pregunta_usuario:
             return jsonify({"error": "El campo 'pregunta' es obligatorio."}), 400
 
-        # Si es un chat nuevo, generamos chat_id
+        # 1.2) Generar chat_id si es un chat nuevo
         if not chat_id:
             chat_id = str(ObjectId())
 
-        # Construir el prompt completo, incluyendo cultivo si se proporciona
-    if cultivo_usuario:
-        prompt_nuevo = (
-            PROMPT_BASE +
-            f"Cultivo: {cultivo_usuario}. " +
-            f"Pregunta: {pregunta_usuario}"
+        # 1.3) Construir la "pregunta limpia" que verá el usuario y se guardará
+        if cultivo_usuario:
+            pregunta_para_usuario = f"Cultivo: {cultivo_usuario}. {pregunta_usuario}"
+        else:
+            pregunta_para_usuario = pregunta_usuario
+
+        # 1.4) El prompt que vamos a enviar a la IA es exactamente esa pregunta limpia
+        prompt_nuevo = pregunta_para_usuario
+
+        # 1.5) Construir todo el historial + este prompt
+        mensajes_para_ia = _construir_mensajes_desde_historial(
+            user_email, 
+            chat_id, 
+            prompt_nuevo=prompt_nuevo
         )
 
-    else:
-        prompt_nuevo = PROMPT_BASE + f"Pregunta: {pregunta_usuario}"
-
-
-        # Antes de insertar en BD, construimos los mensajes completos para enviar a OpenRouter
-        mensajes_para_ia = _construir_mensajes_desde_historial(chat_id, prompt_nuevo=prompt_nuevo)
-
-        # Insertamos la pregunta en MongoDB (respuesta=None por ahora)
+        # 1.6) Guardar en MongoDB **solo** la pregunta limpia
         conversaciones_collection.insert_one({
-            "chat_id": chat_id,
+            "user_email":  user_email,
+            "chat_id":     chat_id,
             "nombre_chat": nombre_chat,
-            "pregunta": prompt_nuevo,
-            "respuesta": None,
-            "timestamp": ahora
+            "pregunta":    pregunta_para_usuario,
+            "respuesta":   None,
+            "timestamp":   ahora
         })
 
-        # Preparar headers y body para OpenRouter
+        # 1.7) Llamar a OpenRouter
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json"
+            "Content-Type":  "application/json"
         }
         body = {
-            "model": OPENROUTER_MODEL,
+            "model":    OPENROUTER_MODEL,
             "messages": mensajes_para_ia
-            # Opcional: podrías agregar aquí "temperature", "max_tokens", etc.
         }
-
         try:
-            respuesta = requests.post(
-                OPENROUTER_API_URL,
-                json=body,
-                headers=headers,
-                timeout=30
-            )
-            respuesta.raise_for_status()
-            data_ia = respuesta.json()
-            texto_ia = data_ia["choices"][0]["message"]["content"].strip()
+            resp     = requests.post(OPENROUTER_API_URL, json=body, headers=headers, timeout=30)
+            resp.raise_for_status()
+            texto_ia = resp.json()["choices"][0]["message"]["content"].strip()
         except Exception as e:
             traceback.print_exc()
             return jsonify({
-                "error": "Fallo al llamar a la API de OpenRouter",
+                "error":  "Fallo al llamar a la API de OpenRouter",
                 "detalle": str(e)
             }), 502
 
-        # Actualizamos la misma fila con la respuesta de IA
+        # 1.8) Actualizar el mismo documento con la respuesta de la IA
         conversaciones_collection.update_one(
-            {"chat_id": chat_id, "pregunta": prompt_nuevo, "respuesta": None},
-            {"$set": {"respuesta": texto_ia, "timestamp": datetime.utcnow()}}
+            {
+                "user_email": user_email,
+                "chat_id":    chat_id,
+                "pregunta":   pregunta_para_usuario,
+                "respuesta":  None
+            },
+            {
+                "$set": {
+                    "respuesta": texto_ia,
+                    "timestamp": datetime.utcnow()
+                }
+            }
         )
 
+        # 1.9) Devolver chat_id y respuesta
         return jsonify({"chat_id": chat_id, "respuesta": texto_ia}), 200
 
-    # ----------------------------------  
-    # 2) Caso "sensor"  
-    # ----------------------------------  
-    if tipo_peticion == "sensor":
-        parcela_full = data.get("parcela", "").strip()  # Ej: "Parcelas Aires de Colchagua - Parcela 1"
-        sensor = data.get("sensor", "").strip()
+
+        # ----------------------------------------------------
+    # 2) SENSOR
+    # ----------------------------------------------------
+    if tipo == "sensor":
+        # 2.1) Leer y validar parámetros
+        parcela_full = data.get("parcela", "").strip()
+        sensor       = data.get("sensor",  "").strip()
         if not parcela_full or not sensor:
             return jsonify({"error": "Los campos 'parcela' y 'sensor' son obligatorios."}), 400
 
-        # --- 2.1) EXTRAER TIPO DE CULTIVO desde datos_parcelas ---
+        # 2.2) Extraer cultivo de la parcela
         cultivo_parcela = ""
         try:
-            # Se asume que la cadena "parcela_full" viene en formato "NombreBase - Parcela N"
             if " - Parcela " in parcela_full:
-                base_nombre, num_str = parcela_full.split(" - Parcela ")
-                numero_int = int(num_str)
-                query = {"nombre": base_nombre, "numero": numero_int}
-                doc_parcela = parcelas_collection.find_one(query)
-                if doc_parcela and "cultivo" in doc_parcela:
-                    cultivo_parcela = doc_parcela["cultivo"]
-        except Exception:
-            # Si algo falla (por ejemplo no coincide el formato), dejamos cultivo_parcela = ""
+                base, num = parcela_full.split(" - Parcela ")
+                doc_par = parcelas_collection.find_one({
+                    "nombre": base,
+                    "numero": int(num)
+                })
+                cultivo_parcela = doc_par.get("cultivo", "") if doc_par else ""
+        except:
             cultivo_parcela = ""
 
-        # --- 2.2) Obtener la última lectura en sensores_collection ---
-        cursor_ultimo = sensores_collection.find(
-            {"parcela": parcela_full, "tipo": sensor}
-        ).sort("timestamp", -1).limit(1)
-        lista_docs = list(cursor_ultimo)
-        if not lista_docs:
+        # 2.3) Obtener la última lectura
+        docs = list(
+            sensores_collection
+              .find({"parcela": parcela_full, "tipo": sensor})
+              .sort("timestamp", -1)
+              .limit(1)
+        )
+        if not docs:
             return jsonify({
                 "error": f"No hay lecturas de '{sensor}' en '{parcela_full}'."
             }), 404
-        lectura = lista_docs[0]
+        lectura = docs[0]
 
-        # --- 2.3) Construir texto_lectura según el tipo de sensor ---
+        # 2.4) Formatear el texto de la lectura
+        campo = sensor.lower().replace(" ", "_")
         if sensor.lower() == "temperatura ambiente":
-            valor = lectura.get("temperatura", None)
-            texto_lectura = f"Temperatura Ambiente: {valor} °C" if valor is not None else "Valor no disponible"
+            valor = lectura.get("temperatura")
+            texto_lectura = f"Temperatura Ambiente: {valor} °C"
         elif sensor.lower() == "nivel de ph":
-            valor = lectura.get("ph_suelo", None)
-            texto_lectura = f"Nivel de pH: {valor}" if valor is not None else "Valor no disponible"
+            valor = lectura.get("ph_suelo")
+            texto_lectura = f"Nivel de pH: {valor}"
         elif sensor.lower() == "humedad del suelo":
-            valor = lectura.get("humedad_suelo", None)
-            texto_lectura = f"Humedad del suelo: {valor} %" if valor is not None else "Valor no disponible"
+            valor = lectura.get("humedad_suelo")
+            texto_lectura = f"Humedad del suelo: {valor} %"
         elif sensor.lower() == "nivel de nutrientes":
             nutr = lectura.get("nutrientes", {})
-            n = nutr.get("nitrógeno", None)
-            p = nutr.get("fósforo", None)
-            k = nutr.get("potasio", None)
-            texto_lectura = f"Nitrógeno: {n}, Fósforo: {p}, Potasio: {k}"
+            texto_lectura = (
+                f"N:{nutr.get('nitrógeno')}, "
+                f"P:{nutr.get('fósforo')}, "
+                f"K:{nutr.get('potasio')}"
+            )
         else:
-            campo = sensor.lower().replace(" ", "_")
-            valor = lectura.get(campo, None)
+            valor = lectura.get(campo)
             texto_lectura = f"{sensor}: {valor}" if valor is not None else "Valor no disponible"
 
-        # --- 2.4) Construir la pregunta automática, incluyendo cultivo_parcela si existe ---
+        # 2.5) Construir la “pregunta limpia” para el usuario
         if cultivo_parcela:
-            pregunta_automatica = (
-                PROMPT_BASE +
-                f"Cultivo: {cultivo_parcela}. Recomendaciones para la parcela '{parcela_full}' "
-                f"basadas en el sensor '{sensor}'. Última lectura: {texto_lectura}. "
-                f"Dame consejos prácticos para optimizar el cultivo o corregir problemas."
+            pregunta_para_usuario = (
+                f"Cultivo: {cultivo_parcela}. "
+                f"Recomendaciones para la parcela '{parcela_full}' basadas en el sensor "
+                f"'{sensor}'. Última lectura: {texto_lectura}. "
+                "Dame consejos prácticos para optimizar el cultivo o corregir problemas."
             )
         else:
-            pregunta_automatica = (
-                PROMPT_BASE +
-                f"Recomendaciones para la parcela '{parcela_full}' basadas en el sensor '{sensor}'. "
-                f"Última lectura: {texto_lectura}. "
-                f"Dame consejos prácticos para optimizar el cultivo o corregir problemas."
+            pregunta_para_usuario = (
+                f"Recomendaciones para la parcela '{parcela_full}' basadas en el sensor "
+                f"'{sensor}'. Última lectura: {texto_lectura}. "
+                "Dame consejos prácticos para optimizar el cultivo o corregir problemas."
             )
 
-        # Si es chat nuevo, generamos chat_id
-        if not chat_id:
-            chat_id = str(ObjectId())
+        # 2.6) Usar EXACTAMENTE esa pregunta como prompt para la IA
+        prompt_nuevo = pregunta_para_usuario
 
-        # --- 2.5) Construir todos los mensajes previos + prompt_nuevo ---
-        mensajes_para_ia = _construir_mensajes_desde_historial(chat_id, prompt_nuevo=pregunta_automatica)
+        # 2.7) Construir mensajes (historial + prompt)
+        mensajes_para_ia = _construir_mensajes_desde_historial(
+            user_email,
+            chat_id,
+            prompt_nuevo=prompt_nuevo
+        )
 
-        # Insertamos la "pregunta automática" en MongoDB (respuesta=None por ahora)
+        # 2.8) Guardar en MongoDB la pregunta limpia
         conversaciones_collection.insert_one({
-            "chat_id": chat_id,
+            "user_email":  user_email,
+            "chat_id":     chat_id,
             "nombre_chat": nombre_chat,
-            "pregunta": pregunta_automatica,
-            "respuesta": None,
-            "timestamp": ahora
+            "pregunta":    pregunta_para_usuario,
+            "respuesta":   None,
+            "timestamp":   ahora
         })
 
-        # Preparar headers y body para OpenRouter usando el prompt automático
+        # 2.9) Llamar a la API de OpenRouter
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json"
+            "Content-Type":  "application/json"
         }
         body = {
-            "model": OPENROUTER_MODEL,
+            "model":    OPENROUTER_MODEL,
             "messages": mensajes_para_ia
         }
-
         try:
-            respuesta = requests.post(
-                OPENROUTER_API_URL,
-                json=body,
-                headers=headers,
-                timeout=30
-            )
-            respuesta.raise_for_status()
-            data_ia = respuesta.json()
-            texto_ia = data_ia["choices"][0]["message"]["content"].strip()
+            resp     = requests.post(
+                          OPENROUTER_API_URL,
+                          json=body,
+                          headers=headers,
+                          timeout=30
+                      )
+            resp.raise_for_status()
+            texto_ia = resp.json()["choices"][0]["message"]["content"].strip()
         except Exception as e:
             traceback.print_exc()
             return jsonify({
-                "error": "Fallo al llamar a la API de OpenRouter",
+                "error":  "Fallo al llamar a la API de OpenRouter",
                 "detalle": str(e)
             }), 502
 
-        # Actualizamos la misma fila con la respuesta de IA
+        # 2.10) Actualizar el documento con la respuesta
         conversaciones_collection.update_one(
-            {"chat_id": chat_id, "pregunta": pregunta_automatica, "respuesta": None},
-            {"$set": {"respuesta": texto_ia, "timestamp": datetime.utcnow()}}
+            {
+                "user_email": user_email,
+                "chat_id":    chat_id,
+                "pregunta":   pregunta_para_usuario,
+                "respuesta":  None
+            },
+            {
+                "$set": {
+                    "respuesta": texto_ia,
+                    "timestamp": datetime.utcnow()
+                }
+            }
         )
 
+        # 2.11) Devolver chat_id y respuesta
         return jsonify({"chat_id": chat_id, "respuesta": texto_ia}), 200
 
-    # ----------------------------------  
-    # 3) Si tipo_peticion no coincide  
-    # ----------------------------------  
-    else:
-        return jsonify({"error": f"Tipo de petición '{tipo_peticion}' no reconocido."}), 400
 
+    # ----------------------------------------------------
+    # 3) tipo_peticion no reconocido
+    # ----------------------------------------------------
+    return jsonify({"error": f"Tipo de petición '{tipo}' no reconocido."}), 400
 
 # ---------------------------------------------------------------------  
 # RUTAS ADICIONALES PARA GESTIÓN DE CHATS  
@@ -306,78 +325,127 @@ def consulta_ia():
 
 @chat_ia_blueprint.route("/historial_chats", methods=["GET"])
 def listar_chats():
-    """
-    Devuelve la lista de IDs y nombres de todos los chats (agrupados por chat_id).
-    """
+    # 1) obtener email de la query
+    user_email = request.args.get("email", "").strip()
+    if not user_email:
+        return jsonify({"error": "El campo 'email' es obligatorio."}), 400
+
+    # 2) pipeline: primero filtrar, luego agrupar y ordenar
     pipeline = [
-        {
-            "$group": {
-                "_id": "$chat_id",
-                "last_fecha": {"$max": "$timestamp"},
-                "nombre_chat": {"$first": "$nombre_chat"}
-            }
-        },
-        {"$sort": {"last_fecha": -1}}
+        {"$match":   {"user_email": user_email}},
+        {"$group":   {
+            "_id":        "$chat_id",
+            "last_fecha": {"$max": "$timestamp"},
+            "nombre_chat":{"$first":"$nombre_chat"}
+        }},
+        {"$sort":    {"last_fecha": -1}}
     ]
     resultados = conversaciones_collection.aggregate(pipeline)
-    lista = []
-    for doc in resultados:
-        lista.append({
-            "chat_id": doc["_id"],
-            "nombre_chat": doc.get("nombre_chat", "")
-        })
+
+    lista = [
+      {"chat_id": doc["_id"], "nombre_chat": doc["nombre_chat"]}
+      for doc in resultados
+    ]
     return jsonify(lista), 200
 
 
 @chat_ia_blueprint.route("/historial/<chat_id>", methods=["GET"])
 def obtener_historial(chat_id):
-    """
-    Recupera todos los mensajes (pregunta y respuesta) de un chat ordenados por fecha.
-    """
-    cursor = conversaciones_collection.find({"chat_id": chat_id}).sort("timestamp", 1)
-    historial = []
-    for doc in cursor:
-        historial.append({
-            "pregunta": doc.get("pregunta", ""),
-            "respuesta": doc.get("respuesta", ""),
-            "timestamp": doc.get("timestamp")
-        })
+    user_email = request.args.get("email", "").strip()
+    if not user_email:
+        return jsonify({"error": "El campo 'email' es obligatorio."}), 400
+
+    # Ahora sí filtramos por chat_id *y* user_email
+    cursor = conversaciones_collection.find(
+        {"chat_id": chat_id, "user_email": user_email}
+    ).sort("timestamp", 1)
+
+    historial = [
+      {
+        "pregunta":  doc.get("pregunta", ""),
+        "respuesta": doc.get("respuesta", ""),
+        "timestamp": doc.get("timestamp")
+      }
+      for doc in cursor
+    ]
     return jsonify(historial), 200
 
 
 @chat_ia_blueprint.route("/crear_chat", methods=["POST"])
 def crear_chat():
     """
-    Crea un nuevo chat vacío. Devuelve el chat_id generado.
+    Crea un nuevo chat vacío para el usuario y devuelve el chat_id generado.
     """
+    data = request.get_json(force=True)
+    user_email  = data.get("email",       "").strip()
+    nombre_chat = data.get("nombre_chat","").strip()  # opcional
+
+    if not user_email:
+        return jsonify({"error": "Falta el campo 'email'"}), 400
+
+    # 1) Generar nuevo chat_id
     chat_id = str(ObjectId())
+    ahora   = datetime.utcnow()
+
+    # 2) Insertar un registro inicial para que el chat aparezca en la lista
+    conversaciones_collection.insert_one({
+        "user_email":  user_email,
+        "chat_id":     chat_id,
+        "nombre_chat": nombre_chat,
+        "pregunta":    "",
+        "respuesta":   "",
+        "timestamp":   ahora
+    })
+
+    # 3) Devolver el chat_id al frontend
     return jsonify({"chat_id": chat_id}), 200
 
 
 @chat_ia_blueprint.route("/renombrar_chat/<chat_id>", methods=["PATCH"])
 def renombrar_chat(chat_id):
-    """
-    Cambia el nombre de un chat (actualiza todos los documentos de ese chat_id).
-    """
-    data = request.get_json(force=True)
-    nuevo_nombre = data.get("nombre_chat", "").strip()
+    data       = request.get_json(force=True)
+    user_email = data.get("email",       "").strip()
+    nuevo_nombre = data.get("nombre_chat","").strip()
+
+    # 1) Validar email
+    if not user_email:
+        return jsonify({"error": "El campo 'email' es obligatorio."}), 400
+    # 2) Validar nuevo nombre
     if not nuevo_nombre:
         return jsonify({"error": "El campo 'nombre_chat' es obligatorio."}), 400
 
+    # 3) Filtrar por chat_id **y** por usuario
     conversaciones_collection.update_many(
-        {"chat_id": chat_id},
+        {
+        "chat_id":    chat_id,
+        "user_email": user_email
+        },
         {"$set": {"nombre_chat": nuevo_nombre}}
     )
-    return jsonify({"chat_id": chat_id, "nombre_chat": nuevo_nombre}), 200
 
+    return jsonify({"chat_id": chat_id, "nombre_chat": nuevo_nombre}), 200
 
 @chat_ia_blueprint.route("/eliminar_chat/<chat_id>", methods=["DELETE"])
 def eliminar_chat(chat_id):
     """
-    Elimina todos los documentos asociados a un chat_id.
+    Elimina todos los documentos asociados a un chat_id para un usuario dado.
     """
-    conversaciones_collection.delete_many({"chat_id": chat_id})
-    return jsonify({"message": f"Chat {chat_id} eliminado."}), 200
+    # 1) Leer el email de la query string en lugar del body
+    user_email = request.args.get("email", "").strip()
+    if not user_email:
+        return jsonify({"error": "El campo 'email' es obligatorio."}), 400
+
+    # 2) Borrar únicamente los docs de ese usuario y chat_id
+    result = conversaciones_collection.delete_many({
+        "chat_id":    chat_id,
+        "user_email": user_email
+    })
+
+    return jsonify({
+        "message":      f"Chat {chat_id} eliminado.",
+        "deletedCount": result.deleted_count
+    }), 200
+
 
 
 @chat_ia_blueprint.route("/ultimo_sensor", methods=["GET"])
@@ -478,24 +546,6 @@ def recomendacion_por_alerta(id_alerta):
         traceback.print_exc()
         return jsonify({"error": "Fallo al generar recomendación", "detalle": str(e)}), 500
 
-@chat_ia_blueprint.route("/parcelas_usuario_ia", methods=["GET"])
-def parcelas_usuario_ia():
-    correo = request.args.get("correo")
-    if not correo:
-        return jsonify({"error": "Correo requerido"}), 400
-    # Busca parcelas donde el usuario esté en el array 'usuario'
-    cursor = db["datos_parcelas"].find({"usuario": correo})
-    lista = []
-    for p in cursor:
-        nombre = p.get("nombre", "")
-        numero = p.get("numero", "")
-        lista.append({
-            "displayName": f"{nombre} - Parcela {numero}",
-            "nombre": nombre,
-            "numero": numero
-        })
-    return jsonify(lista), 200
-
 @chat_ia_blueprint.route("/analisis-riego", methods=["GET"])
 def analisis_riego():
     try:
@@ -582,100 +632,3 @@ def analisis_riego():
     except Exception as e:
         print("❌ Error interno en análisis de riego:", e)
         return jsonify({"error": "Error interno del servidor"}), 500
-    
-# ---------------------------------------------------
-@chat_ia_blueprint.route("/valor-ideal", methods=["POST"])
-def obtener_valor_ideal():
-    try:
-        data = request.get_json(force=True)
-        parcela = data.get("parcela", "").strip()
-        sensor = data.get("sensor", "").strip()
-
-        if not parcela or not sensor:
-            return jsonify({"error": "Debes proporcionar 'parcela' y 'sensor'"}), 400
-
-        if " - Parcela " not in parcela:
-            return jsonify({"error": "Formato de parcela inválido"}), 400
-
-        nombre, num = parcela.split(" - Parcela ")
-        try:
-            numero = int(num)
-        except ValueError:
-            return jsonify({"error": "Número de parcela inválido"}), 400
-
-        doc = db["datos_parcelas"].find_one({"nombre": nombre, "numero": numero})
-        if not doc or "cultivo" not in doc:
-            return jsonify({"error": "No se encontró cultivo asociado a la parcela"}), 404
-
-        cultivo = doc["cultivo"]
-
-        # Prompt especial para nutrientes
-        if sensor.lower() == "nivel de nutrientes":
-            prompt = (
-                f"Eres un asesor agrícola experto. Para un cultivo de '{cultivo}', "
-                f"indica los valores ideales de nitrógeno, fósforo y potasio como números separados. "
-                f"Responde solo en este formato exacto: N: [número], P: [número], K: [número]. "
-                f"No agregues explicaciones."
-            )
-        else:
-            prompt = (
-                f"Eres un asesor agrícola experto. Para un cultivo de '{cultivo}', "
-                f"indica el valor ideal del sensor '{sensor}' como un número exacto (sin texto). "
-                f"Por ejemplo: 23.5 o 6.8. No expliques nada, solo devuelve el número ideal."
-            )
-
-        mensajes = [
-            {"role": "system", "content": "Eres un asesor agrícola que responde con precisión en formato numérico."},
-            {"role": "user", "content": prompt}
-        ]
-
-        headers = {
-            "Authorization": f"Bearer {os.getenv('OPENROUTER_API_KEY')}",
-            "Content-Type": "application/json"
-        }
-
-        body = {
-            "model": os.getenv("OPENROUTER_MODEL"),
-            "messages": mensajes
-        }
-
-        response = requests.post(os.getenv("OPENROUTER_API_URL"), json=body, headers=headers, timeout=30)
-        response.raise_for_status()
-        texto_ia = response.json()["choices"][0]["message"]["content"].strip()
-
-        # Si es nutrientes, parsear tres valores
-        if sensor.lower() == "nivel de nutrientes":
-            import re
-            match = re.search(r"N:\s*(\d+(?:\.\d+)?),\s*P:\s*(\d+(?:\.\d+)?),\s*K:\s*(\d+(?:\.\d+)?)", texto_ia)
-            if match:
-                return jsonify({
-                    "sensor": sensor,
-                    "cultivo": cultivo,
-                    "n": float(match.group(1)),
-                    "p": float(match.group(2)),
-                    "k": float(match.group(3))
-                }), 200
-            else:
-                print("❌ La IA no devolvió NPK válido:", texto_ia)
-                return jsonify({"error": "Formato incorrecto", "respuesta_cruda": texto_ia}), 500
-
-        # Caso normal (valor único)
-        try:
-            valor_ideal = float(texto_ia)
-        except ValueError:
-            print("❌ La IA no devolvió un número válido:", texto_ia)
-            return jsonify({"error": "La IA no devolvió un número válido", "respuesta_cruda": texto_ia}), 500
-
-        return jsonify({
-            "cultivo": cultivo,
-            "sensor": sensor,
-            "valor_ideal": valor_ideal
-        }), 200
-
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        print(" Prompt enviado a IA:", prompt if 'prompt' in locals() else "N/A")
-        print(" Respuesta cruda IA:", texto_ia if 'texto_ia' in locals() else "N/A")
-        return jsonify({"error": "Fallo al obtener valor ideal", "detalle": str(e)}), 500
-
