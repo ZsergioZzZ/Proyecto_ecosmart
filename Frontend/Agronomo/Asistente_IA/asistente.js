@@ -55,7 +55,13 @@ function crearElementoChatListItem(chat_id, nombre_chat) {
 //    (sin cambios en esta parte)
 // ------------------------------
 function cargarListaChats() {
-  fetch(`http://localhost:5000/historial_chats`)
+    const email = localStorage.getItem("correoUsuario");
+    if (!email) {
+      console.error("No hay 'correoUsuario' en localStorage");
+      return;
+    }
+// 3.2) Ahora sí hacemos el fetch incluyendo email
+    fetch(`http://localhost:5000/historial_chats?email=${encodeURIComponent(email)}`)
     .then((res) => {
       if (!res.ok) throw new Error("No se pudo cargar la lista de chats");
       return res.json();
@@ -77,7 +83,17 @@ function cargarListaChats() {
 //    (sin cambios en esta parte)
 // ------------------------------
 function cargarHistorial(chat_id) {
-  fetch(`http://localhost:5000/historial/${chat_id}`)
+  // Obtener el email del usuario desde localStorage
+  const email = localStorage.getItem("correoUsuario");
+  if (!email) {
+    console.error("No hay 'correoUsuario' en localStorage");
+    return;
+  }
+
+  // Realizar la petición incluyendo el email como query
+  fetch(
+    `http://localhost:5000/historial/${encodeURIComponent(chat_id)}?email=${encodeURIComponent(email)}`
+  )
     .then((res) => {
       if (!res.ok) throw new Error("No se pudo cargar el historial");
       return res.json();
@@ -85,11 +101,13 @@ function cargarHistorial(chat_id) {
     .then((mensajes) => {
       chatBox.innerHTML = "";
       mensajes.forEach((elem) => {
+        // Mensaje del usuario
         const nodoUsuario = document.createElement("div");
         nodoUsuario.classList.add("mensaje", "mensaje-usuario");
         nodoUsuario.textContent = elem.pregunta;
         chatBox.appendChild(nodoUsuario);
 
+        // Respuesta de la IA
         const nodoIA = document.createElement("div");
         nodoIA.classList.add("mensaje", "mensaje-ia");
         nodoIA.textContent = elem.respuesta;
@@ -101,6 +119,7 @@ function cargarHistorial(chat_id) {
       console.error("Error al cargar historial:", err);
     });
 }
+
 
 // ------------------------------
 // 5) Manejar el click sobre un ítem de la lista de chats
@@ -137,27 +156,33 @@ function alClickEditarChat(evt) {
   const confirmar = window.confirm(
     `¿Estás seguro que quieres cambiar el nombre del chat “${nombreActual}”?`
   );
-  if (!confirmar) {
-    return;
-  }
+  if (!confirmar) return;
 
   const nuevoNombre = window.prompt(
     "Ingresa el nuevo nombre para este chat:",
     nombreActual
   );
-  if (nuevoNombre === null) {
-    return;
-  }
+  if (nuevoNombre === null) return;
   const nombreTrim = nuevoNombre.trim();
   if (nombreTrim === "") {
     alert("El nombre no puede estar vacío.");
     return;
   }
 
-  fetch(`http://localhost:5000/renombrar_chat/${chat_id}`, {
+  // Obtener email del usuario
+  const email = localStorage.getItem("correoUsuario");
+  if (!email) {
+    console.error("No hay 'correoUsuario' en localStorage");
+    return;
+  }
+
+  fetch(`http://localhost:5000/renombrar_chat/${encodeURIComponent(chat_id)}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nombre_chat: nombreTrim }),
+    body: JSON.stringify({
+      email:       email,        // ✏️ Añadido
+      nombre_chat: nombreTrim
+    }),
   })
     .then((res) => {
       if (!res.ok) throw new Error("Error al renombrar el chat");
@@ -175,13 +200,30 @@ function alClickEditarChat(evt) {
     });
 }
 
+
 // ------------------------------
 // 7) Botón “Nuevo Chat”
 //    (sin cambios en esta parte)
 // ------------------------------
 function alNuevoChat() {
+  // 1) Obtener el email del usuario desde localStorage
+  const email = localStorage.getItem("correoUsuario");
+  if (!email) {
+    console.error("No hay 'correoUsuario' en localStorage");
+    return;
+  }
+
+  // (Opcional) Pedir nombre para el chat, o usar nombreChatActual
+  const nombreChat = prompt("Nombre para este chat:", "") || "";
+
+  // 2) Llamar al endpoint con email y nombre_chat
   fetch("http://localhost:5000/crear_chat", {
     method: "POST",
+    headers: { "Content-Type": "application/json" },    // ✏️ Añadido
+    body: JSON.stringify({                               // ✏️ Añadido
+      email:       email,
+      nombre_chat: nombreChat
+    })
   })
     .then((res) => {
       if (!res.ok) throw new Error("No se pudo crear el chat en el servidor");
@@ -189,13 +231,20 @@ function alNuevoChat() {
     })
     .then((data) => {
       const nuevoChatId = data.chat_id;
+
+      // 3) Guardar el nuevo chat_id en localStorage
+      localStorage.setItem("chat_id", nuevoChatId);      // ✏️ Añadido
+
+      // 4) Actualizar la UI de la lista de chats
       document.querySelectorAll(".chat-item.activo").forEach((item) => {
         item.classList.remove("activo");
       });
-      const li = crearElementoChatListItem(nuevoChatId, "");
+      const li = crearElementoChatListItem(nuevoChatId, nombreChat);
       listaChatsUL.insertBefore(li, listaChatsUL.firstChild);
       li.classList.add("activo");
 
+      // 5) Mensaje de bienvenida en el chat
+      chatBox.innerHTML = "";  // limpiar chatBox
       const saludo = document.createElement("div");
       saludo.classList.add("mensaje", "mensaje-ia");
       saludo.textContent = "Chat creado. Empieza a escribir tu pregunta.";
@@ -208,14 +257,37 @@ function alNuevoChat() {
     });
 }
 
+let nodoEscribiendo = null;
+
+function showTypingIndicator() {
+  // si ya existe, no crees otro
+  if (nodoEscribiendo) return;
+  nodoEscribiendo = document.createElement("div");
+  nodoEscribiendo.classList.add("mensaje", "mensaje-ia", "mensaje-escribiendo");
+  // tres puntitos
+  nodoEscribiendo.innerHTML = "<span class='dot'></span><span class='dot'></span><span class='dot'></span>";
+  chatBox.appendChild(nodoEscribiendo);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function hideTypingIndicator() {
+  if (!nodoEscribiendo) return;
+  chatBox.removeChild(nodoEscribiendo);
+  nodoEscribiendo = null;
+}
+
+
+
 // ------------------------------
 // 8) Enviar un mensaje a la IA (chat)
 //    (sin cambios en esta parte)
 // ------------------------------
+
 function enviarMensaje() {
   const texto = mensajeInput.value.trim();
   if (texto === "") return;
 
+  // 1) Mostrar el mensaje del usuario
   const nodoUsuario = document.createElement("div");
   nodoUsuario.classList.add("mensaje", "mensaje-usuario");
   nodoUsuario.textContent = texto;
@@ -223,27 +295,44 @@ function enviarMensaje() {
   mensajeInput.value = "";
   chatBox.scrollTop = chatBox.scrollHeight;
 
+  // 2) Mostrar indicador de “IA escribiendo…”
+  showTypingIndicator();
+
+  // 3) Preparar datos
+  const email = localStorage.getItem("correoUsuario");
+  if (!email) {
+    console.error("No hay 'correoUsuario' en localStorage");
+    hideTypingIndicator();
+    return;
+  }
+  let chatIdActual = localStorage.getItem("chat_id") || null;
+
   const payload = {
-    pregunta: texto,
-    chat_id: chatIdActual,
-    nombre_chat: nombreChatActual,
-    tipo_peticion: "texto_libre"
+    email,
+    chat_id:      chatIdActual,
+    nombre_chat:  nombreChatActual,
+    tipo_peticion:"texto_libre",
+    pregunta:     texto
   };
 
+  // 4) Enviar petición
   fetch("http://localhost:5000/consulta-ia", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   })
     .then((res) => {
+      // 5) Ocultar indicador
+      hideTypingIndicator();
+
       if (!res.ok) throw new Error("Error en la consulta a la IA");
       return res.json();
     })
     .then((data) => {
+      // 6) Mostrar respuesta IA
       const respuestaIA = data.respuesta;
       chatIdActual = data.chat_id;
+      localStorage.setItem("chat_id", chatIdActual);
 
       const nodoIA = document.createElement("div");
       nodoIA.classList.add("mensaje", "mensaje-ia");
@@ -251,14 +340,19 @@ function enviarMensaje() {
       chatBox.appendChild(nodoIA);
       chatBox.scrollTop = chatBox.scrollHeight;
 
+      // 7) Si es nuevo chat, recargar la lista
       if (!document.querySelector(`li.chat-item[data-chat-id="${chatIdActual}"]`)) {
         cargarListaChats();
       }
     })
     .catch((err) => {
+      // 8) Ocultar indicador y loguear
+      hideTypingIndicator();
       console.error("Error al enviar mensaje:", err);
     });
 }
+
+
 
 // ------------------------------
 // 9) Función para manejar clic en el ícono de eliminar (🗑️)
@@ -274,18 +368,26 @@ function alClickEliminarChat(evt) {
   const confirmar = window.confirm(
     `¿Estás seguro que quieres eliminar el chat “${nombreActual}”?`
   );
-  if (!confirmar) {
+  if (!confirmar) return;
+
+  // 1) Leer el email del usuario desde localStorage
+  const email = localStorage.getItem("correoUsuario");
+  if (!email) {
+    console.error("No hay 'correoUsuario' en localStorage");
     return;
   }
 
-  fetch(`http://localhost:5000/eliminar_chat/${chat_id}`, {
-    method: "DELETE",
-  })
+  // 2) Llamar al endpoint pasando el email por query string
+  fetch(
+    `http://localhost:5000/eliminar_chat/${encodeURIComponent(chat_id)}?email=${encodeURIComponent(email)}`,
+    { method: "DELETE" }
+  )
     .then((res) => {
       if (!res.ok) throw new Error("Error al eliminar el chat");
       return res.json();
     })
     .then((data) => {
+      // 3) Eliminar de la UI
       li.remove();
       if (chatIdActual === chat_id) {
         chatIdActual = null;
@@ -305,27 +407,57 @@ function alClickEliminarChat(evt) {
     });
 }
 
+
 // ==============================
 // === MÓDULO SENSORES (NUEVO) ===
 // ==============================
 
 // 10) Obtener todas las parcelas al cargar la página
 function cargarParcelas() {
+  // 1) Obtener correo del usuario desde localStorage
   const correo = localStorage.getItem("correoUsuario");
-  if (!correo) return;
+  if (!correo) {
+    console.error("No hay 'correoUsuario' en localStorage");
+    return;
+  }
 
-  fetch(`http://localhost:5000/parcelas_usuario_ia?correo=${encodeURIComponent(correo)}`)
-    .then(res => res.json())
-    .then(parcArr => {
-      parcelaSelect.innerHTML = "<option value=''>-- Selecciona parcela --</option>";
-      parcArr.forEach(parcela => {
+  // 2) Construir la URL con query-string ?email=<correo>
+  const baseUrl = "http://localhost:5000/parcelas_recomendacion-ia";
+  const url = `${baseUrl}?email=${encodeURIComponent(correo)}`;
+
+  // 3) Hacer fetch al endpoint con el parámetro email
+  fetch(url, {
+    method: "GET",
+    headers: {
+      "Accept": "application/json"
+    }
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`Error ${res.status}: no se pudo obtener la lista de parcelas`);
+      }
+      return res.json();
+    })
+    .then((parcArr) => {
+      // 4) Vaciar el <select> antes de añadir nuevas opciones
+      parcelaSelect.innerHTML = "";
+      // (Opcional) añadir una opción placeholder
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "Seleccione parcela";
+      placeholder.disabled = true;
+      placeholder.selected = true;
+      parcelaSelect.appendChild(placeholder);
+
+      // 5) Recorrer y agregar las parcelas filtradas
+      parcArr.forEach(({ _id, displayName }) => {
         const opt = document.createElement("option");
-        opt.value = parcela.displayName;
-        opt.textContent = parcela.displayName;
+        opt.value = displayName;    // o usar _id si prefieres
+        opt.textContent = displayName;
         parcelaSelect.appendChild(opt);
       });
     })
-    .catch(err => {
+    .catch((err) => {
       console.error("Error cargando parcelas:", err);
     });
 }
@@ -381,63 +513,62 @@ function onChangeSensor() {
 // 13) Al hacer clic en “Obtener recomendación”
 function pedirRecomendacionEnChat() {
   const parcelaSeleccionada = parcelaSelect.value;
-  const tipoSeleccionado = sensorSelect.value;
+  const tipoSeleccionado    = sensorSelect.value;
 
-  // 1) Mostrar un mensaje provisional en el chat
-  const nodoTemp = document.createElement("div");
-  nodoTemp.classList.add("mensaje", "mensaje-ia");
-  nodoTemp.textContent = "Obteniendo recomendación para sensor…";
-  chatBox.appendChild(nodoTemp);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  // 1) Mostrar indicador de “IA escribiendo…”
+  showTypingIndicator();
 
-  // 2) Llamar al endpoint /consulta-ia indicando que es tipo_peticion = "sensor"
+  // 2) Obtener email y chat_id del usuario
+  const email      = localStorage.getItem("correoUsuario");
+  if (!email) {
+    console.error("No hay 'correoUsuario' en localStorage");
+    hideTypingIndicator();
+    return;
+  }
+  let chatIdActual = localStorage.getItem("chat_id") || null;
+
+  // 3) Preparar y enviar la petición
   fetch("http://localhost:5000/consulta-ia", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      tipo_peticion: "sensor", // <--- Esto es vital
-      parcela: parcelaSeleccionada,
-      sensor: tipoSeleccionado,
-      chat_id: chatIdActual, // puede venir null si es chat nuevo
-      nombre_chat: nombreChatActual, // opcional, si en tu UI manejas nombre
+      email:         email,
+      chat_id:       chatIdActual,
+      nombre_chat:   nombreChatActual,
+      tipo_peticion: "sensor",
+      parcela:       parcelaSeleccionada,
+      sensor:        tipoSeleccionado
     }),
   })
     .then((res) => {
-      // Si hay error en el status, eliminamos el mensaje temporal y lanzamos excepción
+      // 4) Ocultar indicador
+      hideTypingIndicator();
+
       if (!res.ok) {
-        if (chatBox.contains(nodoTemp)) chatBox.removeChild(nodoTemp);
         return res.json().then((err) => Promise.reject(err));
       }
       return res.json();
     })
     .then((data) => {
-      // 3) Eliminar el mensaje provisional
-      if (chatBox.contains(nodoTemp)) {
-        chatBox.removeChild(nodoTemp);
-      }
-
-      // 4) Actualizar chatIdActual con el que venga del backend
+      // 5) Actualizar chatIdActual y localStorage
       chatIdActual = data.chat_id;
+      localStorage.setItem("chat_id", chatIdActual);
 
-      // 5) Mostrar la recomendación de IA dentro del chat
+      // 6) Mostrar la recomendación de la IA
       const nodoIA = document.createElement("div");
       nodoIA.classList.add("mensaje", "mensaje-ia");
       nodoIA.textContent = data.respuesta;
       chatBox.appendChild(nodoIA);
       chatBox.scrollTop = chatBox.scrollHeight;
 
-      // 6) Si era un chat nuevo, recargamos la lista de chats en la sidebar
-      if (
-        !document.querySelector(`li.chat-item[data-chat-id="${chatIdActual}"]`)
-      ) {
+      // 7) Si es un chat nuevo, recargar lista de sesiones
+      if (!document.querySelector(`li.chat-item[data-chat-id="${chatIdActual}"]`)) {
         cargarListaChats();
       }
     })
     .catch((err) => {
-      // 7) Si falla, quitar provisional y mostrar error
-      if (chatBox.contains(nodoTemp)) {
-        chatBox.removeChild(nodoTemp);
-      }
+      // 8) Ocultar indicador y mostrar error
+      hideTypingIndicator();
       const nodoError = document.createElement("div");
       nodoError.classList.add("mensaje", "mensaje-ia");
       nodoError.style.color = "red";
@@ -448,48 +579,40 @@ function pedirRecomendacionEnChat() {
     });
 }
 
+
+
 // ==============================
 // === MÓDULO FUNCIONES PREDEFINIDAS EN BOTONES INFERIORES ===
 // ==============================
 async function enviarAccionFuncional(accion) {
-  let promptTexto = "";
+  // 1) Recuperar email y validar
+  const email = localStorage.getItem("correoUsuario");
+  if (!email) {
+    console.error("No hay 'correoUsuario' en localStorage");
+    return;
+  }
+  // chatIdActual ya existe como variable global y se actualiza tras cada llamada
+  let currentChatId = localStorage.getItem("chat_id") || null;
 
-  // Para la parte de “Interpretación de datos”, necesitamos traer
-  // primero temperatura y humedad actuales de los sensores:
+  // 2) Construir prompt según la acción
+  let promptTexto = "";
   if (accion === "interpretacion") {
     const parcela = parcelaSelect.value;
     if (!parcela) {
       alert("Primero selecciona una parcela para interpretar sus datos.");
       return;
     }
-
     try {
-      // 1) Obtener temperatura ambiente
-      const resTemp = await fetch(
-        `http://localhost:5000/ultimo_sensor?parcela=${encodeURIComponent(
-          parcela
-        )}&tipo=Temperatura Ambiente`
-      );
-      if (!resTemp.ok) throw new Error("No se pudo obtener la temperatura.");
+      const [resTemp, resHum] = await Promise.all([
+        fetch(`http://localhost:5000/ultimo_sensor?parcela=${encodeURIComponent(parcela)}&tipo=Temperatura Ambiente`),
+        fetch(`http://localhost:5000/ultimo_sensor?parcela=${encodeURIComponent(parcela)}&tipo=Humedad del suelo`)
+      ]);
+      if (!resTemp.ok || !resHum.ok) throw new Error("Error cargando datos de sensores");
       const dataTemp = await resTemp.json();
-      const valorTemp = dataTemp.valor; // por ejemplo 14.19
-
-      // 2) Obtener humedad del suelo
-      const resHum = await fetch(
-        `http://localhost:5000/ultimo_sensor?parcela=${encodeURIComponent(
-          parcela
-        )}&tipo=Humedad del suelo`
-      );
-      if (!resHum.ok) throw new Error("No se pudo obtener la humedad.");
-      const dataHum = await resHum.json();
-      const valorHum = dataHum.valor; // por ejemplo 45.75
-
-      // 3) Construir prompt incluyendo esos valores
-      promptTexto = `La temperatura actual es ${valorTemp}°C y la humedad del suelo es ${valorHum}%. ¿Cuál es la mejor época para sembrar mi cultivo en esta parcela?`;
-
-    } catch (err) {
-      console.error("Error al obtener valores de sensores:", err);
-      // Opcional: mostrar mensaje al usuario
+      const dataHum  = await resHum.json();
+      promptTexto = `La temperatura actual es ${dataTemp.valor}°C y la humedad del suelo es ${dataHum.valor}%. ¿Cuál es la mejor época para sembrar mi cultivo en esta parcela?`;
+    } catch (e) {
+      console.error(e);
       const nodoError = document.createElement("div");
       nodoError.classList.add("mensaje", "mensaje-ia");
       nodoError.style.color = "red";
@@ -500,75 +623,77 @@ async function enviarAccionFuncional(accion) {
       return;
     }
   }
-  // Fin de “interpretacion”
-
-  // ----------------------------------
-  // Para las otras acciones (diagnostico, optimizacion, planificacion),
-  // dejamos el texto fijo como antes:
-  // ----------------------------------
-  if (accion === "diagnostico") {
+  else if (accion === "diagnostico") {
     promptTexto = "Por favor, realiza un diagnóstico de enfermedades en mi cultivo.";
   }
-  if (accion === "optimizacion") {
+  else if (accion === "optimizacion") {
     promptTexto = "Optimiza el plan de riego para mi cultivo.";
   }
-  if (accion === "planificacion") {
+  else if (accion === "planificacion") {
     promptTexto = "Ayúdame con la planificación de cultivos a largo plazo.";
   }
 
-  // ----------------------------------
-  // 1) Insertar el mensaje del usuario en el chat
-  // ----------------------------------
+  // 3) Insertar burbuja de usuario
   const nodoUsuario = document.createElement("div");
   nodoUsuario.classList.add("mensaje", "mensaje-usuario");
   nodoUsuario.textContent = promptTexto;
   chatBox.appendChild(nodoUsuario);
   chatBox.scrollTop = chatBox.scrollHeight;
 
-  // ----------------------------------
-  // 2) Armar payload y enviarlo a /consulta-ia
-  // ----------------------------------
-  const payload = {
-    pregunta: promptTexto,
-    chat_id: chatIdActual,
-    nombre_chat: nombreChatActual,
-    tipo_peticion: "texto_libre",
-    // Podrías incluir acá también "cultivo" si lo tuvieras en el front:
-    // cultivo: <valorSeleccionado>,
-  };
+  // 4) Mostrar indicador “IA escribiendo…”
+  showTypingIndicator();
 
-  fetch("http://localhost:5000/consulta-ia", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  })
-    .then((res) => {
-      if (!res.ok) throw new Error("Error en la consulta a la IA");
-      return res.json();
-    })
-    .then((data) => {
-      const respuestaIA = data.respuesta;
-      chatIdActual = data.chat_id;
-
-      const nodoIA = document.createElement("div");
-      nodoIA.classList.add("mensaje", "mensaje-ia");
-      nodoIA.textContent = respuestaIA;
-      chatBox.appendChild(nodoIA);
-      chatBox.scrollTop = chatBox.scrollHeight;
-
-      // Si era un chat nuevo, recargamos la lista de chats en la sidebar
-      if (
-        !document.querySelector(`li.chat-item[data-chat-id="${chatIdActual}"]`)
-      ) {
-        cargarListaChats();
-      }
-    })
-    .catch((err) => {
-      console.error("Error al enviar acción funcional:", err);
+  // 5) Enviar petición al backend
+  try {
+    const res = await fetch("http://localhost:5000/consulta-ia", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        chat_id:      currentChatId,
+        nombre_chat:  nombreChatActual,
+        tipo_peticion:"texto_libre",
+        pregunta:     promptTexto
+      })
     });
+
+    // Escondemos indicador justo después de recibir status
+    hideTypingIndicator();
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Error en la consulta a la IA");
+    }
+    const data = await res.json();
+
+    // 6) Actualizar chatId si es nuevo
+    currentChatId = data.chat_id;
+    localStorage.setItem("chat_id", currentChatId);
+
+    // 7) Mostrar respuesta de la IA
+    const nodoIA = document.createElement("div");
+    nodoIA.classList.add("mensaje", "mensaje-ia");
+    nodoIA.textContent = data.respuesta;
+    chatBox.appendChild(nodoIA);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    // 8) Si era nuevo chat, refrescar lista
+    if (!document.querySelector(`li.chat-item[data-chat-id="${currentChatId}"]`)) {
+      cargarListaChats();
+    }
+  } catch (err) {
+    // 9) En caso de error, ocultar indicador y mostrar mensaje
+    hideTypingIndicator();
+    console.error("Error al enviar acción funcional:", err);
+    const nodoError = document.createElement("div");
+    nodoError.classList.add("mensaje", "mensaje-ia");
+    nodoError.style.color = "red";
+    nodoError.textContent = err.message || "Ocurrió un error en la acción.";
+    chatBox.appendChild(nodoError);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
 }
+
 // ==============================
 // ========== FIN BOTONES FUNCIONALES ==========
 // ==============================
