@@ -305,7 +305,10 @@ function enviarMensaje() {
     hideTypingIndicator();
     return;
   }
-  let chatIdActual = localStorage.getItem("chat_id") || null;
+  if (!chatIdActual) {
+  chatIdActual = localStorage.getItem("chat_id") || null;
+  }
+
 
   const payload = {
     email,
@@ -525,7 +528,10 @@ function pedirRecomendacionEnChat() {
     hideTypingIndicator();
     return;
   }
-  let chatIdActual = localStorage.getItem("chat_id") || null;
+  if (!chatIdActual) {
+  chatIdActual = localStorage.getItem("chat_id") || null;
+  }
+
 
   // 3) Preparar y enviar la petición
   fetch("http://localhost:5000/consulta-ia", {
@@ -592,7 +598,10 @@ async function enviarAccionFuncional(accion) {
     return;
   }
   // chatIdActual ya existe como variable global y se actualiza tras cada llamada
-  let currentChatId = localStorage.getItem("chat_id") || null;
+ if (!chatIdActual) {
+  chatIdActual = localStorage.getItem("chat_id") || null;
+  }
+
 
   // 2) Construir prompt según la acción
   let promptTexto = "";
@@ -650,7 +659,7 @@ async function enviarAccionFuncional(accion) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email,
-        chat_id:      currentChatId,
+        chat_id:      chatIdActual,
         nombre_chat:  nombreChatActual,
         tipo_peticion:"texto_libre",
         pregunta:     promptTexto
@@ -667,8 +676,8 @@ async function enviarAccionFuncional(accion) {
     const data = await res.json();
 
     // 6) Actualizar chatId si es nuevo
-    currentChatId = data.chat_id;
-    localStorage.setItem("chat_id", currentChatId);
+    chatIdActual = data.chat_id;
+    localStorage.setItem("chat_id", chatIdActual);
 
     // 7) Mostrar respuesta de la IA
     const nodoIA = document.createElement("div");
@@ -678,7 +687,7 @@ async function enviarAccionFuncional(accion) {
     chatBox.scrollTop = chatBox.scrollHeight;
 
     // 8) Si era nuevo chat, refrescar lista
-    if (!document.querySelector(`li.chat-item[data-chat-id="${currentChatId}"]`)) {
+    if (!document.querySelector(`li.chat-item[data-chat-id="${chatIdActual}"]`)) {
       cargarListaChats();
     }
   } catch (err) {
