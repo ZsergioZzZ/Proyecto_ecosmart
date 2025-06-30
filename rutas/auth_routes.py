@@ -17,6 +17,7 @@ client = MongoClient(os.getenv("MONGO_URI"))
 db = client[os.getenv("DB_NAME")]
 usuarios_collection = db[os.getenv("COLLECTION_USUARIOS", "datos_usuarios")]
 
+
 # Email
 EMAIL_SENDER = os.getenv("EMAIL_SENDER")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
@@ -96,72 +97,48 @@ def verificar_clave():
     return jsonify(success=True)
 
 
-#REGISTRAR USUARIO
-
-@auth_blueprint.route("/verificar-email-real", methods=["POST"])
-def verificar_email_real():
-    data = request.get_json()
-    email = data.get("email", "")
-    api_key = os.getenv("ABSTRACT_API_KEY")
-
-    res = requests.get(
-        "https://emailvalidation.abstractapi.com/v1/",
-        params={"api_key": api_key, "email": email}
-    )
-
-    if res.status_code != 200:
-        return jsonify({"error": "No se pudo verificar"}), 500
-
-    resultado = res.json()
-    return jsonify({
-        "deliverability": resultado.get("deliverability", "UNKNOWN")
-    })
-
-
 @auth_blueprint.route("/crear-cuenta", methods=["POST"])
 def crear_usuario():
     data = request.get_json()
 
-    # Validaciones locales
-    if not validar_email(data["email"]):
-        return jsonify({"success": False, "message": "Email inválido."}), 400
+    # 1. Validación de formato de email (sólo local, sin API externa)
+    if not validar_email(data.get("email", "")):
+        return jsonify({"success": False, "message": "Email inválido. Asegúrate de usar formato usuario@dominio.ext"}), 400
 
+    # 2. Chequeo de duplicado en la BD
     if usuarios_collection.find_one({"email": data["email"]}):
         return jsonify({"success": False, "message": "El correo ya está registrado."}), 409
 
-    if not validar_password(data["contrasena"]):
-        return jsonify({"success": False, "message": "Contraseña insegura. Mínimo 8 caracteres, 1 número, 1 mayúscula."}), 400
+    # 3. Validación de contraseña
+    if not validar_password(data.get("contrasena", "")):
+        return jsonify({
+            "success": False,
+            "message": "Contraseña insegura. Mínimo 8 caracteres, al menos 1 número y 1 mayúscula."
+        }), 400
 
-    if not validar_telefono(data["celular"]):
-        return jsonify({"success": False, "message": "Teléfono inválido. Debe comenzar con 9 y tener 9 dígitos."}), 400
+    # 4. Validación de teléfono
+    if not validar_telefono(data.get("celular", "")):
+        return jsonify({
+            "success": False,
+            "message": "Teléfono inválido. Debe comenzar con '9' y tener 9 dígitos."
+        }), 400
 
-    if not validar_rol(data["rol"]):
-        return jsonify({"success": False, "message": "Rol inválido. Usa 'agricultor', 'agronomo' o 'tecnico'."}), 400
+    # 5. Validación de rol
+    if not validar_rol(data.get("rol", "")):
+        return jsonify({
+            "success": False,
+            "message": "Rol inválido. Usa 'agricultor', 'agronomo' o 'tecnico'."
+        }), 400
 
-    # Validación externa del correo
-    api_key = os.getenv("ABSTRACT_API_KEY")
-    res = requests.get(
-        "https://emailvalidation.abstractapi.com/v1/",
-        params={"api_key": api_key, "email": data["email"]}
-    )
-
-    if res.status_code != 200:
-        return jsonify({"success": False, "message": "Error al verificar el correo real."}), 500
-
-    resultado = res.json()
-    if resultado.get("deliverability") != "DELIVERABLE":
-        return jsonify({"success": False, "message": "El correo ingresado no es válido o no existe."}), 400
-
-    # Si todo está correcto, registrar
+    # Si todo pasa, insertamos el usuario
     usuario = {
-        "nombre": data["nombre"],
-        "apellidos": data["apellido"],
-        "email": data["email"],
-        "password": data["contrasena"],
-        "telefono": data["celular"],
-        "rol": data["rol"]
+        "nombre":    data.get("nombre", "").strip(),
+        "apellidos": data.get("apellido", "").strip(),
+        "email":     data["email"].strip(),
+        "password":  data["contrasena"],
+        "telefono":  data["celular"],
+        "rol":       data["rol"].lower()
     }
-
     resultado = usuarios_collection.insert_one(usuario)
 
     return jsonify({

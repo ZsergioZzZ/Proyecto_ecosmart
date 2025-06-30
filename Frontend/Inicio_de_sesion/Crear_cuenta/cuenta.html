@@ -7,18 +7,17 @@
       style="position: absolute; width: 417px; height: 45px; left: 198.83px; top: 190.50px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
     <input type="text" id="apellido" placeholder="Apellidos..." required
       style="position: absolute; width: 417px; height: 45px; left: 198.83px; top: 280.50px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" />
-    <!--Email-->
+    <!--Email
     <div id="email-wrapper" style="position: absolute; left: 200px; top: 371px; width: 417px; height: 45px; display: flex; align-items: center; border: 1px solid #344E41; border-radius: 6px; background: white;">
       <input type="email" id="email" placeholder="usuario@gmail.com" required
         style="flex: 1; height: 100%; border: none; outline: none; font-size: 15px; padding-left: 10px; border-radius: 6px;" 
         onblur="verificarEmailReal()" />
     </div>
+-->
 
-    <!--
-    <div data-layer="Email" class="Email" style="width: 186px; height: 38px; left: 205px; top: 299px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: black; font-size: 20px; font-family: Roboto; font-weight: 400; line-height: 28px; word-wrap: break-word">Email</div>
     <input type="email" id="email" placeholder="usuario@gmail.com" required 
-    style="position: absolute; width: 417px; height: 45px; left: 205px; top: 337px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" /> 
-    -->
+    style="position: absolute; width: 417px; height: 45px; left: 198.83px; top: 370.50px; border: 1px solid #344E41; border-radius: 6px; font-size: 15px;" /> 
+
 
     <!--Conraseña-->  
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -85,10 +84,10 @@
 
       const response = await res.json();
       if (response.success) {
-        alert("✅ Cuenta creada correctamente");
+        alert("Cuenta creada correctamente");
         window.location.href = "../Iniciar_sesion/sesion.html";
       } else {
-        alert("❌ Error: " + response.message);
+        alert("Error: " + response.message);
       }
     });
 
@@ -108,30 +107,6 @@
       }
     }
 
-    // Función para verificar el email
-    async function verificarEmailReal() {
-    const emailInput = document.getElementById("email");
-    const wrapper = document.getElementById("email-wrapper");
-
-    try {
-      const res = await fetch("http://localhost:5000/verificar-email-real", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: emailInput.value })
-      });
-
-      const data = await res.json();
-
-      if (data.deliverability === "DELIVERABLE") {
-        wrapper.style.border = "2px solid green";
-      } else {
-        wrapper.style.border = "2px solid red";
-      }
-    } catch (e) {
-      console.error(e);
-      wrapper.style.border = "2px solid gray";
-    }
-    }
 
 
   </script>
