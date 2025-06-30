@@ -107,8 +107,19 @@ def actualizar_usuario(email):
 @cambiar_usuario_tecnico_blueprint.route('/eliminar_usuarios/<email>', methods=['DELETE'])
 def eliminar_usuario(email):
     from urllib.parse import unquote
-    email = unquote(email)
+    email = unquote(email).lower()
+
+    # 1) Eliminamos el usuario de la colección de usuarios
     resultado = coleccion_usuarios.delete_one({'email': email})
-    if resultado.deleted_count > 0:
-        return jsonify({'mensaje': 'Usuario eliminado'}), 200
-    return jsonify({'mensaje': 'No se encontró el usuario'}), 404
+
+    if resultado.deleted_count == 0:
+        return jsonify({'mensaje': 'No se encontró el usuario'}), 404
+
+    # 2) Remover el email del array "usuario" en documentos de datos_parcelas
+    coleccion_parcelas = db["datos_parcelas"]
+    coleccion_parcelas.update_many(
+        {}, 
+        {'$pull': {'usuario': email}}
+    )
+
+    return jsonify({'mensaje': 'Usuario eliminado correctamente de usuarios y parcelas'}), 200
