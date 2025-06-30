@@ -1,88 +1,85 @@
-async function registrarUsuario() {
-  const nombre = document.getElementById("nombre").value.trim();
-  const apellidos = document.getElementById("apellidos").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const telefono = document.getElementById("telefono").value.trim();
-  const rol = document.getElementById("rol").value;
+// usuarios.js
 
+async function registrarUsuario() {
+  const nombre    = document.getElementById("nombre").value.trim();
+  const apellidos = document.getElementById("apellidos").value.trim();
+  const email     = document.getElementById("email").value.trim();
+  const password  = document.getElementById("password").value.trim();
+  const telefono  = document.getElementById("telefono").value.trim();
+  const rol       = document.getElementById("rol").value.trim();
+
+  // 1) Validación de campos vacíos
   if (!nombre || !apellidos || !email || !password || !telefono || !rol) {
     alert("Por favor completa todos los campos.");
     return;
   }
 
+  // 2) Validación de formato de email
+  const emailRegex = /^[\w.-]+@[\w.-]+\.\w+$/;
+  if (!emailRegex.test(email)) {
+    alert("Error: Email inválido. Asegúrate de usar formato usuario@dominio.ext");
+    return;
+  }
+
+  // 3) Validación de contraseña
   if (password.length < 8 || !/[A-Z]/.test(password) || !/\d/.test(password)) {
     alert("La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.");
     return;
   }
 
+  // 4) Validación de teléfono
   if (!/^\d{9}$/.test(telefono) || !telefono.startsWith("9")) {
     alert("El teléfono debe comenzar con 9 y tener 9 dígitos.");
     return;
   }
 
-
-  try {
-    const res = await fetch("http://localhost:5000/registrar_tecnico", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        nombre,
-        apellidos,
-        email,
-        password,
-        telefono,
-        rol
-      })
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      alert("Usuario registrado correctamente.");
-      limpiarFormularioRegistro();
-    } else {
-      alert("" + (data.message || data.error || "Error al registrar usuario."));
-    }
-  } catch (err) {
-    console.error("Error:", err);
-    alert("Error de red al registrar usuario.");
-  }
-}
-
-
-// ------------------ Validar entregabilidad de email al registrar ------------------
-async function verificarEmailRegistro() {
-  const input = document.getElementById("email");
-  const wrapper = document.getElementById("email-wrapper-register");
-  const email = input.value.trim();
-
-  // si está vacío, volvemos al estilo por defecto
-  if (!email) {
-    wrapper.style.border = "1px solid #ccc";
+  // 5) Validación de rol
+  const rolesValidos = ["agricultor", "agronomo", "tecnico"];
+  if (!rolesValidos.includes(rol.toLowerCase())) {
+    alert("Rol inválido. Usa 'agricultor', 'agronomo' o 'tecnico'.");
     return;
   }
 
-  try {
-    const res = await fetch("http://localhost:5000/verificar-email-real", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email })
-    });
-    const data = await res.json();
+// 6) Envío al backend
+try {
+  const res = await fetch("http://localhost:5000/registrar_tecnico", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nombre, apellidos, email, password, telefono, rol })
+  });
 
-    if (res.ok && data.deliverability === "DELIVERABLE") {
-      // ✔️ entregable
-      wrapper.style.border = "2px solid green";
-    } else {
-      // 🚫 no entregable
-      wrapper.style.border = "2px solid red";
-    }
-  } catch (err) {
-    console.error("Error validando email:", err);
-    // ❓ fallo de red o servidor
-    wrapper.style.border = "2px solid gray";
+  // Leer JSON antes de comprobar el status
+  const data = await res.json();
+
+  // 409 Conflict → email duplicado
+  if (res.status === 409) {
+    alert(`Error: ${data.error}`);
+    return;
   }
+
+  // cualquier otro error HTTP
+  if (!res.ok) {
+    alert(`Error: ${data.error || "Algo salió mal"}`);
+    return;
+  }
+
+  alert("Usuario registrado correctamente.");
+  document.getElementById("formTecnico").reset();
+
+} catch (err) {
+  console.error(err);
+  alert("Error de conexión con el servidor.");
 }
+}
+
+// Asocia la función al submit del formulario
+document
+  .getElementById("formTecnico")
+  .addEventListener("submit", e => {
+    e.preventDefault();
+    registrarUsuario();
+  });
+
 
 
 function togglePassword() {
@@ -148,35 +145,51 @@ async function buscarUsuario() {
 
 // ------------------ Modificar usuario ------------------
 async function modificarUsuario() {
-  const email = document.getElementById("buscarEmail").value.trim();  
-  const nombre = document.getElementById("modNombre").value.trim();
-  const apellidos = document.getElementById("modApellidos").value.trim();
+  const email      = document.getElementById("buscarEmail").value.trim();
+  const nombre     = document.getElementById("modNombre").value.trim();
+  const apellidos  = document.getElementById("modApellidos").value.trim();
   const nuevoEmail = document.getElementById("modEmail").value.trim();
-  const password = document.getElementById("modPassword").value.trim();
-  const telefono = document.getElementById("modTelefono").value.trim();
-  const rol = document.getElementById("modRol").value;
+  const password   = document.getElementById("modPassword").value.trim();
+  const telefono   = document.getElementById("modTelefono").value.trim();
+  const rol        = document.getElementById("modRol").value.trim();
 
-
+  // 1) Campos obligatorios
   if (!email || !nombre || !apellidos || !nuevoEmail || !telefono || !rol) {
-    alert("Completa todos los campos.");
+    alert("Por favor completa todos los campos.");
     return;
   }
 
-  if (!/^[\w.-]+@[\w.-]+\.\w+$/.test(nuevoEmail)) {
-    alert("Correo nuevo inválido.");
+  // 2) Validación de formato de nuevo email
+  const emailRegex = /^[\w.-]+@[\w.-]+\.\w+$/;
+  if (!emailRegex.test(nuevoEmail)) {
+    alert("Error: Correo inválido. Usa formato usuario@dominio.ext");
     return;
   }
 
+  // 3) Validación de teléfono
+  if (!/^\d{9}$/.test(telefono) || !telefono.startsWith("9")) {
+    alert("Error: El teléfono debe comenzar con 9 y tener 9 dígitos.");
+    return;
+  }
+
+  // 4) Validación de rol
+  const rolesValidos = ["agricultor", "agronomo", "tecnico"];
+  if (!rolesValidos.includes(rol.toLowerCase())) {
+    alert("Error: Rol inválido. Usa 'agricultor', 'agronomo' o 'tecnico'.");
+    return;
+  }
+
+  // 5) Validación de contraseña (solo si se ingresó)
   const payload = { nombre, apellidos, email: nuevoEmail, telefono, rol };
-
   if (password) {
     if (password.length < 8 || !/[A-Z]/.test(password) || !/\d/.test(password)) {
-      alert("La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.");
+      alert("Error: La contraseña debe tener al menos 8 caracteres, una mayúscula y un número.");
       return;
     }
     payload.password = password;
   }
 
+  // 6) Llamada al servidor
   try {
     const res = await fetch(
       `http://localhost:5000/actualizar_usuarios/${encodeURIComponent(email)}`,
@@ -188,16 +201,18 @@ async function modificarUsuario() {
     );
 
     const data = await res.json();
-    if (res.ok) {
-      alert("Usuario actualizado correctamente.");
-      limpiarFormularioModificacion();
 
-    } else {
-      alert("" + (data.message || data.error || "Error al actualizar usuario."));
+    if (!res.ok) {
+      alert(`Error: ${data.error || data.message || "No se pudo actualizar usuario."}`);
+      return;
     }
+
+    alert("Usuario actualizado correctamente.");
+    limpiarFormularioModificacion();
+
   } catch (err) {
-    console.error("Error:", err);
-    alert("Error de red al modificar usuario.");
+    console.error("Error de red:", err);
+    alert("Error de conexión con el servidor.");
   }
 }
 

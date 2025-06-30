@@ -55,16 +55,16 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
   
   <div data-layer="Ajuste de parámetros de simulación" class="AjusteDeParMetrosDeSimulaciN" style="width: 1417px; height: 272px; left: 76px; top: 164px; position: absolute; justify-content: center; display: flex; flex-direction: column; color: #344E41; font-size: 94px; font-family: IBM Plex Mono; font-weight: 700; line-height: 28px; word-wrap: break-word">Configuraciones de<br/><br/><br/><br/>usuarios</div>
  
-  <!-- 
-  -------------------------------
-  Registrar Usuario
-  -------------------------------
-  -->
-  <div style="margin-top: 923px;  padding: 30px;  background: #344E41; border-radius: 20px; color: white; font-family: IBM Plex Mono;">
+<!-- 
+-------------------------------
+Registrar Usuario
+-------------------------------
+-->
+<div style="margin-top: 923px; padding: 30px; background: #344E41; border-radius: 20px; color: white; font-family: IBM Plex Mono;">
+  <div style="width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; color: #344E41; font-family: IBM Plex Mono; position: relative;">
+    <h2 style="text-align: center; font-size: 32px; margin-bottom: 30px;">Registrar Usuario</h2>
 
-    <div style="width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; margin-top: 0px; color: #344E41; font-family: IBM Plex Mono; position: relative;">
-      <h2 style="text-align: center; font-size: 32px; margin-bottom: 30px;">Registrar Usuario</h2>
-
+    <form id="formTecnico"novalidate>
       <label>Nombre</label><br>
       <input type="text" id="nombre" placeholder="Nombre..." style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
@@ -72,44 +72,40 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
       <input type="text" id="apellidos" placeholder="Apellidos..." style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
       <label>Email</label><br>
-      <div id="email-wrapper-register" style="border:1px solid #ccc; border-radius:8px; padding:2px; margin-bottom:10px;">
-        <input
-          type="email"
-          id="email"
-          placeholder="usuario@gmail.com"
-          style="width:100%; padding:10px; border:none; outline:none;"
-          onblur="verificarEmailRegistro()"
-        >
-      </div><br>
-      
+      <input type="email" id="email" placeholder="usuario@gmail.com" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+
       <label>Contraseña</label><br>
       <div style="position: relative; width: 100%; margin-bottom: 10px;">
         <input type="password" id="password" placeholder="Mínimo 8 caracteres"
-          style="width: 100%; padding: 10px 40px 10px 10px; border-radius: 8px; border: 1px solid #ccc;">
+               style="width: 100%; padding: 10px 40px 10px 10px; border-radius: 8px; border: 1px solid #ccc;">
         <button type="button" onclick="togglePassword()"
-          style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
+                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer;">
           <i id="icono-ojo" class="fa-solid fa-eye-slash"></i>
         </button>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
       </div>
-      
+
       <label>Celular</label><br>
-      <input type="tel" id="telefono" placeholder="911111111" style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
+      <input type="tel" id="telefono" placeholder="911111111"
+             style="width: 100%; margin-bottom: 10px; padding: 10px; border-radius: 8px; border: 1px solid #ccc;"><br>
 
       <label>Rol</label><br>
       <select id="rol" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc;">
         <option value="" disabled selected>Selecciona un rol</option>
         <option value="agricultor">Agricultor</option>
-        <option value="agrónomo">Agrónomo</option>
-        <option value="técnico">Técnico</option>
+        <option value="agronomo">Agrónomo</option>
+        <option value="tecnico">Técnico</option>
       </select><br><br>
 
-      <button onclick="registrarUsuario()" style="width: 100%; padding: 12px; background-color: #588157; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px;">
+      <button type="submit"
+              style="width: 100%; padding: 12px; background-color: #588157; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 16px;">
         Registrar Usuario
       </button>
-       
-    </div>
+    </form>
   </div>
+</div>
+
 
   <!-- 
   -------------------------------
@@ -188,7 +184,7 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
     </div>
   </div>
 
-  <script src="usuarios.js"></script>
+
 
 <!-- --------------------------------
      Notificaciones emergentes
@@ -358,5 +354,5 @@ style="width: 1540px; position: relative; background: #FBF9F4; overflow-x: hidde
 </script>
 
 
-
+  <script src="usuarios.js"></script>
 </div>
